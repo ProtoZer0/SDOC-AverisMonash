@@ -20,12 +20,12 @@
   --sans: 'Archivo', 'Segoe UI', system-ui, sans-serif;
   --mono: 'Azeret Mono', 'Cascadia Mono', ui-monospace, monospace;
 
-  --fs-title:  24px;
-  --fs-head:   16px;
-  --fs-body:   14px;
-  --fs-small:  13px;
-  --fs-meta:   11.5px;
-  --fs-label:  9.5px;
+  --fs-title:  26px;
+  --fs-head:   17px;
+  --fs-body:   15px;
+  --fs-small:  14px;
+  --fs-meta:   12.5px;
+  --fs-label:  11px;
 
   --r-control:   8px;
   --r-panel:    12px;
@@ -54,7 +54,7 @@ body{
 .mono{ font-family: var(--mono) }
 .grow{ flex-grow: 1 }
 .trunc{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.quiet{ font-size: 12.5px; color: var(--muted) }
+.quiet{ font-size: var(--fs-small); color: var(--muted) }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible{
   outline: 2px solid var(--blue);
@@ -96,7 +96,7 @@ body{
                 font-size: 1.06em; color: var(--orange) }
 .thin__divider{ width: 1px; height: 18px; background: rgba(255,255,255,.24) }
 .thin__section{ font-size: var(--fs-small); color: var(--on-dark) }
-.thin__meta{ font-family: var(--mono); font-size: 12px; color: var(--on-dark-dim) }
+.thin__meta{ font-family: var(--mono); font-size: var(--fs-small); color: var(--on-dark-dim) }
 .thin__nav{ display: flex; align-self: stretch; align-items: center; gap: 2px; margin-left: 12px }
 .thin__nav a{ display: inline-flex; height: 100%; align-items: center; padding: 0 11px;
               border-bottom: 2px solid transparent; color: var(--on-dark-dim);
@@ -181,7 +181,7 @@ body{
                     font-size: clamp(28px, 3.4vw, 43px); font-weight: 600;
                     line-height: 1.06; letter-spacing: -.035em }
 .welcome__copy p{ max-width: 680px; margin: 0 0 20px; color: var(--muted);
-                  font-size: 14px; line-height: 1.65 }
+                  font-size: var(--fs-body); line-height: 1.65 }
 .welcome__copy .btn{ display: inline-flex; align-items: center; text-decoration: none }
 .welcome__path{ min-width: 0; padding: 20px 22px; border: 1px solid var(--rule);
                 border-radius: 10px; background: #F8F6F1 }
@@ -196,7 +196,7 @@ body{
                         align-items: center; justify-content: center;
                         border: 1px solid rgba(0,109,174,.45); border-radius: 7px;
                         background: var(--sheet); color: var(--blue);
-                        font-family: var(--mono); font-size: 9px; font-weight: 600 }
+                        font-family: var(--mono); font-size: var(--fs-label); font-weight: 600 }
 .welcome__steps span{ display: flex; flex-direction: column }
 .welcome__steps strong{ padding-top: 1px; font-size: var(--fs-small); font-weight: 600 }
 .welcome__steps small{ margin-top: 2px; color: var(--muted); font-size: var(--fs-meta); line-height: 1.45 }
@@ -264,16 +264,17 @@ body{
                               border-radius: var(--r-panel) }
 .ops__head, .healthpanel__head{ display: flex; align-items: flex-start;
                                 justify-content: space-between; gap: var(--gap-md) }
+.healthpanel__head{ flex-wrap: wrap; row-gap: 8px }
 .ops__head h2, .healthpanel h2{ margin: 3px 0 0; font-size: var(--fs-head); font-weight: 500 }
 .ops__period{ max-width: 50%; padding: 4px 8px; border: 1px solid var(--rule);
-              border-radius: var(--r-pill); color: var(--muted); font-size: 9px;
+              border-radius: var(--r-pill); color: var(--muted); font-size: var(--fs-label);
               line-height: 1.35; text-align: right }
 .registerflow{ margin: 16px 0; padding: 16px; border: 1px solid var(--hair);
                border-radius: 10px; background: #F8F6F1 }
 .registerflow > header{ display: flex; align-items: flex-start; justify-content: space-between; gap: 16px }
 .registerflow h3{ margin: 0; font-size: var(--fs-small); font-weight: 600 }
 .registerflow p, .registerflow header > span{ margin: 2px 0 0; color: var(--muted);
-                                             font-size: 9.5px }
+                                             font-size: var(--fs-label) }
 .registerflow__map{ display: grid; grid-template-columns: 140px 28px minmax(540px, 1fr) 150px;
                     align-items: center; gap: 9px; margin-top: 14px }
 .flowline{ height: 1px; background: var(--rule) }
@@ -284,10 +285,10 @@ body{
 button.flowcard{ cursor: pointer }
 button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                        box-shadow: 0 6px 14px rgba(16,26,36,.08) }
-.flowcard small{ color: var(--muted); font-size: 9px; font-weight: 600;
+.flowcard small{ color: var(--muted); font-size: var(--fs-label); font-weight: 600;
                  letter-spacing: .08em; text-transform: uppercase }
 .flowcard strong{ margin-top: 3px; font-family: var(--mono); font-size: 23px; font-weight: 500 }
-.flowcard span{ color: var(--muted); font-size: 9.5px }
+.flowcard span{ color: var(--muted); font-size: var(--fs-label) }
 .flowcard--source{ border-top: 3px solid var(--ink) }
 .flowcard--routed{ border-top: 3px solid var(--muted) }
 .flowbranch{ display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 9px }
@@ -299,7 +300,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
               text-align: center }
 .flowoutcome:hover{ transform: translateY(-1px); box-shadow: 0 6px 14px rgba(16,26,36,.08) }
 .flowoutcome b{ font-family: var(--mono); font-size: 19px; font-weight: 500 }
-.flowoutcome span{ width: 100%; color: var(--muted); font-size: 9px; line-height: 1.3;
+.flowoutcome span{ width: 100%; color: var(--muted); font-size: var(--fs-label); line-height: 1.3;
                    overflow-wrap: normal; word-break: normal; white-space: normal }
 .flowoutcome--clear{ border-top-color: var(--clearmark) }
 .flowoutcome--wrong{ border-top-color: var(--wrong) }
@@ -315,7 +316,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .chartpanel{ min-width: 0; min-height: 228px; padding: 14px;
              border: 1px solid var(--hair); border-radius: 9px; background: #FCFBF8 }
 .chartpanel__head h3{ margin: 0; font-size: var(--fs-small); font-weight: 600 }
-.chartpanel__head p{ margin: 2px 0 0; color: var(--muted); font-size: 9.5px; line-height: 1.4 }
+.chartpanel__head p{ margin: 2px 0 0; color: var(--muted); font-size: var(--fs-label); line-height: 1.4 }
 .chartpanel__empty{ margin: 28px 0 0; color: var(--muted); font-size: var(--fs-meta) }
 .chartbars{ display: flex; flex-direction: column; gap: 8px; margin: 13px 0 0;
             padding: 0; list-style: none }
@@ -325,12 +326,12 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                     transition: background .15s ease, transform .15s ease }
 .chartbars__button:hover{ background: rgba(0,109,174,.055); transform: translateX(2px) }
 .chartbars__label{ display: flex; min-width: 0; align-items: baseline; gap: 10px;
-                   margin-bottom: 3px; font-size: 10px }
+                   margin-bottom: 3px; font-size: var(--fs-meta) }
 .chartbars__label > span:first-child{ min-width: 0; flex: 1; overflow-wrap: anywhere }
 .chartbars__value{ display: inline-flex; flex: none; align-items: baseline; gap: 6px }
-.chartbars__value b{ font-family: var(--mono); font-size: 10px; font-weight: 600 }
+.chartbars__value b{ font-family: var(--mono); font-size: var(--fs-meta); font-weight: 600 }
 .chartbars__value small{ min-width: 36px; color: var(--muted); font-family: var(--mono);
-                         font-size: 8.5px; text-align: right }
+                         font-size: var(--fs-label); text-align: right }
 .chartbars__track{ display: block; width: 100%; height: 6px; overflow: hidden;
                    border-radius: var(--r-pill); background: rgba(16,26,36,.07) }
 .chartbars__fill{ display: block; height: 100%; border-radius: inherit; background: var(--ink) }
@@ -344,7 +345,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .outcomebar__segment--review, .outcomelegend__mark--review{ background: var(--blue) }
 .outcomelegend{ display: flex; flex-direction: column; gap: 0; margin: 12px 0 0;
                 padding: 0; list-style: none }
-.outcomelegend li{ min-height: 29px; border-bottom: 1px solid var(--hair); font-size: 10px }
+.outcomelegend li{ min-height: 29px; border-bottom: 1px solid var(--hair); font-size: var(--fs-meta) }
 .outcomelegend button{ display: grid; width: 100%; min-height: 29px;
                        grid-template-columns: 8px minmax(0, 1fr) 30px 42px;
                        align-items: center; gap: 8px; padding: 0 3px; border: 0;
@@ -352,12 +353,12 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                        text-align: left; cursor: pointer }
 .outcomelegend button:hover{ background: rgba(0,109,174,.055) }
 .outcomelegend__mark{ width: 8px; height: 8px; border-radius: 2px }
-.outcomelegend b, .outcomelegend small{ font-family: var(--mono); font-size: 9px;
+.outcomelegend b, .outcomelegend small{ font-family: var(--mono); font-size: var(--fs-label);
                                        font-weight: 500; text-align: right }
 .outcomelegend small{ color: var(--muted) }
 .healthpanel{ border-top: 3px solid var(--blue) }
 .healthpanel__mode{ flex: none; padding: 3px 7px; border-radius: var(--r-pill);
-                    font-size: 9px; font-weight: 600; letter-spacing: .08em;
+                    font-size: var(--fs-label); font-weight: 600; letter-spacing: .08em;
                     text-transform: uppercase }
 .healthpanel__mode--full{ background: rgba(46,125,110,.10); color: var(--clear) }
 .healthpanel__mode--deterministic_only{ background: rgba(231,136,35,.13); color: #8A4B0A }
@@ -367,7 +368,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                 font-size: var(--fs-small) }
 .healthlist li > span{ flex-grow: 1 }
 .healthstate{ display: inline-flex; align-items: center; gap: 6px;
-              color: var(--muted); font-size: 9px; font-weight: 600;
+              color: var(--muted); font-size: var(--fs-label); font-weight: 600;
               letter-spacing: .08em; text-transform: uppercase }
 .healthstate i{ width: 8px; height: 8px; border-radius: 50%; background: var(--muted) }
 .healthstate--online{ color: var(--clear) }
@@ -378,12 +379,12 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .healthstate--degraded i{ background: var(--orange) }
 .healthfacts{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 }
 .healthfacts div{ padding: 8px 9px; background: rgba(16,26,36,.035) }
-.healthfacts dt{ color: var(--muted); font-size: 10px }
+.healthfacts dt{ color: var(--muted); font-size: var(--fs-meta) }
 .healthfacts dd{ margin: 2px 0 0; font-family: var(--mono); font-size: var(--fs-meta) }
 .healthalert{ display: flex; flex-direction: column; gap: 1px; margin-top: 10px;
               padding: 9px 10px; border-left: 3px solid var(--orange);
               background: #FFF7E9; font-size: var(--fs-meta) }
-.healthalert b{ color: #8A4B0A; font-size: 10px; letter-spacing: .08em; text-transform: uppercase }
+.healthalert b{ color: #8A4B0A; font-size: var(--fs-meta); letter-spacing: .08em; text-transform: uppercase }
 .healthalert span, .healthpanel__empty{ color: var(--muted) }
 .healthpanel__empty{ font-size: var(--fs-small) }
 .workintro{ display: flex; align-items: center; justify-content: space-between; gap: 24px;
@@ -416,7 +417,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                    border: 1px solid rgba(16,26,36,.25); border-radius: var(--r-control);
                    background: var(--sheet); color: var(--ink); font: inherit }
 .worksearch input::placeholder{ color: var(--muted) }
-.worksearch small{ color: var(--muted); font-size: 10px; line-height: 1.35 }
+.worksearch small{ color: var(--muted); font-size: var(--fs-meta); line-height: 1.35 }
 .workexport-group{ display: flex; min-width: 0; flex-direction: column; gap: 5px }
 .workexport-row{ min-width: 0 }
 .workexport-options{ min-width: 0 }
@@ -428,7 +429,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .workexport-row input{ padding-right: 13px }
 .workexport-foot{ display: grid; grid-template-columns: minmax(0, 1fr) auto;
                   align-items: start; gap: 12px }
-.workexport-group small{ padding-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.35 }
+.workexport-group small{ padding-top: 3px; color: var(--muted); font-size: var(--fs-meta); line-height: 1.35 }
 .workexport{ display: inline-flex; flex: none; align-items: center; justify-content: center;
              min-height: 38px; white-space: nowrap; text-decoration: none }
 .inboxpulse{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -436,7 +437,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
              overflow: hidden; background: var(--sheet) }
 .inboxpulse > div{ min-width: 0; padding: 11px 14px; border-right: 1px solid var(--rule) }
 .inboxpulse > div:last-child{ border-right: 0 }
-.inboxpulse dt{ color: var(--muted); font-size: 9px; font-weight: 600;
+.inboxpulse dt{ color: var(--muted); font-size: var(--fs-label); font-weight: 600;
                 letter-spacing: .08em; text-transform: uppercase }
 .inboxpulse dd{ margin: 3px 0 0; color: var(--ink); font-family: var(--mono);
                 font-size: 19px; font-weight: 500 }
@@ -449,23 +450,23 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                         font-size: var(--fs-small); cursor: pointer }
 .inboxnav__tabs button:hover{ color: var(--ink) }
 .inboxnav__tabs button[aria-selected="true"]{ border-bottom-color: var(--blue); color: var(--ink); font-weight: 600 }
-.inboxnav__tabs button span{ color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 400 }
+.inboxnav__tabs button span{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta); font-weight: 400 }
 .inboxnav__summary{ display: flex; align-items: center; gap: 12px; padding-bottom: 11px;
-                    color: var(--muted); font-family: var(--mono); font-size: 10px }
+                    color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .inboxnav__right{ display: flex; align-items: center; gap: 14px; padding-bottom: 7px }
 .inboxnav__right .inboxnav__summary{ padding-bottom: 0 }
 .listsort{ display: flex; align-items: center; gap: 7px; color: var(--muted);
-           font-size: 10px; white-space: nowrap }
+           font-size: var(--fs-meta); white-space: nowrap }
 .listsort select{ min-height: 32px; padding: 0 28px 0 9px; border: 1px solid var(--rule);
                   border-radius: var(--r-control); background: var(--sheet);
-                  color: var(--ink); font: inherit; font-size: 10px }
+                  color: var(--ink); font: inherit; font-size: var(--fs-meta) }
 .filtermenu{ margin-top: 12px; border: 1px solid var(--rule); border-radius: 10px;
              background: #F8F6F1; overflow: hidden }
 .filtermenu__bar{ min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 6px 9px }
 .filtermenu__toggle{ display: inline-flex; min-height: 36px; align-items: center; gap: 8px;
                      padding: 0 11px; border: 1px solid rgba(16,26,36,.24);
                      border-radius: var(--r-control); background: var(--sheet); color: var(--ink);
-                     font: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
+                     font: inherit; font-size: var(--fs-meta); font-weight: 600; cursor: pointer;
                      transition: border-color .16s ease, color .16s ease,
                                  transform .16s ease, box-shadow .16s ease }
 .filtermenu__toggle:hover, .filtermenu__toggle[aria-expanded="true"]{ border-color: var(--blue); color: var(--blue) }
@@ -473,16 +474,16 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .filtermenu__toggle b{ display: inline-flex; min-width: 18px; height: 18px; align-items: center;
                         justify-content: center; padding: 0 5px; border-radius: 9px;
                         background: var(--blue); color: white; font-family: var(--mono);
-                        font-size: 9px; font-weight: 500 }
-.filtermenu__toggle i{ color: var(--muted); font-family: var(--mono); font-size: 13px; font-style: normal }
+                        font-size: var(--fs-label); font-weight: 500 }
+.filtermenu__toggle i{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-small); font-style: normal }
 .filtermenu__active{ display: flex; min-width: 0; align-items: center; gap: 6px; flex: 1; overflow: hidden }
 .filtermenu__active > span{ flex: none; padding: 4px 8px; border-radius: 12px;
                             background: rgba(0,109,174,.08); color: var(--blue);
-                            font-size: 9px; white-space: nowrap }
+                            font-size: var(--fs-label); white-space: nowrap }
 .filtermenu__active > span:only-child{ padding-left: 0; background: transparent; color: var(--muted) }
 .filtermenu__clear{ flex: none; padding: 0; border: 0; border-bottom: 1px solid currentColor;
                     background: transparent; color: var(--blue); font: inherit;
-                    font-size: 10px; cursor: pointer }
+                    font-size: var(--fs-meta); cursor: pointer }
 .filtermenu__panel{ display: grid; grid-template-columns: minmax(260px, .95fr) minmax(340px, 1.25fr) minmax(240px, .9fr);
                     gap: 0; padding: 17px 18px 15px; border-top: 1px solid var(--rule);
                     background: var(--sheet); transform-origin: top;
@@ -501,16 +502,16 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
                     margin-left: 20px; padding-left: 20px; border-left: 1px solid var(--rule) }
 .filtermenu legend{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px }
 .filtermenu legend, .filtermenu__dates > label{ width: 100%; padding: 0 0 9px; color: var(--ink);
-                    font-size: 10px; font-weight: 600; letter-spacing: .07em;
+                    font-size: var(--fs-meta); font-weight: 600; letter-spacing: .07em;
                     text-transform: uppercase }
-.filtermenu legend small{ flex: none; color: var(--muted); font-size: 9px;
+.filtermenu legend small{ flex: none; color: var(--muted); font-size: var(--fs-label);
                            font-weight: 400; letter-spacing: 0; text-transform: none }
 .filtermenu__choices{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px }
 .filtermenu__choices--results{ grid-template-columns: minmax(0, 1fr) }
 .filtermenu__choices label{ display: grid; grid-template-columns: 16px minmax(0, 1fr) auto;
                             align-items: center; column-gap: 9px; min-height: 38px; padding: 0 10px;
                             border: 1px solid var(--rule); border-radius: 7px;
-                            background: #FCFBF8; color: var(--ink); font-size: 10px; cursor: pointer;
+                            background: #FCFBF8; color: var(--ink); font-size: var(--fs-meta); cursor: pointer;
                             transition: border-color .16s ease, background .16s ease,
                                         transform .16s ease, box-shadow .16s ease }
 .filtermenu__choices--results label{ grid-template-columns: 16px 10px minmax(0, 1fr) auto }
@@ -522,23 +523,23 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .filtermenu__choices label > span:not(.mk){ min-width: 0; line-height: 1.25;
                                             overflow-wrap: normal; word-break: normal }
 .filtermenu__choices label > b{ min-width: 24px; padding-left: 5px; color: var(--muted);
-                                font-family: var(--mono); font-size: 9px; font-weight: 400;
+                                font-family: var(--mono); font-size: var(--fs-label); font-weight: 400;
                                 text-align: right }
 .filtermenu__dates{ min-width: 0 }
 .filtermenu__dates > label{ display: block }
 .filtermenu__dates select, .filtermenu__range input{ width: 100%; min-height: 38px;
                     padding: 0 10px; border: 1px solid rgba(16,26,36,.25);
                     border-radius: var(--r-control); background: var(--sheet);
-                    color: var(--ink); font: inherit; font-size: 11px }
-.filtermenu__dates > small{ display: block; margin-top: 7px; color: var(--muted); font-size: 9px; line-height: 1.4 }
+                    color: var(--ink); font: inherit; font-size: var(--fs-meta) }
+.filtermenu__dates > small{ display: block; margin-top: 7px; color: var(--muted); font-size: var(--fs-label); line-height: 1.4 }
 .filtermenu__range{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 8px }
-.filtermenu__range label{ color: var(--muted); font-size: 9px }
+.filtermenu__range label{ color: var(--muted); font-size: var(--fs-label) }
 .filtermenu__range input{ display: block; margin-top: 4px; padding-inline: 7px }
 .filtermenu__actions{ grid-column: 1 / -1; display: flex; align-items: center;
                       justify-content: flex-end; gap: 8px; padding-top: 14px }
 .filtermenu__actions button{ min-height: 34px; padding: 0 12px; border: 1px solid rgba(16,26,36,.24);
                              border-radius: var(--r-control); background: var(--sheet);
-                             color: var(--ink); font: inherit; font-size: 10px; cursor: pointer;
+                             color: var(--ink); font: inherit; font-size: var(--fs-meta); cursor: pointer;
                              transition: border-color .16s ease, background .16s ease,
                                          transform .16s ease, box-shadow .16s ease }
 .filtermenu__actions button:hover:not(:disabled){ transform: translateY(-1px); box-shadow: 0 4px 10px rgba(16,26,36,.08) }
@@ -571,10 +572,10 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 
 .reviewhead{ max-width: 720px; margin-bottom: 3px }
 .reviewhead p{ margin: 7px 0 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.55 }
-.card__ref{ color: var(--muted); font-family: var(--mono); font-size: 10px }
+.card__ref{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .card__topline{ display: flex; align-items: center; justify-content: space-between; gap: 10px }
 .card__workflow{ display: flex; flex-wrap: wrap; gap: 7px 18px; padding: 8px 10px;
-                 background: rgba(16,26,36,.035); color: var(--muted); font-size: 10px }
+                 background: rgba(16,26,36,.035); color: var(--muted); font-size: var(--fs-meta) }
 .card__workflow b{ margin-left: 4px; color: var(--ink); font-weight: 500 }
 
 .casebanner{ display: grid; grid-template-columns: 12px minmax(0, 1fr) minmax(220px, auto);
@@ -616,7 +617,7 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .casereport__error{ flex: 1 1 100%; text-align: right; color: var(--wrong) }
 .casereport__result{ flex: none; padding: 4px 9px; border: 1px solid currentColor;
                      border-radius: var(--r-control); font-family: var(--mono);
-                     font-size: 10px; font-weight: 600; letter-spacing: .08em }
+                     font-size: var(--fs-meta); font-weight: 600; letter-spacing: .08em }
 .casereport__result--wrong{ color: var(--wrong) }
 .casereport__result--review{ color: var(--blue) }
 .casereport__result--clear{ color: var(--clear) }
@@ -626,10 +627,10 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 /* span 1 keeps the 8 facts filling 4 columns exactly. Adding or removing a
    ReportFact leaves empty cells, which show --rule as a grey block. */
 .reportfact--evidence{ grid-column: span 1 }
-.reportfact dt{ margin-bottom: 3px; color: var(--muted); font-size: 9px;
+.reportfact dt{ margin-bottom: 3px; color: var(--muted); font-size: var(--fs-label);
                 font-weight: 600; letter-spacing: .09em; text-transform: uppercase }
 .reportfact dd{ margin: 0; overflow-wrap: anywhere; font-size: var(--fs-small); font-weight: 500 }
-.reportfact small{ display: block; margin-top: 2px; color: var(--muted); font-size: 10px }
+.reportfact small{ display: block; margin-top: 2px; color: var(--muted); font-size: var(--fs-meta) }
 .reportdocs{ display: flex; flex-direction: column; gap: 1px }
 .reportdocs span{ color: var(--muted); font-size: var(--fs-meta); font-weight: 400 }
 .reportdocs .is-present{ color: var(--clear) }
@@ -669,13 +670,13 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .sheet__title{ margin: 0 0 3px; font-size: var(--fs-head); font-weight: 600;
                letter-spacing: .10em }
 .sheet__carrier{ font-size: var(--fs-meta); color: var(--muted) }
-.sheet__stamp{ margin-left: auto; font-size: 10.5px; font-weight: 600;
+.sheet__stamp{ margin-left: auto; font-size: var(--fs-meta); font-weight: 600;
                letter-spacing: .18em; color: var(--muted);
                border: 1px solid var(--rule); border-radius: 3px; padding: 3px 9px }
 .sheet__grid{ display: grid; grid-template-columns: 1fr 1fr }
 .sheet__foot{ display: flex; gap: var(--gap-md); padding: 11px 16px;
               border-top: 1px solid var(--rule) }
-.sheet__foot span{ font-family: var(--mono); font-size: 10.5px; color: var(--muted) }
+.sheet__foot span{ font-family: var(--mono); font-size: var(--fs-meta); color: var(--muted) }
 
 .bx{ padding: 11px 16px 12px; min-height: 70px;
      border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair) }
@@ -704,7 +705,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 
 .conf{ margin-left: auto; flex: none; display: inline-flex; align-items: baseline;
        gap: 4px; font-weight: 500; letter-spacing: .08em }
-.conf b{ font-family: var(--mono); font-size: 9px; font-weight: 500; letter-spacing: 0 }
+.conf b{ font-family: var(--mono); font-size: var(--fs-label); font-weight: 500; letter-spacing: 0 }
 .conf--unsure, .conf--nocheck{ color: var(--blue) }
 /* Confidence is how well we read the field, not whether the two documents
    agree. It never takes the verdict colours, including inside a flagged box. */
@@ -726,8 +727,8 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
   border-radius: 10px; padding: 14px 16px;
   display: flex; flex-direction: column; gap: var(--gap-xs);
 }
-.note__field{ font-size: 14.5px; font-weight: 600; margin-bottom: 2px }
-.note__value{ font-family: var(--mono); font-size: 13.5px; line-height: 1.4 }
+.note__field{ font-size: var(--fs-body); font-weight: 600; margin-bottom: 2px }
+.note__value{ font-family: var(--mono); font-size: var(--fs-small); line-height: 1.4 }
 .note__value--wrong{ color: var(--wrong); font-weight: 700 }
 .note__value--right{ color: var(--clear); font-weight: 700 }
 .note__synonym{ margin-top: 3px; padding-top: 8px; font-size: var(--fs-meta);
@@ -744,7 +745,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
                     gap: 9px; padding: 4px 0; border-bottom: 1px solid var(--hair) }
 .reasonfacts dt{ color: var(--muted); font-size: var(--fs-meta) }
 .reasonfacts dd{ margin: 0; overflow-wrap: anywhere;
-                 font-family: var(--mono); font-size: 12px }
+                 font-family: var(--mono); font-size: var(--fs-small) }
 .reasonfacts__wrong{ color: var(--wrong); font-weight: 600 }
 .evidencelink{ align-self: flex-start; border: 0; border-bottom: 1px solid currentColor;
                padding: 2px 0; background: transparent; color: var(--blue);
@@ -758,17 +759,17 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 }
 .ev__head{ display: flex; align-items: baseline; gap: var(--gap-sm) }
 .ev__head > span{ display: flex; flex-direction: column }
-.ev__eyebrow{ color: var(--blue); font-size: 9px; font-weight: 600;
+.ev__eyebrow{ color: var(--blue); font-size: var(--fs-label); font-weight: 600;
               letter-spacing: .11em; text-transform: uppercase }
-.ev__field{ font-size: 14.5px; font-weight: 600 }
-.ev__score{ color: var(--muted); font-family: var(--mono); font-size: 10px }
+.ev__field{ font-size: var(--fs-body); font-weight: 600 }
+.ev__score{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .ev__close{ margin-left: auto; border: 0; background: none; cursor: pointer;
             font-size: 18px; line-height: 1; color: var(--muted); padding: 0 2px }
 .ev__side{ display: flex; flex-direction: column; gap: 3px }
 .ev__doc{ font-size: var(--fs-meta); color: var(--muted); font-weight: 600;
           letter-spacing: .08em; text-transform: uppercase }
 .ev__intro{ margin: -2px 0 2px; color: var(--muted); font-size: var(--fs-meta) }
-.ev__line{ font-family: var(--mono); font-size: 12.5px; line-height: 1.6;
+.ev__line{ font-family: var(--mono); font-size: var(--fs-small); line-height: 1.6;
            white-space: pre-wrap; overflow-wrap: anywhere }
 .ev__line mark{ background: rgba(16,26,36,.11); color: inherit;
                 box-shadow: inset 0 -2px 0 rgba(16,26,36,.45);
@@ -790,7 +791,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .docpreview__head > div{ display: flex; min-width: 0; flex-direction: column }
 .docpreview__head strong{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
                           font-size: var(--fs-small); font-weight: 500 }
-.docpreview__head small{ color: var(--muted); font-family: var(--mono); font-size: 10px }
+.docpreview__head small{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .docpreview__head a{ flex: none; color: var(--blue); font-size: var(--fs-meta); text-decoration: none;
                      border-bottom: 1px solid currentColor }
 .docpreview__correction{ margin: 0; padding: 8px 12px; color: var(--muted);
@@ -799,7 +800,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .docpreview__correction b{ color: var(--ink); font-family: var(--mono); font-weight: 500 }
 .docpreview__text{ height: 340px; margin: 0; overflow: auto; padding: 18px;
                    background: #F7F5F0; color: var(--ink); font-family: var(--mono);
-                   font-size: 11.5px; line-height: 1.65; white-space: pre-wrap;
+                   font-size: var(--fs-meta); line-height: 1.65; white-space: pre-wrap;
                    overflow-wrap: anywhere; tab-size: 2 }
 .docpreview__text mark{ display: inline; padding: 2px 1px; background: rgba(231,136,35,.28);
                         color: var(--ink); box-shadow: inset 0 -2px 0 var(--orange) }
@@ -833,7 +834,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .chip[aria-pressed="true"], .chip--on{
   background: var(--ink); border-color: var(--ink); color: var(--on-dark);
 }
-.chip__count{ font-family: var(--mono); font-size: 12px; color: var(--muted) }
+.chip__count{ font-family: var(--mono); font-size: var(--fs-small); color: var(--muted) }
 .chip[aria-pressed="true"] .chip__count,
 .chip--on .chip__count{ color: rgba(255,255,255,.6) }
 
@@ -851,19 +852,19 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .wrow__headline{ display: flex; min-width: 0; align-items: center; gap: 8px }
 .wrow__headline .wrow__found{ min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .priority{ display: inline-flex; flex: none; align-items: center; min-height: 20px;
-           padding: 2px 7px; border-radius: var(--r-pill); font-size: 9px;
+           padding: 2px 7px; border-radius: var(--r-pill); font-size: var(--fs-label);
            font-weight: 600; letter-spacing: .04em; text-transform: uppercase }
 .priority--urgent{ background: var(--blue); color: var(--on-dark) }
 .priority--high{ background: rgba(231,136,35,.14); color: #8A4B0A }
 .priority--normal{ background: rgba(0,109,174,.09); color: var(--blue) }
 .priority--routine{ background: rgba(16,26,36,.06); color: var(--muted) }
 .wrow__owner{ width: 112px; flex: none; overflow: hidden; text-overflow: ellipsis;
-              white-space: nowrap; color: var(--muted); font-size: 10px }
-.wrow__id{ flex: none; color: var(--muted); font-family: var(--mono); font-size: 10px }
+              white-space: nowrap; color: var(--muted); font-size: var(--fs-meta) }
+.wrow__id{ flex: none; color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .wrow__open{ display: inline-flex; width: 26px; height: 26px; flex: none;
              align-items: center; justify-content: center; border-radius: 50%;
-             color: var(--muted); font-size: 14px; transition: background .15s ease, color .15s ease }
-.wrow__note{ width: 190px; flex: none; font-size: 12.5px }
+             color: var(--muted); font-size: var(--fs-body); transition: background .15s ease, color .15s ease }
+.wrow__note{ width: 190px; flex: none; font-size: var(--fs-small) }
 .wrow__note--wrong { color: var(--wrong); font-weight: 500 }
 .wrow__note--review{ color: var(--blue) }
 .wrow__note--clear { color: var(--clearmark) }
@@ -875,14 +876,14 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .card{ border: 1px solid var(--rule); border-radius: var(--r-panel);
        background: var(--sheet); padding: 18px 20px;
        display: flex; flex-direction: column; gap: 12px }
-.card__title{ font-size: 15px; font-weight: 600 }
+.card__title{ font-size: var(--fs-head); font-weight: 600 }
 .card__body{ margin: 0; font-size: var(--fs-small); line-height: 1.55 }
 .card__evidence{ display: flex; flex-direction: column; gap: 5px;
                  border-top: 1px dashed var(--rule); padding-top: 10px }
 .card__evidence > div{ display: flex; gap: var(--gap-sm); align-items: baseline }
 .card__evidence em{ font-style: normal; width: 74px; flex: none;
                     font-size: var(--fs-meta); color: var(--muted) }
-.card__evidence span{ font-family: var(--mono); font-size: 12px }
+.card__evidence span{ font-family: var(--mono); font-size: var(--fs-small) }
 .card__actions{ display: flex; flex-wrap: wrap; gap: 9px }
 .card__actions .btn{ display: inline-flex; align-items: center; text-decoration: none }
 .card__correction{ display: flex; flex-direction: column; gap: 9px;
@@ -918,7 +919,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .workflow__message{ margin: 9px 0 0; font-size: var(--fs-meta) }
 .workflow__message--ok{ color: var(--clear) }
 .workflow__message--error{ color: var(--wrong) }
-.workflow__note{ margin: 8px 0 0; color: var(--muted); font-size: 10px }
+.workflow__note{ margin: 8px 0 0; color: var(--muted); font-size: var(--fs-meta) }
 .reviewnotice{ padding: 10px 12px; border-left: 3px solid var(--clear);
                background: rgba(46,125,110,.07); color: var(--clear);
                font-size: var(--fs-small) }
@@ -962,7 +963,7 @@ a.card__title:hover{ text-decoration: underline }
 .auditstage__node{ position: relative; z-index: 1; display: inline-flex;
                    width: 24px; height: 24px; align-items: center; justify-content: center;
                    background: var(--sheet); border: 1px solid var(--muted);
-                   color: var(--muted); font-family: var(--mono); font-size: 10px }
+                   color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .auditstage--done .auditstage__node{ border-color: var(--clearmark); color: var(--clearmark) }
 .auditstage--attention .auditstage__node{ border-color: var(--blue); color: var(--blue); border-radius: 5px }
 .auditstage--wrong .auditstage__node{ border-color: var(--wrong); color: var(--wrong); border-radius: 50% }
@@ -1000,15 +1001,15 @@ a.card__title:hover{ text-decoration: underline }
 .auditlog ol{ margin: 12px 0 0; padding: 0; list-style: none }
 .auditlog li{ padding: 9px 0 10px; border-bottom: 1px solid var(--hair) }
 .auditlog__eventhead{ display: flex; align-items: baseline; gap: 9px; margin-bottom: 7px }
-.auditlog__eventhead time{ color: var(--muted); font-family: var(--mono); font-size: 10px }
+.auditlog__eventhead time{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .auditlog__eventhead strong{ overflow-wrap: anywhere; font-family: var(--mono);
-                             font-size: 11px; font-weight: 600 }
+                             font-size: var(--fs-meta); font-weight: 600 }
 .auditlog__details{ margin: 0; padding-left: 10px; border-left: 2px solid var(--rule) }
 .auditlog__details > div{ display: grid; grid-template-columns: 92px minmax(0, 1fr);
                           gap: 8px; padding: 2px 0 }
-.auditlog__details dt{ color: var(--muted); font-size: 10px }
+.auditlog__details dt{ color: var(--muted); font-size: var(--fs-meta) }
 .auditlog__details dd{ margin: 0; overflow-wrap: anywhere;
-                       font-family: var(--mono); font-size: 10px }
+                       font-family: var(--mono); font-size: var(--fs-meta) }
 .audit__actions{ display: flex; justify-content: flex-end; flex-wrap: wrap;
                  gap: 8px; margin-left: 42px }
 .audittech{ margin: 20px 0 0 42px; border-top: 1px solid var(--rule); padding-top: 13px }
@@ -1108,7 +1109,7 @@ a.card__title:hover{ text-decoration: underline }
 @media (max-width: 480px){
   .thin__meta{ display: none }
   .thin__nav{ margin-left: 0 }
-  .thin__nav a{ padding-inline: 8px; font-size: 11px }
+  .thin__nav a{ padding-inline: 8px; font-size: var(--fs-meta) }
   .thin__divider, .thin__section{ display: none }
   .thin__action-label{ position: absolute; width: 1px; height: 1px; overflow: hidden;
                        clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap }
