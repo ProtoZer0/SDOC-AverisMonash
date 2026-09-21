@@ -97,13 +97,14 @@ path only, no cloud calls.
 | End to end | defect emails caught | **46 / 46** |
 | | **Final score** | **1.0000** |
 
-520 emails in 0.5s, 100% resolved by rules, zero cloud calls, 48 unit tests green.
+520 emails in 0.3s, 100% resolved by rules, zero cloud calls, 48 unit tests green.
 
 > [!NOTE]
 > This is one draw. The final round is a fresh draw from the same generator, and
 > most of the classification score currently rests on literal subject-line
 > templates, so the honest number to watch is what the grammar layer catches when
 > those templates shift. See [`docs/eval_plan.md`](docs/eval_plan.md).
+
 ## Where the AI is
 
 Two Azure services sit at the edges of the pipeline. Neither ever decides
