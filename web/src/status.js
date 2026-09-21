@@ -62,7 +62,7 @@ export const REASON_TITLE = {
 }
 
 export const PRIORITY = {
-  urgent: { label: 'Urgent', rank: 0 },
+  urgent: { label: 'Blocked', rank: 0 },
   high: { label: 'High', rank: 1 },
   normal: { label: 'Normal', rank: 2 },
   routine: { label: 'Routine', rank: 3 },

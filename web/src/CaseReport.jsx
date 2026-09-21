@@ -109,7 +109,6 @@ export default function CaseReport({ kase, events }) {
 
       <dl className="reportgrid">
         <ReportFact label="Case ID" value={kase.email_id} mono />
-        <ReportFact label="Status" value={String(kase.lifecycle || 'new').toUpperCase()} />
         <div className="reportfact">
           <dt>Documents</dt>
           <dd className="reportdocs">
@@ -131,7 +130,6 @@ export default function CaseReport({ kase, events }) {
           note={usedAi ? 'AI-assisted' : methods.has('parser') ? 'Deterministic parser' : null}
         />
         <ReportFact label="Human corrections" value={String(corrections.length)} />
-        <ReportFact label="Final result" value={finalResult} />
         <ReportFact label="Average field confidence" value={averageConfidence} note="Machine score" />
         <ReportFact label="Audit events" value={events == null ? 'Loading…' : String(events.length)} />
         <div className="reportfact reportfact--evidence">

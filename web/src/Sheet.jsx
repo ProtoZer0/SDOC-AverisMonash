@@ -1,5 +1,5 @@
 import {
-  FIELD_ORDER, FIELD_WIDE, FIELD_LABEL, confidenceOf, confidencePercent, splitPort,
+  FIELD_ORDER, FIELD_WIDE, FIELD_LABEL, confidenceOf, splitPort,
 } from './status.js'
 
 export default function Sheet({ kase, selected, onSelect }) {
@@ -39,7 +39,6 @@ function Box({ field, bl, si, comparison, selected, onSelect }) {
   const siField = si && si.fields ? si.fields[field] : null
   const label = (blField && blField.label_seen) || FIELD_LABEL[field]
   const conf = confidenceOf(comparison)
-  const confNumber = confidencePercent(comparison)
   const mismatch = comparison && comparison.verdict === 'MISMATCH'
   const isPort = field === 'port_of_loading' || field === 'port_of_discharge'
   const { value, sub } = isPort
@@ -63,7 +62,7 @@ function Box({ field, bl, si, comparison, selected, onSelect }) {
         {label}
         {conf && (
           <span className={'conf' + (conf.mod ? ' conf--' + conf.mod : '')}>
-            {conf.word}{confNumber && <b>{confNumber}</b>}
+            {conf.word}
           </span>
         )}
       </span>

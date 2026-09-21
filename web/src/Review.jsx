@@ -266,7 +266,7 @@ function retryable(reason) {
 
 function reviewPriority(item) {
   if (['MISSING_ATTACHMENT', 'UNREADABLE_DOCUMENT', 'WRONG_DOC_TYPE', 'PROCESSING_ERROR'].includes(item.reason)) {
-    return { key: 'urgent', label: 'Urgent', rank: 0 }
+    return { key: 'urgent', label: 'Blocked', rank: 0 }
   }
   return { key: 'high', label: 'High', rank: 1 }
 }

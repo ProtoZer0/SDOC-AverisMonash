@@ -623,7 +623,9 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .reportgrid{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
              gap: 1px; margin: 0; background: var(--rule) }
 .reportfact{ min-width: 0; padding: 10px 11px; background: var(--sheet) }
-.reportfact--evidence{ grid-column: span 3 }
+/* span 1 keeps the 8 facts filling 4 columns exactly. Adding or removing a
+   ReportFact leaves empty cells, which show --rule as a grey block. */
+.reportfact--evidence{ grid-column: span 1 }
 .reportfact dt{ margin-bottom: 3px; color: var(--muted); font-size: 9px;
                 font-weight: 600; letter-spacing: .09em; text-transform: uppercase }
 .reportfact dd{ margin: 0; overflow-wrap: anywhere; font-size: var(--fs-small); font-weight: 500 }
@@ -851,7 +853,7 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .priority{ display: inline-flex; flex: none; align-items: center; min-height: 20px;
            padding: 2px 7px; border-radius: var(--r-pill); font-size: 9px;
            font-weight: 600; letter-spacing: .04em; text-transform: uppercase }
-.priority--urgent{ background: rgba(184,58,40,.10); color: var(--wrong) }
+.priority--urgent{ background: var(--blue); color: var(--on-dark) }
 .priority--high{ background: rgba(231,136,35,.14); color: #8A4B0A }
 .priority--normal{ background: rgba(0,109,174,.09); color: var(--blue) }
 .priority--routine{ background: rgba(16,26,36,.06); color: var(--muted) }

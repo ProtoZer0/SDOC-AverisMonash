@@ -65,8 +65,8 @@ export default function CaseView({ id }) {
       onViewEvidence={viewEvidence}
       events={events}
     >
-      <WorkflowPanel kase={kase} onChanged={refreshCase} />
       {content}
+      <WorkflowPanel kase={kase} onChanged={refreshCase} />
     </Frame>
   )
 }
@@ -98,8 +98,8 @@ function Frame({ meta, kase, events, auditOpen, onAudit, onCloseAudit, onViewEvi
     <>
       <Bar meta={meta} back="#/" action={action} title="Document check" />
       {kase && <CaseBanner kase={kase} />}
-      {kase && <CaseReport kase={kase} events={events} />}
       {children}
+      {kase && <CaseReport kase={kase} events={events} />}
       {auditOpen && (
         <AuditTrail kase={kase} onClose={onCloseAudit} onViewEvidence={onViewEvidence} />
       )}
@@ -115,7 +115,6 @@ function CaseBanner({ kase }) {
       <div className="casebanner__body">
         <span className={'casebanner__status casebanner__status--' + kind}>{KIND_WORD[kind]}</span>
         <h1 id="case-title">{kase.subject || kase.email_id}</h1>
-        <p>{kase.summary}</p>
       </div>
       <dl className="casebanner__meta">
         <div><dt>Case</dt><dd>{kase.email_id}</dd></div>
@@ -338,7 +337,7 @@ function WorkflowPanel({ kase, onChanged }) {
           <span className="eyebrow">Review ownership</span>
           <h2 id="workflow-title">Review ownership and status</h2>
         </div>
-        <span className={'priority priority--' + priority.key} title={priority.reason}>{priority.label} priority</span>
+        <span className={'priority priority--' + priority.key} title={priority.reason}>{priority.label}</span>
       </div>
       <div className="workflow__controls">
         <label>
