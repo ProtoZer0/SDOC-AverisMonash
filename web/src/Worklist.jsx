@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import Bar from './Bar.jsx'
 import { downloadUrl, getAllCasesExcelUrl, getCases } from './api.js'
-import { kindOf, FIELD_PLAIN, REASON_TITLE, priorityOf } from './status.js'
+import { kindOf, FIELD_PLAIN, REASON_TITLE, STEPS, priorityOf, stepOf } from './status.js'
 
-const FILTERS = ['wrong', 'review', 'clear', 'none']
 const RANK = { wrong: 0, review: 1, clear: 2, none: 3 }
 const PAGE_SIZE = 20
 const TYPE_OPTIONS = [
@@ -13,12 +12,11 @@ const TYPE_OPTIONS = [
   { value: 'GENERAL', label: 'General email' },
   { value: 'SPAM', label: 'Spam' },
 ]
-const FILTER_WORD = {
-  wrong: 'Differences',
-  review: 'Needs review',
-  clear: 'Cleared',
-  none: 'Other email',
-}
+const VIEWS = [
+  { value: 'todo', label: 'To do' },
+  { value: 'done', label: 'Done' },
+  { value: 'all', label: 'All' },
+]
 const DATE_OPTIONS = [
   { value: 'all', label: 'Any date' },
   { value: 'today', label: 'Today' },
@@ -45,12 +43,13 @@ const EXPORT_PERIODS = [
   { value: 'year', label: 'Annual report' },
   { value: 'last_30_days', label: 'Last 30 days' },
 ]
-export default function Worklist({ health }) {
+
+export default function Worklist() {
   const [items, setItems] = useState(null)
   const [error, setError] = useState(null)
   const [query, setQuery] = useState('')
-  const [inboxView, setInboxView] = useState('incoming')
-  const [selectedResults, setSelectedResults] = useState([])
+  const [view, setView] = useState('todo')
+  const [step, setStep] = useState('all')
   const [selectedTypes, setSelectedTypes] = useState([])
   const [dateFilter, setDateFilter] = useState('all')
   const [dateFrom, setDateFrom] = useState('')
@@ -75,22 +74,24 @@ export default function Worklist({ health }) {
     loadCases()
   }, [])
 
+  // Deep links from the analytics page: #/worklist?kind=step&value=document&view=todo
   useEffect(() => {
     const queryString = window.location.hash.split('?')[1]
     if (!queryString) return
     const params = new URLSearchParams(queryString)
     const kind = params.get('kind')
     const value = params.get('value')
+    if (params.get('view')) setView(params.get('view'))
     if (!kind || !value) return
-    setInboxView('all')
-    if (kind === 'result') setSelectedResults([value])
+    if (!params.get('view')) setView('all')
+    if (kind === 'step') setStep(value)
     if (kind === 'category') setSelectedTypes([value])
-    if (kind === 'field' || kind === 'reason') setChartFilter({ kind, value })
+    if (['field', 'reason', 'result'].includes(kind)) setChartFilter({ kind, value })
   }, [])
 
   useEffect(() => {
     setPage(1)
-  }, [inboxView, selectedResults, selectedTypes, dateFilter, dateFrom, dateTo, query,
+  }, [view, step, selectedTypes, dateFilter, dateFrom, dateTo, query,
     chartFilter, sortBy, exportPeriod, exportMonth, exportYear])
 
   if (error) return (
@@ -102,25 +103,28 @@ export default function Worklist({ health }) {
       </div>
     </Shell>
   )
-  if (!items) return <Shell meta="worklist"><div className="state">Reading the inbox and preparing the checks.</div></Shell>
+  if (!items) return <Shell meta="worklist"><div className="state">Reading the inbox.</div></Shell>
 
-  // The dataset carries no sent/received timestamp, so every date-driven
-   // control is hidden rather than shown empty. Restores itself the moment a
-   // mail connector supplies received_at.
   const hasDates = items.some(item => caseDate(item) != null)
   const periodItems = hasDates
     ? items.filter(item => matchesReportPeriod(item, exportPeriod, exportMonth, exportYear, reportNow))
     : items
-  const counts = {}
-  for (const k of FILTERS) counts[k] = periodItems.filter(c => kindOf(c) === k).length
 
-  const incomingItems = periodItems.filter(isIncoming)
-  const historyItems = periodItems.filter(item => !isIncoming(item))
-  const actionNeeded = incomingItems.filter(item => ['wrong', 'review'].includes(kindOf(item))).length
+  const todoItems = periodItems.filter(isTodo)
+  const doneItems = periodItems.filter(item => !isTodo(item))
+  const viewItems = view === 'all' ? periodItems : view === 'todo' ? todoItems : doneItems
+  const actionNeeded = todoItems.filter(item => ['wrong', 'review'].includes(kindOf(item))).length
+  const cleared = periodItems.filter(item => kindOf(item) === 'clear').length
+  const notChecks = periodItems.filter(item => kindOf(item) === 'none').length
+  const reviewCount = items.filter(item => kindOf(item) === 'review' && isTodo(item)).length
+
   const typeCounts = Object.fromEntries(
-    TYPE_OPTIONS.map(option => [option.value, periodItems.filter(item => item.category === option.value).length])
+    TYPE_OPTIONS.map(option => [option.value, viewItems.filter(item => item.category === option.value).length])
   )
-  const ordered = [...periodItems].sort((a, b) => {
+  const stepCounts = Object.fromEntries(
+    STEPS.map(option => [option.key, viewItems.filter(item => stepOf(item).key === option.key).length])
+  )
+  const ordered = [...viewItems].sort((a, b) => {
     if (sortBy === 'case_id') return a.email_id.localeCompare(b.email_id, undefined, { numeric: true })
     const dateDifference = (caseDate(b)?.getTime() || 0) - (caseDate(a)?.getTime() || 0)
     if (sortBy === 'newest') return dateDifference || a.email_id.localeCompare(b.email_id)
@@ -130,28 +134,25 @@ export default function Worklist({ health }) {
   })
   const needle = query.trim().toLowerCase()
   const shown = ordered.filter(c => {
-    const matchesView = inboxView === 'all'
-      || (inboxView === 'incoming' ? isIncoming(c) : !isIncoming(c))
-    const matchesStatus = selectedResults.length === 0 || selectedResults.includes(kindOf(c))
+    const matchesStep = step === 'all' || stepOf(c).key === step
     const matchesType = selectedTypes.length === 0 || selectedTypes.includes(c.category)
     const matchesWhen = !hasDates || matchesDate(c, dateFilter, dateFrom, dateTo, reportNow)
     const matchesChart = !chartFilter || matchesDashboardFilter(c, chartFilter)
     const matchesQuery = !needle || [
-      c.email_id, c.subject, c.from_addr, c.summary,
+      c.email_id, c.subject, c.from_addr, c.summary, c.assigned_to,
       TYPE_OPTIONS.find(option => option.value === c.category)?.label,
     ]
       .some(value => String(value || '').toLowerCase().includes(needle))
-    return matchesView && matchesStatus && matchesType && matchesWhen && matchesChart && matchesQuery
+    return matchesStep && matchesType && matchesWhen && matchesChart && matchesQuery
   })
-  const activeFilterCount = selectedResults.length + selectedTypes.length
-    + (dateFilter === 'all' ? 0 : 1) + (chartFilter ? 1 : 0)
-  const hasSearchOrFilters = Boolean(query.trim()) || activeFilterCount > 0
+  const activeFilterCount = selectedTypes.length + (dateFilter === 'all' ? 0 : 1) + (chartFilter ? 1 : 0)
+  const hasSearchOrFilters = Boolean(query.trim()) || activeFilterCount > 0 || step !== 'all'
   const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
   const pageStart = (currentPage - 1) * PAGE_SIZE
   const pageEnd = Math.min(pageStart + PAGE_SIZE, shown.length)
   const visible = shown.slice(pageStart, pageEnd)
-  const workedExample = ordered.find(c => c.status === 'MISMATCH')
+  const firstException = ordered.find(c => c.status === 'MISMATCH' && isTodo(c))
   const exportOptions = { period: exportPeriod }
   let exportHelp = EXPORT_PERIODS.find(option => option.value === exportPeriod)?.help
   if (exportPeriod === 'month') {
@@ -185,13 +186,13 @@ export default function Worklist({ health }) {
 
   function clearWorklistFilters({ includeView = false } = {}) {
     setQuery('')
-    setSelectedResults([])
+    setStep('all')
     setSelectedTypes([])
     setDateFilter('all')
     setDateFrom('')
     setDateTo('')
     setChartFilter(null)
-    if (includeView) setInboxView('all')
+    if (includeView) setView('all')
   }
 
   function showFullRegister() {
@@ -219,25 +220,25 @@ export default function Worklist({ health }) {
   }
 
   return (
-    <Shell meta={items.length + ' emails'} reviewCount={counts.review}>
+    <Shell meta={items.length + ' emails'} reviewCount={reviewCount}>
       <div className="wmain">
         <section className="workintro" aria-labelledby="workintro-title">
           <div>
             <span className="eyebrow">Shipping document control desk</span>
             <h1 id="workintro-title">Start with what needs attention.</h1>
-            <p>Find, prioritise and resolve email checks while the evidence and audit trail stay attached.</p>
+            <p>Every row says what was found and what leaves the desk next. Open one for the evidence.</p>
           </div>
           <div className="workintro__actions">
             <a className="btn btn--ghost btn--small" href="#/analytics">View analytics</a>
-            {workedExample && <a className="btn btn--small" href={'#/case/' + workedExample.email_id}>Review first exception</a>}
+            {firstException && <a className="btn btn--small" href={'#/case/' + firstException.email_id}>Open the first exception</a>}
           </div>
         </section>
 
         <dl className="inboxpulse" aria-label="Worklist snapshot">
-          <div><dt>Incoming</dt><dd>{incomingItems.length}</dd></div>
+          <div><dt>To do</dt><dd>{todoItems.length}</dd></div>
           <div><dt>Needs action</dt><dd>{actionNeeded}</dd></div>
-          <div><dt>Automatically cleared</dt><dd>{counts.clear}</dd></div>
-          <div><dt>System mode</dt><dd className="inboxpulse__mode">{!health ? 'Unavailable' : health.mode === 'full' ? 'Full' : 'Deterministic'}</dd></div>
+          <div><dt>Cleared</dt><dd>{cleared}</dd></div>
+          <div><dt>Not a check</dt><dd>{notChecks}</dd></div>
         </dl>
 
         <section className="workbench" aria-labelledby="email-checks-heading">
@@ -245,24 +246,114 @@ export default function Worklist({ health }) {
             <div>
               <span className="eyebrow">Live worklist</span>
               <h2 id="email-checks-heading">Email checks</h2>
-              <p>Start with an exception, or find a specific case from the inbox.</p>
             </div>
+          </div>
+
+          <div className="inboxnav">
+            <div className="inboxnav__tabs" role="tablist" aria-label="Choose email view">
+              {VIEWS.map(option => (
+                <button key={option.value} type="button" role="tab" aria-selected={view === option.value} onClick={() => setView(option.value)}>
+                  {option.label} <span>{option.value === 'all' ? periodItems.length : option.value === 'todo' ? todoItems.length : doneItems.length}</span>
+                </button>
+              ))}
+            </div>
+            <div className="inboxnav__right">
+              <label className="listsort">
+                <span>Sort</span>
+                <select value={sortBy} onChange={event => setSortBy(event.target.value)}>
+                  <option value="priority">Priority first</option>
+                  {hasDates && <option value="newest">Newest first</option>}
+                  <option value="case_id">Case ID</option>
+                </select>
+              </label>
+              <div className="inboxnav__summary" aria-live="polite">
+                {shown.length === 0
+                  ? (viewItems.length === 0 ? 'No emails in this view' : 'No matching emails')
+                  : `Showing ${pageStart + 1}-${pageEnd} of ${shown.length}`}
+              </div>
+            </div>
+          </div>
+
+          <div className="steps" role="group" aria-label="Filter by what leaves the desk next">
+            <button className="chip" type="button" aria-pressed={step === 'all'} onClick={() => setStep('all')}>
+              All<span className="chip__count">{viewItems.length}</span>
+            </button>
+            {STEPS.map(option => (
+              <button
+                key={option.key}
+                className="chip"
+                type="button"
+                aria-pressed={step === option.key}
+                disabled={stepCounts[option.key] === 0 && step !== option.key}
+                onClick={() => setStep(step === option.key ? 'all' : option.key)}
+              >
+                <span className={'mk mk--' + option.mk} aria-hidden="true"></span>
+                {option.label}<span className="chip__count">{stepCounts[option.key]}</span>
+              </button>
+            ))}
           </div>
 
           <div className="worktools">
             <label className="worksearch">
-              <span>Search by keyword</span>
+              <span>Search</span>
               <input
                 type="search"
                 value={query}
-                placeholder="Case, subject, sender or booking reference"
+                placeholder="Case, subject, sender, owner or booking reference"
                 onChange={event => setQuery(event.target.value)}
               />
-              <small>Searches the case ID, subject, sender, email type and summary.</small>
             </label>
-            <div className="workexport-group">
-              <label htmlFor="export-period">{hasDates ? 'Worklist period & Excel export' : 'Excel export period'}</label>
-              <div className="workexport-row">
+            <div className="filtermenu">
+              <div className="filtermenu__bar">
+                <button className="filtermenu__toggle" type="button" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>
+                  More filters
+                  {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
+                  <i aria-hidden="true">{filtersOpen ? '−' : '+'}</i>
+                </button>
+                <div className="filtermenu__active">
+                  {activeFilterCount === 0
+                    ? <span>Email type, date, export</span>
+                    : <>
+                        {selectedTypes.length > 0 && <span>{selectedTypes.length} email type{selectedTypes.length === 1 ? '' : 's'}</span>}
+                        {dateFilter !== 'all' && <span>{DATE_OPTIONS.find(option => option.value === dateFilter)?.label}</span>}
+                        {chartFilter && <span>{dashboardFilterLabel(chartFilter)}</span>}
+                      </>}
+                </div>
+                {hasSearchOrFilters && <button className="filtermenu__clear" type="button" onClick={() => clearWorklistFilters()}>Clear all</button>}
+              </div>
+            </div>
+          </div>
+
+          {filtersOpen && (
+            <div className={`filtermenu__panel${hasDates ? '' : ' filtermenu__panel--nodates'}`}>
+              <fieldset>
+                <legend>Email type <small>Select multiple</small></legend>
+                <div className="filtermenu__choices">
+                  {TYPE_OPTIONS.map(option => (
+                    <label key={option.value}>
+                      <input type="checkbox" checked={selectedTypes.includes(option.value)} onChange={() => toggleSelection(option.value, selectedTypes, setSelectedTypes)} />
+                      <span>{option.label}</span><b>{typeCounts[option.value]}</b>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              {hasDates && (
+              <div className="filtermenu__dates">
+                <label htmlFor="email-date-filter">Received date</label>
+                <select id="email-date-filter" value={dateFilter} onChange={event => setDateFilter(event.target.value)}>
+                  {DATE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+                {dateFilter === 'custom' && (
+                  <div className="filtermenu__range">
+                    <label>From<input type="date" value={dateFrom} onChange={event => setDateFrom(event.target.value)} /></label>
+                    <label>To<input type="date" value={dateTo} onChange={event => setDateTo(event.target.value)} /></label>
+                  </div>
+                )}
+                <small>Uses the received date, or first processed date when missing.</small>
+              </div>
+              )}
+              <div className="workexport-group">
+                <label htmlFor="export-period">{hasDates ? 'Reporting period and Excel export' : 'Excel export period'}</label>
                 <div className={`workexport-options${exportPeriod === 'month' || exportPeriod === 'year' ? ' workexport-options--dated' : ''}`}>
                   <select
                     id="export-period"
@@ -293,140 +384,52 @@ export default function Worklist({ health }) {
                     </select>
                   )}
                 </div>
-              </div>
-              <div className="workexport-foot">
-                <small>
-                  {exportError
-                    ? exportError
-                    : hasDates
-                      ? `${exportHelp} The worklist and workbook use this period. Search and advanced filters narrow the worklist only.`
-                      : `${exportHelp} Scopes the workbook only — the worklist is unaffected while the inbox carries no received dates.`}
-                </small>
-                <button
-                  className="btn btn--ghost btn--small workexport"
-                  type="button"
-                  disabled={!excelExportUrl || exporting}
-                  aria-busy={exporting}
-                  onClick={downloadExcel}
-                  title="Downloads every case in the selected period; search and advanced filters are ignored"
-                >
-                  {exporting ? 'Building the workbook…' : 'Download Excel'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="inboxnav">
-            <div className="inboxnav__tabs" role="tablist" aria-label="Choose email view">
-              <button type="button" role="tab" aria-selected={inboxView === 'incoming'} onClick={() => setInboxView('incoming')}>
-                Incoming <span>{incomingItems.length}</span>
-              </button>
-              <button type="button" role="tab" aria-selected={inboxView === 'history'} onClick={() => setInboxView('history')}>
-                History <span>{historyItems.length}</span>
-              </button>
-              <button type="button" role="tab" aria-selected={inboxView === 'all'} onClick={() => setInboxView('all')}>
-                All records <span>{periodItems.length}</span>
-              </button>
-            </div>
-            <div className="inboxnav__right">
-              <label className="listsort">
-                <span>Sort</span>
-                <select value={sortBy} onChange={event => setSortBy(event.target.value)}>
-                  <option value="priority">Priority first</option>
-                  {hasDates && <option value="newest">Newest first</option>}
-                  <option value="case_id">Case ID</option>
-                </select>
-              </label>
-              <div className="inboxnav__summary" aria-live="polite">
-                {shown.length === 0
-                  ? (periodItems.length === 0 ? 'No emails in this period' : 'No matching emails')
-                  : `Showing ${pageStart + 1}-${pageEnd} of ${shown.length}`}
-              </div>
-            </div>
-          </div>
-
-          <div className="filtermenu" aria-label="Advanced email filters">
-            <div className="filtermenu__bar">
-              <button className="filtermenu__toggle" type="button" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}>
-                Filter emails
-                {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
-                <i aria-hidden="true">{filtersOpen ? '−' : '+'}</i>
-              </button>
-              <div className="filtermenu__active" aria-live="polite">
-                {activeFilterCount === 0
-                  ? <span>No advanced filters</span>
-                  : <>
-                      {selectedResults.length > 0 && <span>{selectedResults.length} result{selectedResults.length === 1 ? '' : 's'}</span>}
-                      {selectedTypes.length > 0 && <span>{selectedTypes.length} email type{selectedTypes.length === 1 ? '' : 's'}</span>}
-                      {dateFilter !== 'all' && <span>{DATE_OPTIONS.find(option => option.value === dateFilter)?.label}</span>}
-                      {chartFilter && <span>{dashboardFilterLabel(chartFilter)}</span>}
-                    </>}
-              </div>
-              {hasSearchOrFilters && <button className="filtermenu__clear" type="button" onClick={() => clearWorklistFilters()}>Clear all</button>}
-            </div>
-
-            {filtersOpen && (
-              <div className={`filtermenu__panel${hasDates ? '' : ' filtermenu__panel--nodates'}`}>
-                <fieldset>
-                  <legend>Result <small>Select multiple</small></legend>
-                  <div className="filtermenu__choices filtermenu__choices--results">
-                    {FILTERS.map(value => (
-                      <label key={value}>
-                        <input type="checkbox" checked={selectedResults.includes(value)} onChange={() => toggleSelection(value, selectedResults, setSelectedResults)} />
-                        <span className={'mk mk--' + value} aria-hidden="true"></span>
-                        <span>{FILTER_WORD[value]}</span><b>{counts[value]}</b>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-                <fieldset>
-                  <legend>Email type <small>Select multiple</small></legend>
-                  <div className="filtermenu__choices">
-                    {TYPE_OPTIONS.map(option => (
-                      <label key={option.value}>
-                        <input type="checkbox" checked={selectedTypes.includes(option.value)} onChange={() => toggleSelection(option.value, selectedTypes, setSelectedTypes)} />
-                        <span>{option.label}</span><b>{typeCounts[option.value]}</b>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-                {hasDates && (
-                <div className="filtermenu__dates">
-                  <label htmlFor="email-date-filter">Received date</label>
-                  <select id="email-date-filter" value={dateFilter} onChange={event => setDateFilter(event.target.value)}>
-                    {DATE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-                  </select>
-                  {dateFilter === 'custom' && (
-                    <div className="filtermenu__range">
-                      <label>From<input type="date" value={dateFrom} onChange={event => setDateFrom(event.target.value)} /></label>
-                      <label>To<input type="date" value={dateTo} onChange={event => setDateTo(event.target.value)} /></label>
-                    </div>
-                  )}
-                  <small>Uses the received date, or first processed date when missing.</small>
-                </div>
-                )}
-                <div className="filtermenu__actions">
-                  <button type="button" disabled={!hasSearchOrFilters} onClick={() => clearWorklistFilters()}>Reset filters</button>
-                  <button type="button" onClick={() => setFiltersOpen(false)}>Done</button>
+                <div className="workexport-foot">
+                  <small>
+                    {exportError
+                      ? exportError
+                      : hasDates
+                        ? `${exportHelp} The worklist and workbook use this period.`
+                        : `${exportHelp} Scopes the workbook only while the inbox carries no received dates.`}
+                  </small>
+                  <button
+                    className="btn btn--ghost btn--small workexport"
+                    type="button"
+                    disabled={!excelExportUrl || exporting}
+                    aria-busy={exporting}
+                    onClick={downloadExcel}
+                    title={excelExportUrl ? 'Downloads every case in the selected period' : 'Connect the live API to download the workbook'}
+                  >
+                    {exporting ? 'Building the workbook…' : 'Download Excel'}
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
+              <div className="filtermenu__actions">
+                <button type="button" disabled={!hasSearchOrFilters} onClick={() => clearWorklistFilters()}>Reset filters</button>
+                <button type="button" onClick={() => setFiltersOpen(false)}>Done</button>
+              </div>
+            </div>
+          )}
 
           <div className="worklist-results">
               {shown.length === 0 ? (
                 <div className="empty">
-                  <b>{periodItems.length === 0 ? 'No emails in this reporting period.' : 'No emails match this view.'}</b>
-                  <span>{periodItems.length === 0
-                    ? 'Choose another month or year, or return to the full register.'
-                    : 'Clear the filters or open all records to see this whole reporting period.'}</span>
-                  <button className="btn btn--ghost btn--small" type="button" onClick={showFullRegister}>Show full register</button>
+                  <b>{viewItems.length === 0
+                    ? (view === 'todo' ? 'Nothing is waiting. The desk is clear.' : view === 'done' ? 'Nothing has been closed yet.' : 'No emails in this period.')
+                    : 'No emails match these filters.'}</b>
+                  <span>{viewItems.length === 0
+                    ? (view === 'done' ? 'Cases appear here once a decision is recorded on them.' : 'New email appears here as it arrives.')
+                    : 'Clear the filters, or open all records to see the whole register.'}</span>
+                  {(hasSearchOrFilters || view !== 'all') && (
+                    <button className="btn btn--ghost btn--small" type="button" onClick={showFullRegister}>Show everything</button>
+                  )}
                 </div>
               ) : <>
                 <div className="wtable">
                 {visible.map(c => {
                   const k = kindOf(c)
                   const priority = priorityOf(c)
+                  const next = stepOf(c)
                   return (
                     <a className={'wrow wrow--link' + (k === 'none' ? ' wrow--muted' : '')} key={c.email_id} href={'#/case/' + c.email_id}>
                       <span className={'mk mk--' + k}></span>
@@ -439,6 +442,7 @@ export default function Worklist({ health }) {
                         </span>
                         <span className="wrow__ref trunc">{c.subject} &nbsp;&middot;&nbsp; {c.from_addr}</span>
                       </span>
+                      <span className={'wrow__next wrow__next--' + next.key}><i aria-hidden="true"></i>{next.word}</span>
                       {c.assigned_to && <span className="wrow__owner">{c.assigned_to}</span>}
                       {hasDates && <span className="wrow__time">{formatInboxDate(caseDate(c), reportNow)}</span>}
                       <span className="wrow__id">{c.email_id}</span>
@@ -447,15 +451,17 @@ export default function Worklist({ health }) {
                   )
                 })}
                 </div>
-                <nav className="pagination" aria-label="Email list pages">
-                  <button className="pagination__button" type="button" disabled={currentPage === 1} onClick={() => changePage(currentPage - 1)}>
-                    <span aria-hidden="true">&larr;</span> Previous
-                  </button>
-                  <span className="pagination__status">Page <b>{currentPage}</b> of <b>{pageCount}</b></span>
-                  <button className="pagination__button" type="button" disabled={currentPage === pageCount} onClick={() => changePage(currentPage + 1)}>
-                    Next <span aria-hidden="true">&rarr;</span>
-                  </button>
-                </nav>
+                {pageCount > 1 && (
+                  <nav className="pagination" aria-label="Email list pages">
+                    <button className="pagination__button" type="button" disabled={currentPage === 1} onClick={() => changePage(currentPage - 1)}>
+                      <span aria-hidden="true">&larr;</span> Previous
+                    </button>
+                    <span className="pagination__status">Page <b>{currentPage}</b> of <b>{pageCount}</b></span>
+                    <button className="pagination__button" type="button" disabled={currentPage === pageCount} onClick={() => changePage(currentPage + 1)}>
+                      Next <span aria-hidden="true">&rarr;</span>
+                    </button>
+                  </nav>
+                )}
               </>}
           </div>
         </section>
@@ -471,7 +477,8 @@ function caseDate(item) {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-function isIncoming(item) {
+function isTodo(item) {
+  if (['resolved', 'archived'].includes(item.lifecycle) || item.review_status === 'completed') return false
   return !item.lifecycle || item.lifecycle === 'new' || item.lifecycle === 'in_review'
 }
 
@@ -512,12 +519,14 @@ function matchesDate(item, filter, from, to, now) {
 function matchesDashboardFilter(item, filter) {
   if (filter.kind === 'field') return (item.defect_fields || []).includes(filter.value)
   if (filter.kind === 'reason') return item.wire_review_reason === filter.value
+  if (filter.kind === 'result') return kindOf(item) === filter.value
   return true
 }
 
 function dashboardFilterLabel(filter) {
   if (filter.kind === 'field') return `${FIELD_PLAIN[filter.value] || filter.value} differences`
   if (filter.kind === 'reason') return REASON_TITLE[filter.value] || filter.value
+  if (filter.kind === 'result') return { wrong: 'Differences found', review: 'Held for review', clear: 'Cleared', none: 'Not a check' }[filter.value] || filter.value
   return 'Dashboard selection'
 }
 
@@ -538,7 +547,7 @@ function formatInboxDate(date, now) {
 function headline(c) {
   if (c.category !== 'BL_COMPARISON') return c.summary
   if (c.status === 'MISMATCH') return disagreement(c.defect_fields)
-  if (c.status === 'NEEDS_REVIEW') return REASON_TITLE[c.wire_review_reason] ?? 'Needs a person'
+  if (c.status === 'NEEDS_REVIEW') return REASON_TITLE[c.wire_review_reason] ?? 'Held for review'
   return c.summary
 }
 

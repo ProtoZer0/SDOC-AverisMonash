@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction A · Facing Pages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@700&family=Lato:wght@700&display=swap">
+<!-- Tokens and shell components come from the product stylesheet. Everything in
+     the <style> block below is this direction's proposal, plus mockup scaffolding. -->
+<link rel="stylesheet" href="../src/index.css">
+<style>
+  body{ background: #DEDCD6 }
+  .page{ max-width: 1360px; margin: 0 auto; padding: 40px 24px 90px }
+  .lede{ max-width: 760px; margin: 0 0 30px }
+  .lede h1{ margin: 6px 0 10px; font-size: 34px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05 }
+  .lede p{ margin: 0 0 10px; color: #3D4650; font-size: 14.5px; line-height: 1.6 }
+  .lede .cost{ padding: 10px 14px; border-left: 3px solid var(--ink); background: rgba(16,26,36,.05) }
+  .screen{ margin: 0 0 46px }
+  .cap{ display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px }
+  .cap b{ font-size: 16px; font-weight: 600 }
+  .cap span{ font-size: 13px; color: #3D4650 }
+  .frame{ width: 1280px; max-width: 100%; background: var(--paper); border-radius: 14px;
+          overflow: hidden; box-shadow: 0 30px 60px rgba(16,26,36,.18); display: flex; flex-direction: column }
+
+  /* ---------- the facing pages ---------- */
+  .fp-main{ padding: 18px var(--case-gutter) 0 }
+  .fp-strip{ display: flex; align-items: center; gap: 14px; min-height: 40px; margin-bottom: 14px }
+  .fp-strip h2{ margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em }
+  .fp-strip__names{ display: inline-flex; align-items: center; gap: 8px; color: var(--wrong); font-weight: 500 }
+  .fp-strip__names .mk{ width: 9px; height: 9px }
+  .fp-strip__rest{ margin-left: auto; color: var(--muted); font-size: var(--fs-small) }
+
+  .fp-stage{ position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+             align-items: start }
+  .fp-wires{ position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: visible }
+  .fp-wires path{ fill: none; stroke: var(--ink); stroke-width: 1.25; opacity: .16;
+                  transition: opacity 160ms ease }
+  .fp-wires path.on{ opacity: .9; stroke-width: 1.75; stroke-dasharray: 1; stroke-dashoffset: 1;
+                     transition: stroke-dashoffset 220ms cubic-bezier(.2,0,0,1), opacity 160ms ease }
+  .fp-wires path.on.drawn{ stroke-dashoffset: 0 }
+  .fp-wires .end{ opacity: .5; transition: opacity 160ms ease }
+  .fp-wires .end.on{ opacity: 1 }
+  .fp-wires .end--wrong{ fill: var(--wrong) }
+  .fp-wires .end--match{ fill: var(--clearmark) }
+  .fp-wires .end--review{ fill: var(--blue) }
+  .fp-gutter{ position: relative; min-height: 100% }
+
+  .fp-sheet{ position: relative; z-index: 1; background: var(--sheet);
+             border: 1px solid rgba(16,26,36,.20); border-bottom-width: 2px; border-right-width: 2px }
+  .fp-sheet__head{ display: flex; align-items: flex-start; gap: 14px; padding: 15px 18px 11px;
+                   border-bottom: 1px solid var(--rule) }
+  .fp-sheet__title{ margin: 0 0 3px; font-size: 14px; font-weight: 600; letter-spacing: .10em }
+  .fp-sheet__file{ font-family: var(--mono); font-size: 11px; color: var(--muted) }
+  .fp-sheet__stamp{ margin-left: auto; font-size: 10px; font-weight: 600; letter-spacing: .18em;
+                    color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 3px 9px }
+  .fp-sheet__stamp--review{ display: inline-flex; align-items: center; gap: 7px;
+                            color: var(--blue); border-color: rgba(0,109,174,.5) }
+  .fp-sheet__stamp--review .mk{ width: 8px; height: 8px }
+
+  .fp-lines{ margin: 0; padding: 12px 0 14px; list-style: none;
+             font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink) }
+  .fp-line{ display: grid; grid-template-columns: 124px minmax(0, 1fr) 82px; align-items: baseline; min-height: 21px }
+  .fp-line__tag{ padding-right: 12px; text-align: right; font-family: var(--sans); font-size: 9px;
+                 font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+                 white-space: nowrap }
+  .fp-line__num{ padding-right: 12px; text-align: right; font-size: 10px; color: rgba(85,96,107,.55) }
+  .fp-line__text{ white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 10px }
+  .fp-line__conf{ font-family: var(--sans); font-size: 9.5px; font-weight: 500; letter-spacing: .08em;
+                  color: var(--muted); padding-right: 14px; text-align: right; white-space: nowrap }
+  .fp-line--fix .fp-line__tag{ color: var(--clear) }
+  .fp-line--fix .fp-line__text{ color: var(--clear); font-weight: 700 }
+  .fp-line--fix .fp-line__text::before{ content: '\2192  '; font-weight: 400; color: var(--clearmark) }
+
+  /* The hit is the value the pipeline read. The sweep is the reaction. */
+  .fp-hit{ display: inline; margin: 0; padding: 1px 2px; border: 0; border-radius: 2px;
+           background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;
+           background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13));
+           background-repeat: no-repeat; background-size: 0% 100%;
+           transition: background-size 180ms cubic-bezier(.2,0,0,1), box-shadow 120ms ease }
+  .fp-hit:hover{ box-shadow: inset 0 -1px 0 rgba(16,26,36,.45) }
+  .fp-hit:focus-visible{ outline: 2px solid var(--blue); outline-offset: 1px }
+  .fp-hit[data-on="true"]{ background-size: 100% 100%; box-shadow: inset 0 -2px 0 var(--ink) }
+  .fp-hit--wrong{ color: var(--wrong); font-weight: 700 }
+  .fp-hit--wrong s{ text-decoration-thickness: 1.5px; text-decoration-color: rgba(184,58,40,.7) }
+  @media (prefers-reduced-motion: reduce){
+    .fp-hit{ background-size: 100% 100%; background-image: none }
+    .fp-hit[data-on="true"]{ background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13)) }
+  }
+
+  .fp-detail{ display: block; min-height: 46px; margin: 10px 0 0; padding: 12px 2px 0;
+              color: var(--muted); font-size: var(--fs-small); line-height: 1.6 }
+  .fp-detail b{ color: var(--ink); font-weight: 500 }
+  .fp-detail .src{ font-family: var(--mono); font-size: 12px; color: var(--ink) }
+
+  /* refusal record: a sheet that carries the stop as content, never as blank space */
+  .fp-stop{ padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 16px }
+  .fp-stop__say{ margin: 0; font-size: 19px; font-weight: 500; line-height: 1.35; letter-spacing: -.01em }
+  .fp-stop__facts{ margin: 0; display: grid; grid-template-columns: 150px 1fr; row-gap: 5px; column-gap: 12px;
+                   padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule) }
+  .fp-stop__facts dt{ color: var(--muted); font-size: var(--fs-meta) }
+  .fp-stop__facts dd{ margin: 0; font-family: var(--mono); font-size: 12px }
+  .fp-stop__why{ margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.55 }
+  .fp-stop__stage{ display: flex; gap: 4px; align-items: center }
+  .fp-stop__stage span{ flex: 1; height: 6px; background: var(--clearmark); border-radius: 1px }
+  .fp-stop__stage span.stop{ background: var(--blue); border-radius: 3px; height: 10px; flex: 1.4 }
+  .fp-stop__stage span.notrun{ background: transparent; border: 1px dashed rgba(16,26,36,.35) }
+  .fp-stop__legend{ display: flex; gap: 14px; margin: -8px 0 0; padding: 0; list-style: none;
+                    color: var(--muted); font-size: 10.5px }
+
+  /* worklist, this direction */
+  .fp-work{ padding: 22px var(--case-gutter) 26px; display: flex; flex-direction: column; gap: 14px }
+  .fp-workhead{ display: flex; align-items: flex-end; gap: 22px }
+  .fp-workhead h1{ margin: 4px 0 0; font-size: 26px; font-weight: 600; letter-spacing: -.03em }
+  .fp-pulse{ margin-left: auto; display: flex; gap: 0; border: 1px solid var(--rule); border-radius: 10px;
+             overflow: hidden; background: var(--sheet) }
+  .fp-pulse > div{ padding: 9px 16px; border-right: 1px solid var(--rule); min-width: 118px }
+  .fp-pulse > div:last-child{ border-right: 0 }
+  .fp-pulse dt{ color: var(--muted); font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase }
+  .fp-pulse dd{ margin: 2px 0 0; font-family: var(--mono); font-size: 18px; font-weight: 500 }
+  .fp-rows .wrow{ animation: fp-in 150ms ease both }
+  @keyframes fp-in{ from{ opacity: 0 } to{ opacity: 1 } }
+  .wrow__pair{ display: inline-flex; gap: 3px; flex: none; margin-right: 4px }
+  .wrow__pair i{ width: 9px; height: 12px; border: 1px solid rgba(16,26,36,.45); border-radius: 1px; background: var(--sheet) }
+  .wrow__pair i.off{ border-style: dashed; background: transparent }
+  .wrow__pair i.miss{ border-color: var(--wrong) }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="lede">
+    <span class="eyebrow">Direction A</span>
+    <h1>Facing Pages</h1>
+    <p><b>The argument: evidence is a place.</b> The instruction and the draft are laid open side by side as the
+       two real documents, every line of them. The seven lines we compare are named in the margin; every other line
+       is only numbered, so the page itself answers "which fields do you check". Seven hairline threads stitch each
+       named line to its twin. Click one and the thread draws itself, both values sweep, and there is no separate
+       evidence panel to open, because the evidence is already on the table. A refusal is not an empty page: the
+       draft's slot holds a record of exactly what could not be read, and every thread from the instruction stops at
+       its edge.</p>
+    <p class="cost"><b>What it costs.</b> Two full documents need the vertical room, so the margin notes shrink to one
+       strip and the per-field details move under the pages. The thread is geometry: it must be recomputed on resize
+       and after fonts load, and it is dropped below 1160px. When scanned PDFs arrive, this layout needs a page-image
+       renderer to keep its promise.</p>
+  </div>
+
+  <!-- ============ THE CHECK ============ -->
+  <div class="screen">
+    <div class="cap"><b>The check</b><span>email_004 · click any named line, on either page</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__back" href="#" aria-label="Back to the worklist">&#8592;</a>
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Document check</span>
+        <span class="thin__meta">email_004</span>
+        <span class="thin__actions"><button class="thin__audit" type="button"><span class="thin__auditmark"></span>Audit trail</button></span>
+      </div></header>
+      <section class="casebanner">
+        <span class="mk mk--wrong"></span>
+        <div><span class="casebanner__status casebanner__status--wrong">Differences found</span>
+          <h1>REQUEST BL DRAFT _ PO 26067_ COATED IVORY BOARD__138MT</h1></div>
+        <dl class="casebanner__meta"><div><dt>Case</dt><dd>email_004</dd></div><div><dt>From</dt><dd>docs@vitalsolutions.sg</dd></div></dl>
+      </section>
+
+      <div class="fp-main">
+        <div class="fp-strip">
+          <h2>2 of 7 details differ</h2>
+          <span class="fp-strip__names"><span class="mk mk--wrong"></span>Receiver</span>
+          <span class="fp-strip__names"><span class="mk mk--wrong"></span>Notify on arrival</span>
+          <span class="fp-strip__rest">The other 5 match the instruction.</span>
+        </div>
+        <div class="fp-stage" id="stage-a">
+          <svg class="fp-wires" id="wires-a"></svg>
+          <div class="fp-sheet" id="si-a"></div>
+          <div class="fp-gutter"></div>
+          <div class="fp-sheet" id="bl-a"></div>
+        </div>
+        <div class="fp-detail" id="detail-a">Click any named line to see where its value sits on the other page.</div>
+      </div>
+
+      <div class="fbar" style="margin-top:14px">
+        <span class="fbar__prompt">Choose what should happen next. The decision will appear in the audit trail.</span>
+        <span class="grow"></span>
+        <button class="btn btn--ghost" type="button">Send to a person</button>
+        <button class="btn" type="button">Reject the draft</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THE REFUSAL ============ -->
+  <div class="screen">
+    <div class="cap"><b>The refusal</b><span>email_511 · the draft is a PDF with no text layer · the instruction was read in full</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__back" href="#" aria-label="Back to the worklist">&#8592;</a>
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Document check</span>
+        <span class="thin__meta">email_511</span>
+        <span class="thin__actions"><button class="thin__audit" type="button"><span class="thin__auditmark"></span>Audit trail</button></span>
+      </div></header>
+      <section class="casebanner">
+        <span class="mk mk--review"></span>
+        <div><span class="casebanner__status casebanner__status--review">Needs a person</span>
+          <h1>RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768</h1></div>
+        <dl class="casebanner__meta"><div><dt>Case</dt><dd>email_511</dd></div><div><dt>From</dt><dd>willy_ss@aprilasia.com</dd></div></dl>
+      </section>
+
+      <div class="fp-main">
+        <div class="fp-strip">
+          <h2>Stopped before comparing</h2>
+          <span class="fp-strip__names" style="color:var(--blue)"><span class="mk mk--review"></span>Draft not readable</span>
+          <span class="fp-strip__rest">7 of 7 instruction values were read. None were compared.</span>
+        </div>
+        <div class="fp-stage" id="stage-r">
+          <svg class="fp-wires" id="wires-r"></svg>
+          <div class="fp-sheet" id="si-r"></div>
+          <div class="fp-gutter"></div>
+          <div class="fp-sheet" id="bl-r">
+            <div class="fp-sheet__head">
+              <div><h4 class="fp-sheet__title">BILL OF LADING</h4><div class="fp-sheet__file">attachments/email_511_BL.pdf</div></div>
+              <span class="fp-sheet__stamp fp-sheet__stamp--review"><span class="mk mk--review"></span>NOT READ</span>
+            </div>
+            <div class="fp-stop">
+              <p class="fp-stop__say">We could not read this file, so we compared nothing.</p>
+              <dl class="fp-stop__facts">
+                <dt>Format</dt><dd>PDF, image only</dd>
+                <dt>Text layer</dt><dd>none</dd>
+                <dt>Characters extracted</dt><dd>0</dd>
+                <dt>Detected kind</dt><dd>UNKNOWN</dd>
+                <dt>Stopped at</dt><dd>extract, stage 3 of 7</dd>
+              </dl>
+              <div class="fp-stop__stage" aria-label="Pipeline: classify done, gate done, extract stopped, four stages not run">
+                <span></span><span></span><span class="stop"></span><span class="notrun"></span><span class="notrun"></span><span class="notrun"></span><span class="notrun"></span>
+              </div>
+              <ul class="fp-stop__legend"><li>classify</li><li>gate</li><li><b>extract, stopped</b></li><li>normalise · compare · confidence · decide not run</li></ul>
+              <p class="fp-stop__why">A scan with no text layer would have to be guessed at, seven times. The instruction on the left is
+                 fully read and waiting; the case needs either a text copy of the draft or a person with the original.</p>
+            </div>
+          </div>
+        </div>
+        <div class="fp-detail" id="detail-r">Every thread from the instruction stops at the draft's edge. Click a named line to see what was read.</div>
+      </div>
+
+      <div class="fbar" style="margin-top:14px">
+        <span class="fbar__prompt">Choose what should happen next. The decision will appear in the audit trail.</span>
+        <span class="grow"></span>
+        <button class="btn btn--ghost" type="button">Ask for a readable draft</button>
+        <button class="btn" type="button">Send to a person</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THE WORKLIST ============ -->
+  <div class="screen">
+    <div class="cap"><b>The worklist, top</b><span>each row carries its two pages as a glyph: solid means read, dashed means missing, red means a difference</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Email checks</span>
+        <span class="thin__meta">12 emails</span>
+        <nav class="thin__nav"><a href="#" aria-current="page">Worklist</a><a href="#">Analytics</a></nav>
+        <span class="thin__actions"><a class="thin__queue" href="#"><span class="mk mk--review"></span>Review queue <b>5</b></a></span>
+      </div></header>
+      <div class="fp-work">
+        <div class="fp-workhead">
+          <div><span class="eyebrow">Shipping document control desk</span><h1>Start with what needs attention.</h1></div>
+          <dl class="fp-pulse">
+            <div><dt>Incoming</dt><dd>12</dd></div>
+            <div><dt>Needs action</dt><dd>6</dd></div>
+            <div><dt>Cleared</dt><dd>2</dd></div>
+            <div><dt>Not a check</dt><dd>4</dd></div>
+          </dl>
+        </div>
+        <div class="wtable fp-rows" id="rows-a"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+
+const SI4 = `SHIPPING INSTRUCTION
+========================================
+
+Shipper: APRIL FAR EAST (M) SDN BHD
+  TOWER 2, AVENUE 5, LEVEL 6; BANGSAR SOUTH CITY, NO. 8 JALAN KERINCHI; 59200 KUALA LUMPUR, MALAYSIA
+Consignee (Non-Negotiable): EAST BRIGHT FZ-LLC
+  RAKEZ AMENITY CENTER; AL HAMRA INDUSTRIAL ZONE, RAK, UAE
+Notify: EAST BRIGHT FZ-LLC
+Port of Loading (POL): NANTONG, CHINA (CNNTG)
+POD: KARACHI, PAKISTAN (PKKHI)
+Total Containers: 6 x 40'HC
+Gross Wt (kgs): 131,058 KG
+Vessel: NAP 914 V.BS007
+Voyage: BS012
+Kinds of Packages; Description of Goods: COATED IVORY BOARD
+HS Code: 48105900
+Booking Ref: ONEYSINF32871
+OC No.: 5ALT-01226
+Freight: PREPAID`
+
+const BL4 = `BILL OF LADING (DRAFT)
+========================================
+
+SHIPPER: APRIL FAR EAST (M) SDN BHD
+  TOWER 2, AVENUE 5, LEVEL 6; BANGSAR SOUTH CITY, NO. 8 JALAN KERINCHI; 59200 KUALA LUMPUR, MALAYSIA
+To the Order of: UAB NOVAKOPA
+  RAKEZ AMENITY CENTER; AL HAMRA INDUSTRIAL ZONE, RAK, UAE
+Notify Party: UAB NOVAKOPA
+Port of Loading (POL): NANTONG, CHINA (CNNTG)
+POD: KARACHI, PAKISTAN (PKKHI)
+Container Count: 6 x 40'HC
+Gross Weight (KG): 131,058 KG
+Export Carrier (vessel, voyage): NAP 914 V.BS007
+Voyage: BS012
+Commodity: COATED IVORY BOARD
+Bill of Lading No.: SINF88496965
+Booking Ref: ONEYSINF32871
+Freight: PREPAID`
+
+const SI511 = `SHIPPING INSTRUCTION
+========================================
+
+Shipper: APRIL FINE PAPER TRADING
+  ON BEHALF OF VITAL SOLUTIONS PTE LTD; 77 ROBINSON ROAD, #21-01; SINGAPORE 068896
+To the Order of: AL GURG STATIONERY LLC
+  P.O. BOX 5069; DUBAI, UNITED ARAB EMIRATES
+Notify: AL GURG STATIONERY LLC
+POL: NHAVA SHEVA, INDIA (INNSA)
+Port of Discharge (POD): KOPER, SLOVENIA (SIKOP)
+Total Containers: 6 x 40'HC
+Gross Weight毛重(KGS): 134,904 KG
+Vessel Name: SOLID 16 V.044NW2
+Voyage: 2545E
+Description: COATED IVORY BOARD
+HS Code: 48105900
+Booking No.: MCLSINJEA2529384
+OC No.: 5SUS-40134
+Freight: PREPAID`
+
+// Values, lines and labels copied from web/mocks/cases/email_004.json and email_511.json.
+const HITS4 = [
+  { f:'shipper', name:'Sender', verdict:'match', conf:'checked',
+    si:{ line:3, v:'APRIL FAR EAST (M) SDN BHD', label:'Shipper' }, bl:{ line:3, v:'APRIL FAR EAST (M) SDN BHD', label:'SHIPPER' } },
+  { f:'consignee', name:'Receiver', verdict:'wrong', conf:'checked',
+    si:{ line:5, v:'EAST BRIGHT FZ-LLC', label:'Consignee (Non-Negotiable)' }, bl:{ line:5, v:'UAB NOVAKOPA', label:'To the Order of' } },
+  { f:'notify_party', name:'Notify on arrival', verdict:'wrong', conf:'checked',
+    si:{ line:7, v:'EAST BRIGHT FZ-LLC', label:'Notify' }, bl:{ line:7, v:'UAB NOVAKOPA', label:'Notify Party' } },
+  { f:'port_of_loading', name:'Port of loading', verdict:'match', conf:'checked',
+    si:{ line:8, v:'NANTONG, CHINA (CNNTG)', label:'Port of Loading (POL)' }, bl:{ line:8, v:'NANTONG, CHINA (CNNTG)', label:'Port of Loading (POL)' } },
+  { f:'port_of_discharge', name:'Port of discharge', verdict:'match', conf:'checked',
+    si:{ line:9, v:'KARACHI, PAKISTAN (PKKHI)', label:'POD' }, bl:{ line:9, v:'KARACHI, PAKISTAN (PKKHI)', label:'POD' } },
+  { f:'container_count', name:'Containers', verdict:'match', conf:'checked',
+    si:{ line:10, v:"6 x 40'HC", label:'Total Containers' }, bl:{ line:10, v:"6 x 40'HC", label:'Container Count' } },
+  { f:'gross_weight_kg', name:'Gross weight', verdict:'match', conf:'checked',
+    si:{ line:11, v:'131,058 KG', label:'Gross Wt (kgs)' }, bl:{ line:11, v:'131,058 KG', label:'Gross Weight (KG)' } },
+]
+
+const HITS511 = [
+  { f:'shipper', name:'Sender', verdict:'review', si:{ line:3, v:'APRIL FINE PAPER TRADING', label:'Shipper' } },
+  { f:'consignee', name:'Receiver', verdict:'review', si:{ line:5, v:'AL GURG STATIONERY LLC', label:'To the Order of' } },
+  { f:'notify_party', name:'Notify on arrival', verdict:'review', si:{ line:7, v:'AL GURG STATIONERY LLC', label:'Notify' } },
+  { f:'port_of_loading', name:'Port of loading', verdict:'review', si:{ line:8, v:'NHAVA SHEVA, INDIA (INNSA)', label:'POL' } },
+  { f:'port_of_discharge', name:'Port of discharge', verdict:'review', si:{ line:9, v:'KOPER, SLOVENIA (SIKOP)', label:'Port of Discharge (POD)' } },
+  { f:'container_count', name:'Containers', verdict:'review', si:{ line:10, v:"6 x 40'HC", label:'Total Containers' } },
+  { f:'gross_weight_kg', name:'Gross weight', verdict:'review', si:{ line:11, v:'134,904 KG', label:'Gross Weight毛重(KGS)' } },
+]
+
+function renderSheet(el, { title, file, stamp, text, hits, side, showConf }) {
+  const lines = text.split('\n')
+  const bySide = {}
+  for (const h of hits) if (h[side]) bySide[h[side].line] = h
+  let out = `<div class="fp-sheet__head"><div><h4 class="fp-sheet__title">${esc(title)}</h4>`
+          + `<div class="fp-sheet__file">${esc(file)}</div></div><span class="fp-sheet__stamp">${esc(stamp)}</span></div>`
+  out += '<ol class="fp-lines">'
+  lines.forEach((line, i) => {
+    const h = bySide[i]
+    if (!h) {
+      out += `<li class="fp-line"><span class="fp-line__num">${i + 1}</span><span class="fp-line__text">${esc(line) || ' '}</span><span></span></li>`
+      return
+    }
+    const v = h[side].v
+    const at = line.indexOf(v)
+    const wrong = h.verdict === 'wrong' && side === 'bl'
+    const inner = wrong ? `<s>${esc(v)}</s>` : esc(v)
+    const btn = `<button class="fp-hit${wrong ? ' fp-hit--wrong' : ''}" type="button" data-f="${h.f}" data-side="${side}" aria-pressed="false">${inner}</button>`
+    const conf = showConf && h.conf ? esc(h.conf) : ''
+    out += `<li class="fp-line fp-line--hit"><span class="fp-line__tag">${esc(h.name)}</span>`
+         + `<span class="fp-line__text">${esc(line.slice(0, at))}${btn}${esc(line.slice(at + v.length))}</span>`
+         + `<span class="fp-line__conf">${conf}</span></li>`
+    if (wrong) {
+      out += `<li class="fp-line fp-line--fix"><span class="fp-line__tag">should read</span>`
+           + `<span class="fp-line__text">${esc(h.si.v)}</span><span></span></li>`
+    }
+  })
+  out += '</ol>'
+  el.innerHTML = out
+}
+
+function wire(stage, svg, hits, selected, stopAtSheet) {
+  const box = stage.getBoundingClientRect()
+  svg.setAttribute('width', box.width); svg.setAttribute('height', box.height)
+  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`)
+  let out = ''
+  const shape = (x, y, verdict, on) => {
+    const cls = `end end--${verdict}${on ? ' on' : ''}`
+    if (verdict === 'wrong') return `<circle class="${cls}" cx="${x}" cy="${y}" r="4.2"/>`
+    if (verdict === 'review') return `<rect class="${cls}" x="${x - 4}" y="${y - 4}" width="8" height="8" rx="2.2"/>`
+    return `<rect class="${cls}" x="${x - 3.6}" y="${y - 3.6}" width="7.2" height="7.2"/>`
+  }
+  for (const h of hits) {
+    const a = stage.querySelector(`.fp-hit[data-f="${h.f}"][data-side="si"]`)
+    if (!a) continue
+    const ra = a.getBoundingClientRect()
+    const siEdge = stage.children[1].getBoundingClientRect().right - box.left
+    const blEdge = (stopAtSheet || stage.children[3]).getBoundingClientRect().left - box.left
+    const x1 = siEdge, y1 = ra.top - box.top + ra.height / 2
+    let x2 = blEdge, y2 = y1
+    if (!stopAtSheet) {
+      const b = stage.querySelector(`.fp-hit[data-f="${h.f}"][data-side="bl"]`)
+      if (!b) continue
+      const rb = b.getBoundingClientRect()
+      y2 = rb.top - box.top + rb.height / 2
+    }
+    const on = selected === h.f
+    const mx = (x1 + x2) / 2
+    out += `<path class="${on ? 'on' : ''}" pathLength="1" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`
+    out += shape(x1, y1, h.verdict, on) + shape(x2, y2, h.verdict, on)
+  }
+  svg.innerHTML = out
+  const p = svg.querySelector('path.on')
+  if (p) requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('drawn')))
+}
+
+function explain(h) {
+  if (!h) return ''
+  if (h.verdict === 'review') return `Read on the instruction as <span class="src">${esc(h.si.label)}</span>, line ${h.si.line + 1}. Nothing on the draft to set it against.`
+  const same = h.si.label === h.bl.label
+  const names = same
+    ? `Both documents call this <span class="src">${esc(h.si.label)}</span>.`
+    : `Instruction calls this <span class="src">${esc(h.si.label)}</span>; draft calls it <span class="src">${esc(h.bl.label)}</span>. Read as the same field.`
+  const how = h.verdict === 'wrong'
+    ? '<b>Different companies.</b> Read by the parser on both sides, so this is a real disagreement, not a reading error.'
+    : '<b>Same value on both pages.</b> Read by the parser.'
+  return `${names} ${how}`
+}
+
+function mount(id, hits, si, bl, stopAtSheet) {
+  const stage = document.getElementById('stage-' + id)
+  const svg = document.getElementById('wires-' + id)
+  const detail = document.getElementById('detail-' + id)
+  const idle = detail.innerHTML
+  let selected = null
+  const redraw = () => wire(stage, svg, hits, selected, stopAtSheet)
+  stage.addEventListener('click', e => {
+    const btn = e.target.closest('.fp-hit'); if (!btn) return
+    selected = selected === btn.dataset.f ? null : btn.dataset.f
+    stage.querySelectorAll('.fp-hit').forEach(b => {
+      const on = b.dataset.f === selected
+      b.dataset.on = on; b.setAttribute('aria-pressed', on)
+    })
+    detail.innerHTML = selected ? explain(hits.find(h => h.f === selected)) : idle
+    redraw()
+  })
+  redraw()
+  window.addEventListener('resize', redraw)
+  if (document.fonts) document.fonts.ready.then(redraw)
+  setTimeout(redraw, 300)
+}
+
+renderSheet(document.getElementById('si-a'), { title:'SHIPPING INSTRUCTION', file:'attachments/email_004_SI.txt', stamp:'SOURCE', text:SI4, hits:HITS4, side:'si' })
+renderSheet(document.getElementById('bl-a'), { title:'BILL OF LADING', file:'attachments/email_004_BL.txt', stamp:'DRAFT', text:BL4, hits:HITS4, side:'bl', showConf:true })
+mount('a', HITS4)
+
+renderSheet(document.getElementById('si-r'), { title:'SHIPPING INSTRUCTION', file:'attachments/email_511_SI.txt', stamp:'SOURCE', text:SI511, hits:HITS511, side:'si' })
+mount('r', HITS511, null, null, document.getElementById('bl-r'))
+if (location.hash === '#demo') document.querySelector('#stage-a .fp-hit[data-f="consignee"][data-side="bl"]').click()
+
+// Worklist rows, priority order as the app sorts them (status.js priorityOf).
+const ROWS = [
+  { id:'email_501', k:'review', p:'Blocked', h:'Wrong document attached', s:'RE_ TO CONFIRM DOCS _ 5RSG-51584 _ HOUSTON_US _ KPP-ANTALIS (SINGAPORE) PTE. LTD. _ YMJAI905670867', from:'exports@ifpla.com', pair:['on','off'] },
+  { id:'email_506', k:'review', p:'Blocked', h:'Nothing attached to check', s:'RE_ AFRT - LONG BEACH_US - EVER(EGLV433335384951) - 5RSG-19787 - 5250071809 - EAST BRIGHT FZ-LLC - OA_CFR', from:'arlene_yamomo@aprilasia.com', pair:['off','off'] },
+  { id:'email_507', k:'review', p:'Blocked', h:'Nothing attached to check', s:'RE_ TO CONFIRM DOCS _ 5AKR-00230 _ KOPER_SLOVENIA _ 3S PAPER PRODUCTS SDN BHD _ MCLSIN6917702', from:'docs@vitalsolutions.sg', pair:['on','off'] },
+  { id:'email_511', k:'review', p:'Blocked', h:'The file will not open', s:'RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768', from:'willy_ss@aprilasia.com', pair:['on','off'] },
+  { id:'email_004', k:'wrong', p:'High', h:'Receiver and notify on arrival do not match', s:'REQUEST BL DRAFT _ PO 26067_ COATED IVORY BOARD__138MT', from:'docs@vitalsolutions.sg', pair:['on','miss'] },
+  { id:'email_516', k:'review', p:'High', h:'A value is blank', s:'RE_ AFEMY - CONAKRY_GUINEA - MONTER(MCLSIN6123859) - 5RCY-68239 - 5250071820 - KPP-ANTALIS (SINGAPORE) PTE. LTD.', from:'elisa_tukiman@april.com.my', pair:['on','on'] },
+  { id:'email_001', k:'clear', p:null, h:'All 7 details match.', s:'TO CONFIRM DOCS _ 5RSG-00133 _ CALLAO_PERU _ MOORIM SP CO., LTD _ MEDUUD104332', from:'aziztz@safqa.co.ke', pair:['on','on'] },
+  { id:'email_003', k:'clear', p:null, h:'No documents attached to compare.', s:'RE_ TO CONFIRM DOCS _ 5AAT-03056 _ AQABA_JORDAN _ ROXCEL TRADING GMBH _ SIN525534192', from:'exports@ifpla.com', pair:['off','off'] },
+]
+const PCLS = { Blocked:'urgent', High:'high' }
+document.getElementById('rows-a').innerHTML = ROWS.map((r, i) =>
+  `<a class="wrow wrow--link" href="#" style="animation-delay:${i * 10}ms">`
+  + `<span class="mk mk--${r.k}"></span>`
+  + `<span class="wrow__pair" aria-hidden="true"><i class="${r.pair[0]}"></i><i class="${r.pair[1]}"></i></span>`
+  + `<span class="wrow__body"><span class="wrow__headline"><span class="wrow__found wrow__found--${r.k}">${esc(r.h)}</span>`
+  + (r.p ? `<span class="priority priority--${PCLS[r.p]}">${r.p}</span>` : '') + `</span>`
+  + `<span class="wrow__ref trunc">${esc(r.s)} &nbsp;&middot;&nbsp; ${esc(r.from)}</span></span>`
+  + `<span class="wrow__id">${r.id}</span><span class="wrow__open">&rarr;</span></a>`).join('')
+</script>
+</body>
+</html>

@@ -1,10 +1,4 @@
-const COMPONENT_LABEL = {
-  classifier: 'AI classifier',
-  extraction: 'AI extraction',
-  deterministic_rules: 'Deterministic rules',
-  comparison: 'Comparison engine',
-  audit_log: 'Audit logging',
-}
+import { FIELD_PLAIN, REASON_TITLE, STEPS, stepOf } from './status.js'
 
 const CATEGORY_LABEL = {
   BL_COMPARISON: 'Document comparison',
@@ -14,185 +8,124 @@ const CATEGORY_LABEL = {
   SPAM: 'Spam',
 }
 
-const FIELD_LABEL = {
-  shipper: 'Shipper',
-  consignee: 'Consignee',
-  notify_party: 'Notify party',
-  port_of_loading: 'Port of loading',
-  port_of_discharge: 'Port of discharge',
-  container_count: 'Container count',
-  gross_weight_kg: 'Gross weight',
-}
+export default function Dashboard({ health, items, onDrillDown }) {
+  const checks = items.filter(item => item.category === 'BL_COMPARISON')
+  const cleared = checks.filter(item => item.status === 'OK').length
+  const mismatches = checks.filter(item => item.status === 'MISMATCH').length
+  const held = checks.filter(item => item.status === 'NEEDS_REVIEW').length
+  const routed = items.length - checks.length
+  const todo = items.filter(isTodo)
 
-const REVIEW_LABEL = {
-  missing_attachment: 'Missing attachment',
-  wrong_doc_type: 'Wrong document type',
-  unreadable: 'Unreadable document',
-  missing_value: 'Missing or uncertain field',
-}
-
-export default function Dashboard({ health, items, periodLabel = 'Full register', onDrillDown, standalone = false }) {
-  const comparisonCases = items.filter(item => item.category === 'BL_COMPARISON')
-  const cleared = comparisonCases.filter(item => item.status === 'OK').length
-  const mismatches = comparisonCases.filter(item => item.status === 'MISMATCH').length
-  const reviews = comparisonCases.filter(item => item.status === 'NEEDS_REVIEW').length
-  const needAction = mismatches + reviews
-  const averageConfidence = average(
-    items.map(item => item.category_confidence).filter(Number.isFinite)
-  )
-
+  const leftToDo = STEPS
+    .filter(step => !['cleared', 'other'].includes(step.key))
+    .map(step => ({ key: step.key, label: step.label, mk: step.mk, value: todo.filter(item => stepOf(item).key === step.key).length }))
+    .filter(row => row.value > 0)
+  const defectFields = countRows(checks.flatMap(item => item.defect_fields || []), value => value, FIELD_PLAIN)
+  const reasons = countRows(checks.filter(item => item.status === 'NEEDS_REVIEW'), item => item.wire_review_reason, REASON_TITLE)
   const workload = countRows(items, item => item.category, CATEGORY_LABEL)
-  const mismatchFields = countOccurrences(
-    comparisonCases.flatMap(item => item.defect_fields || []), FIELD_LABEL
-  )
-  const reviewReasons = countRows(
-    comparisonCases.filter(item => item.status === 'NEEDS_REVIEW'),
-    item => item.wire_review_reason,
-    REVIEW_LABEL
-  )
-  const outcomes = [
-    { label: 'Cleared', value: cleared, tone: 'clear' },
-    { label: 'Differences', value: mismatches, tone: 'wrong' },
-    { label: 'Human review', value: reviews, tone: 'review' },
-  ]
+  const days = byDay(items)
 
   return (
-    <details className={`ops${standalone ? ' ops--standalone' : ''}`} open={standalone || undefined}>
-      <summary className="ops__summary">
-        <span className="ops__summarycopy">
-          <span className="eyebrow">Analytics</span>
-          <strong>Workload and system health</strong>
-        </span>
-        <span className="ops__quick" aria-label="Current operational summary">
-          <span><b>{items.length}</b> in period</span>
-          <span><b>{needAction}</b> need action</span>
-          <span className={'ops__health ops__health--' + healthTone(health)}>
-            <i aria-hidden="true"></i>{healthWord(health)}
-          </span>
-        </span>
-        <span className="ops__chevron" aria-hidden="true">⌄</span>
-      </summary>
-
-      <div className="ops__body">
-        <section className="ops__analytics" aria-labelledby="ops-title">
-          <div className="ops__head">
-            <div>
-              <span className="eyebrow">Quick-look dashboard</span>
-              <h2 id="ops-title">Register analytics</h2>
-            </div>
-            <span className="ops__period">{periodLabel}</span>
+    <div className="ops">
+      <section className="funnel" aria-labelledby="funnel-title">
+        <span className="eyebrow">Taken off the desk</span>
+        <h2 id="funnel-title">
+          {checks.length === 0
+            ? 'No document checks yet.'
+            : <><b>{cleared} of {checks.length}</b> drafts cleared without a person. {held} held for review, {mismatches} sent back.</>}
+        </h2>
+        <div className="funnel__row">
+          <button type="button" className="funnel__box" onClick={() => onDrillDown?.({ kind: 'none' })}>
+            <small>Emails read</small><strong>{items.length}</strong><span>{routed} were not checks</span>
+          </button>
+          <span className="funnel__arrow" aria-hidden="true"></span>
+          <button type="button" className="funnel__box" onClick={() => onDrillDown?.({ kind: 'category', value: 'BL_COMPARISON' })}>
+            <small>Document checks</small><strong>{checks.length}</strong><span>{percent(checks.length, items.length)} of email</span>
+          </button>
+          <span className="funnel__arrow" aria-hidden="true"></span>
+          <div className="funnel__outcomes">
+            <Outcome mk="clear" label="Cleared" value={cleared} total={checks.length} onClick={() => onDrillDown?.({ kind: 'result', value: 'clear' })} />
+            <Outcome mk="wrong" label="Differences found" value={mismatches} total={checks.length} onClick={() => onDrillDown?.({ kind: 'result', value: 'wrong' })} />
+            <Outcome mk="review" label="Held for review" value={held} total={checks.length} onClick={() => onDrillDown?.({ kind: 'result', value: 'review' })} />
           </div>
+        </div>
+      </section>
 
-          {standalone && (
-            <RegisterFlow
-              total={items.length}
-              comparisons={comparisonCases.length}
-              routed={items.length - comparisonCases.length}
-              cleared={cleared}
-              mismatches={mismatches}
-              reviews={reviews}
-              onSelect={onDrillDown}
-            />
-          )}
-
-          <dl className="metricgrid">
-            <Metric label="Emails in period" value={items.length} />
-            <Metric label="Document comparisons" value={comparisonCases.length} />
-            <Metric label="Automatically cleared" value={cleared} />
-            <Metric label="Need action" value={needAction} />
-            <Metric
-              label="Classification confidence"
-              value={Number.isFinite(averageConfidence) ? `${Math.round(averageConfidence * 100)}%` : '—'}
-            />
-          </dl>
-
-          <div className="analyticsgrid">
-            <BarChart
-              title="Email workload"
-              subtitle="What arrived in the selected period"
+      <div className="qgrid">
+        <Chart
+          eyebrow="Left to do"
+          title={leftToDo.length ? `${todo.filter(i => stepOf(i).key !== 'cleared' && stepOf(i).key !== 'other').length} cases need something sent` : 'Nothing is waiting'}
+          rows={leftToDo}
+          tone="mixed"
+          empty="Every case that needed a reply has one."
+          onSelect={key => onDrillDown?.({ kind: 'step', value: key, view: 'todo' })}
+        />
+        <Chart
+          eyebrow="What goes wrong in drafts"
+          title={defectFields.length ? `${defectFields[0].label} is the most common difference` : 'No differences recorded'}
+          rows={defectFields}
+          tone="wrong"
+          total={mismatches}
+          empty="No draft has disagreed with its instruction."
+          onSelect={key => onDrillDown?.({ kind: 'field', value: key })}
+        />
+        <Chart
+          eyebrow="Why the system stops"
+          title={reasons.length ? `${reasons[0].label} is the usual reason` : 'The system has not needed to stop'}
+          rows={reasons}
+          tone="review"
+          total={held}
+          empty="Nothing has been held for review."
+          onSelect={key => onDrillDown?.({ kind: 'reason', value: key })}
+        />
+        {days
+          ? <Chart eyebrow="Arrivals by day" title={`${days.length} days with email`} rows={days} tone="neutral" empty="No dated email." />
+          : <Chart
+              eyebrow="What arrives"
+              title={workload.length ? `${workload[0].label} is most of the inbox` : 'Nothing has arrived'}
               rows={workload}
               tone="neutral"
               total={items.length}
+              empty="The inbox is empty."
               onSelect={key => onDrillDown?.({ kind: 'category', value: key })}
-            />
-            <OutcomeChart
-              rows={outcomes}
-              total={comparisonCases.length}
-              onSelect={value => onDrillDown?.({ kind: 'result', value })}
-            />
-            <BarChart
-              title="Fields with differences"
-              subtitle="One case can contain more than one difference"
-              rows={mismatchFields}
-              tone="wrong"
-              onSelect={key => onDrillDown?.({ kind: 'field', value: key })}
-            />
-            <BarChart
-              title="Why a person is needed"
-              subtitle="Primary reason for each human-review case"
-              rows={reviewReasons}
-              tone="review"
-              onSelect={key => onDrillDown?.({ kind: 'reason', value: key })}
-            />
-          </div>
-        </section>
-
-        <HealthPanel health={health} />
+            />}
       </div>
-    </details>
+
+      <p className={'healthline healthline--' + healthTone(health)} role="status">
+        <i aria-hidden="true"></i>{healthWord(health)}
+      </p>
+    </div>
   )
 }
 
-function RegisterFlow({ total, comparisons, routed, cleared, mismatches, reviews, onSelect }) {
+function Outcome({ mk, label, value, total, onClick }) {
   return (
-    <section className="registerflow" aria-labelledby="register-flow-title">
-      <header>
-        <div>
-          <h3 id="register-flow-title">How email moves through ProtoZero</h3>
-          <p>A live register flow, not a decorative process diagram.</p>
-        </div>
-        <span>Select an outcome to inspect its cases</span>
-      </header>
-      <div className="registerflow__map">
-        <div className="flowcard flowcard--source"><small>Inbox</small><strong>{total}</strong><span>emails</span></div>
-        <span className="flowline" aria-hidden="true"></span>
-        <div className="flowbranch">
-          <button type="button" className="flowcard" onClick={() => onSelect?.({ kind: 'category', value: 'BL_COMPARISON' })}>
-            <small>Document checks</small><strong>{comparisons}</strong><span>{percent(comparisons, total)}</span>
-          </button>
-          <div className="flowoutcomes">
-            <button type="button" className="flowoutcome flowoutcome--clear" onClick={() => onSelect?.({ kind: 'result', value: 'clear' })}><b>{cleared}</b><span>Cleared</span></button>
-            <button type="button" className="flowoutcome flowoutcome--wrong" onClick={() => onSelect?.({ kind: 'result', value: 'wrong' })}><b>{mismatches}</b><span>Differences</span></button>
-            <button type="button" className="flowoutcome flowoutcome--review" onClick={() => onSelect?.({ kind: 'result', value: 'review' })}><b>{reviews}</b><span>Human review</span></button>
-          </div>
-        </div>
-        <div className="flowcard flowcard--routed"><small>Other email</small><strong>{routed}</strong><span>routed without comparison</span></div>
-      </div>
-    </section>
+    <button type="button" className={'funnel__outcome funnel__outcome--' + mk} onClick={onClick}>
+      <span className={'mk mk--' + mk} aria-hidden="true"></span>
+      <span className="funnel__word">{label}</span>
+      <strong>{value}</strong>
+      <small>{percent(value, total)}</small>
+    </button>
   )
 }
 
-function Metric({ label, value }) {
-  return <div><dt>{label}</dt><dd>{value}</dd></div>
-}
-
-function BarChart({ title, subtitle, rows, tone, total, onSelect }) {
+function Chart({ eyebrow, title, rows, tone, total, empty, onSelect }) {
   const largest = Math.max(0, ...rows.map(row => row.value))
   const scale = total > 0 ? total : largest
-
   return (
     <section className="chartpanel">
       <header className="chartpanel__head">
+        <span className="eyebrow">{eyebrow}</span>
         <h3>{title}</h3>
-        <p>{subtitle}</p>
       </header>
       {rows.length > 0
-        ? <ol className="chartbars" aria-label={`${title}: ${rows.map(row => `${row.label} ${row.value}`).join(', ')}`}>
+        ? <ol className="chartbars" aria-label={`${eyebrow}: ${rows.map(row => `${row.label} ${row.value}`).join(', ')}`}>
             {rows.map(row => (
-              <li key={row.label}>
-                <button className="chartbars__button" type="button" onClick={() => onSelect?.(row.key)}>
+              <li key={row.key ?? row.label}>
+                <button className="chartbars__button" type="button" disabled={!onSelect} onClick={() => onSelect?.(row.key)}>
                   <span className="chartbars__label">
-                    <span>{row.label}</span>
+                    {row.mk && <span className={'mk mk--' + row.mk} aria-hidden="true"></span>}
+                    <span className="chartbars__text">{row.label}</span>
                     <span className="chartbars__value">
                       <b>{row.value}</b>
                       {total > 0 && <small>{percent(row.value, total)}</small>}
@@ -200,7 +133,7 @@ function BarChart({ title, subtitle, rows, tone, total, onSelect }) {
                   </span>
                   <span className="chartbars__track" aria-hidden="true">
                     <i
-                      className={'chartbars__fill chartbars__fill--' + tone}
+                      className={'chartbars__fill chartbars__fill--' + (tone === 'mixed' ? row.mk : tone)}
                       style={{ width: `${scale > 0 ? Math.max(3, row.value / scale * 100) : 0}%` }}
                     ></i>
                   </span>
@@ -208,92 +141,14 @@ function BarChart({ title, subtitle, rows, tone, total, onSelect }) {
               </li>
             ))}
           </ol>
-        : <p className="chartpanel__empty">No data for this period.</p>}
+        : <p className="chartpanel__empty">{empty}</p>}
     </section>
   )
 }
 
-function OutcomeChart({ rows, total, onSelect }) {
-  return (
-    <section className="chartpanel">
-      <header className="chartpanel__head">
-        <h3>Comparison outcomes</h3>
-        <p>Results for document-comparison emails only</p>
-      </header>
-      {total > 0
-        ? <>
-            <div
-              className="outcomebar"
-              role="img"
-              aria-label={rows.map(row => `${row.label} ${row.value}, ${percent(row.value, total)}`).join('; ')}
-            >
-              {rows.filter(row => row.value > 0).map(row => (
-                <span
-                  key={row.label}
-                  className={'outcomebar__segment outcomebar__segment--' + row.tone}
-                  style={{ width: `${row.value / total * 100}%` }}
-                  title={`${row.label}: ${row.value} (${percent(row.value, total)})`}
-                ></span>
-              ))}
-            </div>
-            <ul className="outcomelegend">
-              {rows.map(row => (
-                <li key={row.label}>
-                  <button type="button" onClick={() => onSelect?.(row.tone)}>
-                    <i className={'outcomelegend__mark outcomelegend__mark--' + row.tone} aria-hidden="true"></i>
-                    <span>{row.label}</span>
-                    <b>{row.value}</b>
-                    <small>{percent(row.value, total)}</small>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </>
-        : <p className="chartpanel__empty">No document comparisons in this period.</p>}
-    </section>
-  )
-}
-
-function HealthPanel({ health }) {
-  if (!health) {
-    return (
-      <aside className="healthpanel">
-        <span className="eyebrow">System health</span>
-        <h2>Live health unavailable</h2>
-        <p className="healthpanel__empty">Connect the API to see service status and the circuit breaker.</p>
-      </aside>
-    )
-  }
-
-  return (
-    <aside className="healthpanel" aria-label="System health">
-      <div className="healthpanel__head">
-        <div><span className="eyebrow">System health</span><h2>Service monitor</h2></div>
-        <span className={'healthpanel__mode healthpanel__mode--' + health.mode}>
-          {health.mode === 'full' ? 'Full mode' : 'Fallback active'}
-        </span>
-      </div>
-      <ul className="healthlist">
-        {(health.components || []).map(component => (
-          <li key={component.name}>
-            <span>{COMPONENT_LABEL[component.name] || component.name}</span>
-            <b className={'healthstate healthstate--' + component.state}>
-              <i aria-hidden="true"></i>{component.state}</b>
-          </li>
-        ))}
-      </ul>
-      <dl className="healthfacts">
-        <div><dt>AI failures</dt><dd>{health.ai_failures}</dd></div>
-        <div><dt>Circuit breaker</dt><dd>{String(health.circuit_breaker).toUpperCase()}</dd></div>
-      </dl>
-      {health.mode === 'deterministic_only' && (
-        <div className="healthalert" role="status">
-          <b>AI fallback active</b>
-          <span>The system is operating in deterministic-only mode.</span>
-        </div>
-      )}
-    </aside>
-  )
+function isTodo(item) {
+  if (['resolved', 'archived'].includes(item.lifecycle) || item.review_status === 'completed') return false
+  return !item.lifecycle || item.lifecycle === 'new' || item.lifecycle === 'in_review'
 }
 
 function countRows(items, getKey, labels) {
@@ -307,12 +162,23 @@ function countRows(items, getKey, labels) {
     .sort((a, b) => b.value - a.value || a.label.localeCompare(b.label))
 }
 
-function countOccurrences(values, labels) {
-  return countRows(values, value => value, labels)
-}
-
-function average(values) {
-  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null
+// Only when the inbox carries real dates on more than one day; a single
+// synthetic date would draw one bar and imply a trend that is not there.
+function byDay(items) {
+  const counts = new Map()
+  for (const item of items) {
+    const value = item.received_at
+    if (!value) continue
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) continue
+    const key = date.toISOString().slice(0, 10)
+    counts.set(key, (counts.get(key) || 0) + 1)
+  }
+  if (counts.size < 2) return null
+  return [...counts]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-14)
+    .map(([key, value]) => ({ key, label: new Date(key).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }), value }))
 }
 
 function percent(value, total) {
@@ -327,8 +193,9 @@ function healthTone(health) {
 }
 
 function healthWord(health) {
-  if (!health) return 'Health unavailable'
-  if (health.circuit_breaker === 'open') return 'Circuit open'
-  if (health.mode === 'deterministic_only') return 'Deterministic-only'
-  return 'Systems online'
+  if (!health) return 'Sample data. The live service is not connected, so these figures come from the bundled fixtures.'
+  if (health.circuit_breaker === 'open') return `Circuit open. AI services paused after ${health.ai_failures} repeated failures; deterministic checks still run.`
+  if (health.mode === 'deterministic_only') return 'Deterministic-only mode. AI fallback is paused; parsers and rules are running.'
+  return 'All services online.'
 }
+

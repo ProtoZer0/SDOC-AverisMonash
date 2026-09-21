@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction B · The Finding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@700&family=Lato:wght@700&display=swap">
+<link rel="stylesheet" href="../src/index.css">
+<style>
+  body{ background: #DEDCD6 }
+  .page{ max-width: 1360px; margin: 0 auto; padding: 40px 24px 90px }
+  .lede{ max-width: 760px; margin: 0 0 30px }
+  .lede h1{ margin: 6px 0 10px; font-size: 34px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05 }
+  .lede p{ margin: 0 0 10px; color: #3D4650; font-size: 14.5px; line-height: 1.6 }
+  .lede .cost{ padding: 10px 14px; border-left: 3px solid var(--ink); background: rgba(16,26,36,.05) }
+  .screen{ margin: 0 0 46px }
+  .cap{ display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px }
+  .cap b{ font-size: 16px; font-weight: 600 }
+  .cap span{ font-size: 13px; color: #3D4650 }
+  .frame{ width: 1280px; max-width: 100%; background: var(--paper); border-radius: 14px;
+          overflow: hidden; box-shadow: 0 30px 60px rgba(16,26,36,.18); display: flex; flex-direction: column }
+
+  /* ---------- the finding ---------- */
+  .fd-main{ padding: 30px var(--case-gutter) 0 }
+  .fd-head{ display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; align-items: end;
+            padding-bottom: 22px; border-bottom: 2px solid var(--ink) }
+  .fd-head h1{ margin: 8px 0 12px; font-size: 52px; font-weight: 600; line-height: 1; letter-spacing: -.04em }
+  .fd-head h1 .n{ color: var(--wrong) }
+  .fd-head h1 .n--review{ color: var(--blue) }
+  .fd-head p{ margin: 0; max-width: 700px; color: var(--muted); font-size: 15px; line-height: 1.55 }
+  .fd-tally{ margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule);
+             border: 1px solid var(--rule) }
+  .fd-tally > div{ padding: 10px 14px; background: var(--sheet) }
+  .fd-tally dt{ display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 10px;
+                font-weight: 600; letter-spacing: .08em; text-transform: uppercase }
+  .fd-tally dt .mk{ width: 8px; height: 8px }
+  .fd-tally dd{ margin: 3px 0 0; font-size: 26px; font-weight: 600; letter-spacing: -.03em; line-height: 1 }
+
+  .fd-cols{ display: grid; grid-template-columns: 138px 150px minmax(0, 1fr) minmax(0, 1fr) 80px; gap: 18px;
+            padding: 12px 14px 8px; color: var(--muted); font-size: 9.5px; font-weight: 600;
+            letter-spacing: .12em; text-transform: uppercase }
+  .fd-rows{ margin: 0; padding: 0; list-style: none; background: var(--sheet); border: 1px solid rgba(16,26,36,.18);
+            border-bottom-width: 2px }
+  .fd-row{ display: grid; grid-template-columns: 138px 150px minmax(0, 1fr) minmax(0, 1fr) 80px; gap: 18px;
+           align-items: start; width: 100%; padding: 14px 14px 13px; margin: 0; border: 0;
+           border-bottom: 1px solid var(--hair); background: transparent; color: inherit; font: inherit;
+           text-align: left; cursor: pointer; transition: background-color 120ms ease }
+  .fd-row:hover{ background: rgba(16,26,36,.03) }
+  .fd-row:focus-visible{ outline: 2px solid var(--blue); outline-offset: -3px }
+  .fd-row[aria-expanded="true"]{ background: rgba(16,26,36,.045) }
+  .fd-row--wrong{ background: rgba(184,58,40,.06) }
+  .fd-row--wrong:hover, .fd-row--wrong[aria-expanded="true"]{ background: rgba(184,58,40,.10) }
+  .fd-verdict{ display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600 }
+  .fd-verdict--wrong{ color: var(--wrong) }
+  .fd-verdict--match{ color: var(--clear) }
+  .fd-verdict--review{ color: var(--blue) }
+  .fd-field{ font-size: 14px; font-weight: 500 }
+  .fd-field small{ display: block; margin-top: 2px; color: var(--muted); font-size: 10.5px; font-weight: 400 }
+  .fd-val{ font-family: var(--mono); font-size: 14px; line-height: 1.45; overflow-wrap: anywhere }
+  .fd-val--wrong{ color: var(--wrong); font-weight: 700 }
+  .fd-val--wrong s{ text-decoration-thickness: 1.5px; text-decoration-color: rgba(184,58,40,.7) }
+  .fd-val .fix{ font-size: 14px }
+  .fd-val--absent{ font-family: var(--sans); color: var(--muted); font-size: 13px }
+  .fd-conf{ font-size: 9.5px; font-weight: 500; letter-spacing: .08em; color: var(--muted); padding-top: 4px }
+  .fd-row--wrong .fd-conf{ color: var(--muted) }
+
+  /* the evidence band: grid rows animate 0fr to 1fr, so height never jumps */
+  .fd-band{ display: grid; grid-template-rows: 0fr; transition: grid-template-rows 200ms cubic-bezier(.2,0,0,1);
+            border-bottom: 1px solid var(--hair) }
+  .fd-band[data-open="true"]{ grid-template-rows: 1fr }
+  .fd-band > div{ overflow: hidden; min-height: 0 }
+  .fd-band__in{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px 14px 18px;
+                background: #F7F5F0; border-top: 1px solid var(--hair) }
+  .fd-src{ background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden }
+  .fd-src__head{ display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--hair);
+                 font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+  .fd-src__head b{ margin-left: auto; font-family: var(--mono); font-weight: 400; letter-spacing: 0; text-transform: none }
+  .fd-src__lines{ margin: 0; padding: 8px 0; list-style: none; font-family: var(--mono); font-size: 12px; line-height: 1.65 }
+  .fd-src__lines li{ display: grid; grid-template-columns: 38px 1fr; padding-right: 12px }
+  .fd-src__lines li span:first-child{ text-align: right; padding-right: 10px; color: rgba(85,96,107,.55); font-size: 10px }
+  .fd-src__lines li span:last-child{ white-space: pre-wrap; overflow-wrap: anywhere }
+  .fd-src__lines li.at span:first-child{ color: var(--ink); font-weight: 600 }
+  .hit{ padding: 1px 2px; border-radius: 2px; background-color: transparent; color: inherit;
+        background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13));
+        background-repeat: no-repeat; background-size: 0% 100%; box-shadow: inset 0 -2px 0 var(--ink);
+        transition: background-size 180ms cubic-bezier(.2,0,0,1) }
+  .fd-band[data-open="true"] .hit{ background-size: 100% 100% }
+  @media (prefers-reduced-motion: reduce){ .hit{ background-size: 100% 100% } }
+  .fd-band__note{ grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: var(--fs-small) }
+  .fd-band__note b{ font-family: var(--mono); font-weight: 500; color: var(--ink) }
+
+  .fd-split{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px }
+  .fd-split > section{ padding: 16px 18px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px }
+  .fd-split h3{ margin: 4px 0 8px; font-size: 16px; font-weight: 600 }
+  .fd-split dl{ margin: 0; display: grid; grid-template-columns: 130px 1fr; row-gap: 4px; column-gap: 10px }
+  .fd-split dt{ color: var(--muted); font-size: var(--fs-meta) }
+  .fd-split dd{ margin: 0; font-family: var(--mono); font-size: 12px }
+  .fd-split section:last-child{ border-left: 3px solid var(--blue) }
+
+  /* worklist, this direction: the list leads with its finding too */
+  .fd-work{ padding: 26px var(--case-gutter) 26px; display: flex; flex-direction: column; gap: 16px }
+  .fd-work h1{ margin: 6px 0 4px; font-size: 36px; font-weight: 600; letter-spacing: -.04em; line-height: 1.02; max-width: 900px }
+  .fd-work h1 .n{ color: var(--blue) }
+  .fd-work h1 .n--wrong{ color: var(--wrong) }
+  .fd-work p{ margin: 0; color: var(--muted); font-size: 14px }
+  .fd-list .wrow{ min-height: 62px }
+  .fd-list .wrow__found{ font-size: 15.5px }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="lede">
+    <span class="eyebrow">Direction B</span>
+    <h1>The Finding</h1>
+    <p><b>The argument: a verdict is a statement, so say it first and say it large.</b> The screen opens with the
+       finding in one sentence, at display size, the way an inspector's report opens with its conclusion. Beneath it
+       the seven details are seven full-width rows, instruction on the left, draft on the right, verdict word and
+       shape leading each row. Click a row and an evidence band unfolds directly beneath it with the exact source
+       lines, numbered, the value swept. The refusal uses the identical screen: the sentence changes to "Stopped",
+       the draft column truthfully reads "not read", and a two-part panel says what was read and what was not. The
+       refusal is not a different, smaller page; it is the same confident page with an honest gap.</p>
+    <p class="cost"><b>What it costs.</b> The draft stops looking like a bill of lading; it becomes a table of what
+       the draft says. "We read To the Order of as the receiver" becomes a small caption under the field name rather
+       than something you see on the page. Display type has to stay Archivo and must not creep into the mono values,
+       or the semantic breaks. Opening several bands makes the list long.</p>
+  </div>
+
+  <!-- ============ THE CHECK ============ -->
+  <div class="screen">
+    <div class="cap"><b>The check</b><span>email_004 · click any row</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__back" href="#" aria-label="Back to the worklist">&#8592;</a>
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Document check</span>
+        <span class="thin__meta">email_004</span>
+        <span class="thin__actions"><button class="thin__audit" type="button"><span class="thin__auditmark"></span>Audit trail</button></span>
+      </div></header>
+      <section class="casebanner">
+        <span class="mk mk--wrong"></span>
+        <div><span class="casebanner__status casebanner__status--wrong">Differences found</span>
+          <h1>REQUEST BL DRAFT _ PO 26067_ COATED IVORY BOARD__138MT</h1></div>
+        <dl class="casebanner__meta"><div><dt>Case</dt><dd>email_004</dd></div><div><dt>From</dt><dd>docs@vitalsolutions.sg</dd></div></dl>
+      </section>
+
+      <div class="fd-main">
+        <div class="fd-head">
+          <div>
+            <span class="eyebrow">Draft bill of lading, checked against the shipping instruction</span>
+            <h1><span class="n">2 of 7</span> details differ.</h1>
+            <p>The draft names a different receiver and a different notify party from the instruction. Both were read
+               cleanly on both documents, so this is a disagreement, not a reading error. The other five match.</p>
+          </div>
+          <dl class="fd-tally">
+            <div><dt><span class="mk mk--wrong"></span>Differ</dt><dd>2</dd></div>
+            <div><dt><span class="mk mk--clear"></span>Match</dt><dd>5</dd></div>
+          </dl>
+        </div>
+        <div class="fd-cols"><span>Verdict</span><span>Detail</span><span>Instruction says</span><span>Draft says</span><span>Read</span></div>
+        <ol class="fd-rows" id="rows-4"></ol>
+      </div>
+
+      <div class="fbar" style="margin-top:22px">
+        <span class="fbar__prompt">Choose what should happen next. The decision will appear in the audit trail.</span>
+        <span class="grow"></span>
+        <button class="btn btn--ghost" type="button">Send to a person</button>
+        <button class="btn" type="button">Reject the draft</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THE REFUSAL ============ -->
+  <div class="screen">
+    <div class="cap"><b>The refusal</b><span>email_511 · same screen, honest gap</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__back" href="#" aria-label="Back to the worklist">&#8592;</a>
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Document check</span>
+        <span class="thin__meta">email_511</span>
+        <span class="thin__actions"><button class="thin__audit" type="button"><span class="thin__auditmark"></span>Audit trail</button></span>
+      </div></header>
+      <section class="casebanner">
+        <span class="mk mk--review"></span>
+        <div><span class="casebanner__status casebanner__status--review">Needs a person</span>
+          <h1>RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768</h1></div>
+        <dl class="casebanner__meta"><div><dt>Case</dt><dd>email_511</dd></div><div><dt>From</dt><dd>willy_ss@aprilasia.com</dd></div></dl>
+      </section>
+
+      <div class="fd-main">
+        <div class="fd-head">
+          <div>
+            <span class="eyebrow">Draft bill of lading, checked against the shipping instruction</span>
+            <h1><span class="n n--review">Stopped.</span> The draft has no readable text.</h1>
+            <p>The attached draft is a scanned PDF with no text layer. We read the instruction in full and compared
+               nothing, because seven guesses would not be a check. A person with the original can settle it.</p>
+          </div>
+          <dl class="fd-tally">
+            <div><dt><span class="mk mk--review"></span>Not compared</dt><dd>7</dd></div>
+            <div><dt><span class="mk mk--clear"></span>Read on the instruction</dt><dd>7 of 7</dd></div>
+          </dl>
+        </div>
+        <div class="fd-cols"><span>Verdict</span><span>Detail</span><span>Instruction says</span><span>Draft says</span><span>Read</span></div>
+        <ol class="fd-rows" id="rows-511"></ol>
+        <div class="fd-split">
+          <section>
+            <span class="eyebrow">What we read</span>
+            <h3>The shipping instruction, in full</h3>
+            <dl><dt>File</dt><dd>email_511_SI.txt</dd><dt>Values found</dt><dd>7 of 7</dd><dt>Read by</dt><dd>parser, 41 ms</dd></dl>
+          </section>
+          <section>
+            <span class="eyebrow">What we could not</span>
+            <h3>The draft bill of lading</h3>
+            <dl><dt>File</dt><dd>email_511_BL.pdf</dd><dt>Text layer</dt><dd>none, 0 characters</dd><dt>Stopped at</dt><dd>extract, stage 3 of 7</dd></dl>
+          </section>
+        </div>
+      </div>
+
+      <div class="fbar" style="margin-top:22px">
+        <span class="fbar__prompt">Choose what should happen next. The decision will appear in the audit trail.</span>
+        <span class="grow"></span>
+        <button class="btn btn--ghost" type="button">Ask for a readable draft</button>
+        <button class="btn" type="button">Send to a person</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THE WORKLIST ============ -->
+  <div class="screen">
+    <div class="cap"><b>The worklist, top</b><span>the list opens with its own finding</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Email checks</span>
+        <span class="thin__meta">12 emails</span>
+        <nav class="thin__nav"><a href="#" aria-current="page">Worklist</a><a href="#">Analytics</a></nav>
+        <span class="thin__actions"><a class="thin__queue" href="#"><span class="mk mk--review"></span>Review queue <b>5</b></a></span>
+      </div></header>
+      <div class="fd-work">
+        <div>
+          <span class="eyebrow">Shipping document control desk · 12 emails read</span>
+          <h1><span class="n">5 need a person.</span> <span class="n n--wrong">1 draft differs.</span> 2 cleared. 4 were not checks.</h1>
+          <p>Priority first. Open a row for the finding and its evidence.</p>
+        </div>
+        <div class="wtable fd-list" id="rows-w"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+
+const SI4 = `SHIPPING INSTRUCTION
+========================================
+
+Shipper: APRIL FAR EAST (M) SDN BHD
+  TOWER 2, AVENUE 5, LEVEL 6; BANGSAR SOUTH CITY, NO. 8 JALAN KERINCHI; 59200 KUALA LUMPUR, MALAYSIA
+Consignee (Non-Negotiable): EAST BRIGHT FZ-LLC
+  RAKEZ AMENITY CENTER; AL HAMRA INDUSTRIAL ZONE, RAK, UAE
+Notify: EAST BRIGHT FZ-LLC
+Port of Loading (POL): NANTONG, CHINA (CNNTG)
+POD: KARACHI, PAKISTAN (PKKHI)
+Total Containers: 6 x 40'HC
+Gross Wt (kgs): 131,058 KG
+Vessel: NAP 914 V.BS007
+Voyage: BS012
+Kinds of Packages; Description of Goods: COATED IVORY BOARD
+HS Code: 48105900
+Booking Ref: ONEYSINF32871
+OC No.: 5ALT-01226
+Freight: PREPAID`.split('\n')
+
+const BL4 = `BILL OF LADING (DRAFT)
+========================================
+
+SHIPPER: APRIL FAR EAST (M) SDN BHD
+  TOWER 2, AVENUE 5, LEVEL 6; BANGSAR SOUTH CITY, NO. 8 JALAN KERINCHI; 59200 KUALA LUMPUR, MALAYSIA
+To the Order of: UAB NOVAKOPA
+  RAKEZ AMENITY CENTER; AL HAMRA INDUSTRIAL ZONE, RAK, UAE
+Notify Party: UAB NOVAKOPA
+Port of Loading (POL): NANTONG, CHINA (CNNTG)
+POD: KARACHI, PAKISTAN (PKKHI)
+Container Count: 6 x 40'HC
+Gross Weight (KG): 131,058 KG
+Export Carrier (vessel, voyage): NAP 914 V.BS007
+Voyage: BS012
+Commodity: COATED IVORY BOARD
+Bill of Lading No.: SINF88496965
+Booking Ref: ONEYSINF32871
+Freight: PREPAID`.split('\n')
+
+const SI511 = `SHIPPING INSTRUCTION
+========================================
+
+Shipper: APRIL FINE PAPER TRADING
+  ON BEHALF OF VITAL SOLUTIONS PTE LTD; 77 ROBINSON ROAD, #21-01; SINGAPORE 068896
+To the Order of: AL GURG STATIONERY LLC
+  P.O. BOX 5069; DUBAI, UNITED ARAB EMIRATES
+Notify: AL GURG STATIONERY LLC
+POL: NHAVA SHEVA, INDIA (INNSA)
+Port of Discharge (POD): KOPER, SLOVENIA (SIKOP)
+Total Containers: 6 x 40'HC
+Gross Weight毛重(KGS): 134,904 KG
+Vessel Name: SOLID 16 V.044NW2
+Voyage: 2545E
+Description: COATED IVORY BOARD
+HS Code: 48105900
+Booking No.: MCLSINJEA2529384
+OC No.: 5SUS-40134
+Freight: PREPAID`.split('\n')
+
+const HITS4 = [
+  { f:'shipper', name:'Sender', verdict:'match', conf:'checked', si:{ line:3, v:'APRIL FAR EAST (M) SDN BHD', label:'Shipper' }, bl:{ line:3, v:'APRIL FAR EAST (M) SDN BHD', label:'SHIPPER' } },
+  { f:'consignee', name:'Receiver', verdict:'wrong', conf:'checked', si:{ line:5, v:'EAST BRIGHT FZ-LLC', label:'Consignee (Non-Negotiable)' }, bl:{ line:5, v:'UAB NOVAKOPA', label:'To the Order of' } },
+  { f:'notify_party', name:'Notify on arrival', verdict:'wrong', conf:'checked', si:{ line:7, v:'EAST BRIGHT FZ-LLC', label:'Notify' }, bl:{ line:7, v:'UAB NOVAKOPA', label:'Notify Party' } },
+  { f:'port_of_loading', name:'Port of loading', verdict:'match', conf:'checked', si:{ line:8, v:'NANTONG, CHINA (CNNTG)', label:'Port of Loading (POL)' }, bl:{ line:8, v:'NANTONG, CHINA (CNNTG)', label:'Port of Loading (POL)' } },
+  { f:'port_of_discharge', name:'Port of discharge', verdict:'match', conf:'checked', si:{ line:9, v:'KARACHI, PAKISTAN (PKKHI)', label:'POD' }, bl:{ line:9, v:'KARACHI, PAKISTAN (PKKHI)', label:'POD' } },
+  { f:'container_count', name:'Containers', verdict:'match', conf:'checked', si:{ line:10, v:"6 x 40'HC", label:'Total Containers' }, bl:{ line:10, v:"6 x 40'HC", label:'Container Count' } },
+  { f:'gross_weight_kg', name:'Gross weight', verdict:'match', conf:'checked', si:{ line:11, v:'131,058 KG', label:'Gross Wt (kgs)' }, bl:{ line:11, v:'131,058 KG', label:'Gross Weight (KG)' } },
+]
+const HITS511 = [
+  { f:'shipper', name:'Sender', verdict:'review', si:{ line:3, v:'APRIL FINE PAPER TRADING', label:'Shipper' } },
+  { f:'consignee', name:'Receiver', verdict:'review', si:{ line:5, v:'AL GURG STATIONERY LLC', label:'To the Order of' } },
+  { f:'notify_party', name:'Notify on arrival', verdict:'review', si:{ line:7, v:'AL GURG STATIONERY LLC', label:'Notify' } },
+  { f:'port_of_loading', name:'Port of loading', verdict:'review', si:{ line:8, v:'NHAVA SHEVA, INDIA (INNSA)', label:'POL' } },
+  { f:'port_of_discharge', name:'Port of discharge', verdict:'review', si:{ line:9, v:'KOPER, SLOVENIA (SIKOP)', label:'Port of Discharge (POD)' } },
+  { f:'container_count', name:'Containers', verdict:'review', si:{ line:10, v:"6 x 40'HC", label:'Total Containers' } },
+  { f:'gross_weight_kg', name:'Gross weight', verdict:'review', si:{ line:11, v:'134,904 KG', label:'Gross Weight毛重(KGS)' } },
+]
+const WORD = { wrong:'Differs', match:'Matches', review:'Not compared' }
+const MK = { wrong:'wrong', match:'clear', review:'review' }
+
+function excerpt(lines, side, title, file) {
+  const from = Math.max(0, side.line - 2), to = Math.min(lines.length - 1, side.line + 2)
+  let out = `<div class="fd-src"><div class="fd-src__head">${esc(title)}<b>line ${side.line + 1} of ${lines.length} · ${esc(file)}</b></div><ol class="fd-src__lines">`
+  for (let i = from; i <= to; i++) {
+    let text = esc(lines[i])
+    if (i === side.line) { const at = lines[i].indexOf(side.v); text = esc(lines[i].slice(0, at)) + `<mark class="hit">${esc(side.v)}</mark>` + esc(lines[i].slice(at + side.v.length)) }
+    out += `<li class="${i === side.line ? 'at' : ''}"><span>${i + 1}</span><span>${text || ' '}</span></li>`
+  }
+  return out + '</ol></div>'
+}
+
+function rows(el, hits, si, bl, files) {
+  el.innerHTML = hits.map(h => {
+    const wrong = h.verdict === 'wrong'
+    const caption = h.bl && h.si.label !== h.bl.label ? `<small>${esc(h.si.label)} · ${esc(h.bl.label)}</small>` : (h.bl ? `<small>${esc(h.si.label)}</small>` : `<small>${esc(h.si.label)}</small>`)
+    const draft = !h.bl ? '<span class="fd-val fd-val--absent">not read</span>'
+      : wrong ? `<span class="fd-val fd-val--wrong"><s>${esc(h.bl.v)}</s><span class="fix">${esc(h.si.v)}</span></span>`
+      : `<span class="fd-val">${esc(h.bl.v)}</span>`
+    const band = h.bl
+      ? `<div class="fd-band-in fd-band__in">${excerpt(si, h.si, 'Shipping instruction', files[0])}${excerpt(bl, h.bl, 'Bill of lading', files[1])}`
+        + `<p class="fd-band__note">${h.si.label === h.bl.label ? `Both documents call this <b>${esc(h.si.label)}</b>.` : `Instruction calls this <b>${esc(h.si.label)}</b>; draft calls it <b>${esc(h.bl.label)}</b>. Read as the same field.`} Read by the parser on both sides.</p></div>`
+      : `<div class="fd-band-in fd-band__in">${excerpt(si, h.si, 'Shipping instruction', files[0])}<div class="fd-src"><div class="fd-src__head">Bill of lading<b>${esc(files[1])}</b></div><p style="margin:0;padding:14px 12px;color:var(--muted);font-size:13px">No text could be extracted from this file, so there is no line to show. That is the whole reason the case stopped.</p></div></div>`
+    return `<li><button class="fd-row fd-row--${h.verdict}" type="button" aria-expanded="false" data-f="${h.f}">`
+      + `<span class="fd-verdict fd-verdict--${h.verdict}"><span class="mk mk--${MK[h.verdict]}"></span>${WORD[h.verdict]}</span>`
+      + `<span class="fd-field">${esc(h.name)}${caption}</span>`
+      + `<span class="fd-val">${esc(h.si.v)}</span>${draft}`
+      + `<span class="fd-conf">${h.conf ? esc(h.conf) : ''}</span></button>`
+      + `<div class="fd-band" data-open="false"><div>${band}</div></div></li>`
+  }).join('')
+  el.addEventListener('click', e => {
+    const btn = e.target.closest('.fd-row'); if (!btn) return
+    const open = btn.getAttribute('aria-expanded') !== 'true'
+    btn.setAttribute('aria-expanded', open)
+    btn.nextElementSibling.dataset.open = open
+  })
+}
+rows(document.getElementById('rows-4'), HITS4, SI4, BL4, ['email_004_SI.txt', 'email_004_BL.txt'])
+rows(document.getElementById('rows-511'), HITS511, SI511, null, ['email_511_SI.txt', 'email_511_BL.pdf'])
+if (location.hash === '#demo') document.querySelector('#rows-4 .fd-row[data-f="consignee"]').click()
+
+const ROWS = [
+  { id:'email_501', k:'review', p:'Blocked', h:'Wrong document attached', s:'RE_ TO CONFIRM DOCS _ 5RSG-51584 _ HOUSTON_US _ KPP-ANTALIS (SINGAPORE) PTE. LTD. _ YMJAI905670867', from:'exports@ifpla.com' },
+  { id:'email_506', k:'review', p:'Blocked', h:'Nothing attached to check', s:'RE_ AFRT - LONG BEACH_US - EVER(EGLV433335384951) - 5RSG-19787 - 5250071809 - EAST BRIGHT FZ-LLC - OA_CFR', from:'arlene_yamomo@aprilasia.com' },
+  { id:'email_507', k:'review', p:'Blocked', h:'Nothing attached to check', s:'RE_ TO CONFIRM DOCS _ 5AKR-00230 _ KOPER_SLOVENIA _ 3S PAPER PRODUCTS SDN BHD _ MCLSIN6917702', from:'docs@vitalsolutions.sg' },
+  { id:'email_511', k:'review', p:'Blocked', h:'The file will not open', s:'RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768', from:'willy_ss@aprilasia.com' },
+  { id:'email_004', k:'wrong', p:'High', h:'Receiver and notify on arrival do not match', s:'REQUEST BL DRAFT _ PO 26067_ COATED IVORY BOARD__138MT', from:'docs@vitalsolutions.sg' },
+  { id:'email_516', k:'review', p:'High', h:'A value is blank', s:'RE_ AFEMY - CONAKRY_GUINEA - MONTER(MCLSIN6123859) - 5RCY-68239 - 5250071820 - KPP-ANTALIS (SINGAPORE) PTE. LTD.', from:'elisa_tukiman@april.com.my' },
+  { id:'email_001', k:'clear', p:null, h:'All 7 details match.', s:'TO CONFIRM DOCS _ 5RSG-00133 _ CALLAO_PERU _ MOORIM SP CO., LTD _ MEDUUD104332', from:'aziztz@safqa.co.ke' },
+  { id:'email_003', k:'clear', p:null, h:'No documents attached to compare.', s:'RE_ TO CONFIRM DOCS _ 5AAT-03056 _ AQABA_JORDAN _ ROXCEL TRADING GMBH _ SIN525534192', from:'exports@ifpla.com' },
+]
+const PCLS = { Blocked:'urgent', High:'high' }
+document.getElementById('rows-w').innerHTML = ROWS.map(r =>
+  `<a class="wrow wrow--link" href="#"><span class="mk mk--${r.k}"></span>`
+  + `<span class="wrow__body"><span class="wrow__headline"><span class="wrow__found wrow__found--${r.k}">${esc(r.h)}</span>`
+  + (r.p ? `<span class="priority priority--${PCLS[r.p]}">${r.p}</span>` : '') + `</span>`
+  + `<span class="wrow__ref trunc">${esc(r.s)} &nbsp;&middot;&nbsp; ${esc(r.from)}</span></span>`
+  + `<span class="wrow__id">${r.id}</span><span class="wrow__open">&rarr;</span></a>`).join('')
+</script>
+</body>
+</html>

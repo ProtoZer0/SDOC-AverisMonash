@@ -1,38 +1,41 @@
 import { useEffect, useState } from 'react'
 import Bar from './Bar.jsx'
-import Sheet from './Sheet.jsx'
-import Evidence from './Evidence.jsx'
+import Pages, { buildHits } from './Pages.jsx'
 import AuditTrail from './AuditTrail.jsx'
 import CaseReport from './CaseReport.jsx'
 import {
-  clearCaseDecision, getAuditEvents, getCase, getCaseDecision, recordCaseDecision,
+  clearCaseDecision, getAuditEvents, getCase, getCaseDecision, getDocument, recordCaseDecision,
   reviewerId, updateCaseWorkflow,
 } from './api.js'
-import { FIELD_PLAIN, KIND_WORD, REASON_TITLE, confidencePercent, kindOf, priorityOf } from './status.js'
+import { KIND_WORD, kindOf, priorityOf, stepOf } from './status.js'
 
-const DASH = '—'
-
-export default function CaseView({ id }) {
+export default function CaseView({ id, field }) {
   const [kase, setCase] = useState(null)
+  const [docs, setDocs] = useState(null)
   const [error, setError] = useState(null)
   const [auditOpen, setAuditOpen] = useState(false)
   const [selectedField, setSelectedField] = useState(null)
   const [events, setEvents] = useState(null)
 
   async function refreshCase() {
-    const [nextCase, nextEvents] = await Promise.all([
-      getCase(id),
+    const nextCase = await getCase(id)
+    const wants = role => nextCase.category === 'BL_COMPARISON' && nextCase.documents.some(d => d.role === role)
+    const [nextEvents, si, bl] = await Promise.all([
       getAuditEvents(id).catch(() => ({ items: [] })),
+      wants('SI') ? getDocument(id, 'SI').catch(() => null) : null,
+      wants('BL') ? getDocument(id, 'BL').catch(() => null) : null,
     ])
     setCase(nextCase)
+    setDocs({ SI: si, BL: bl })
     setEvents(nextEvents.items)
   }
 
   useEffect(() => {
     setCase(null)
+    setDocs(null)
     setError(null)
     setAuditOpen(false)
-    setSelectedField(null)
+    setSelectedField(field || null)
     setEvents(null)
     refreshCase().catch(e => setError(e.message))
   }, [id])
@@ -42,18 +45,10 @@ export default function CaseView({ id }) {
 
   let content
   if (kase.category !== 'BL_COMPARISON') content = <NotACheck kase={kase} />
-  else if (drawable(kase)) {
-    content = <Compared kase={kase} selected={selectedField} onSelect={setSelectedField} onChanged={refreshCase} />
-  }
-  else if (kase.status === 'NEEDS_REVIEW') content = <Refused kase={kase} onChanged={refreshCase} />
-  else content = <NothingToCompare kase={kase} />
+  else if (kase.documents.length === 0 && kase.status === 'OK') content = <NothingToCompare kase={kase} />
+  else content = <Check kase={kase} docs={docs} selected={selectedField} onSelect={setSelectedField} />
 
-  const viewEvidence = drawable(kase)
-    ? field => {
-        setSelectedField(field)
-        setAuditOpen(false)
-      }
-    : null
+  const canShowEvidence = kase.category === 'BL_COMPARISON' && kase.comparisons.length > 0
 
   return (
     <Frame
@@ -62,23 +57,14 @@ export default function CaseView({ id }) {
       auditOpen={auditOpen}
       onAudit={() => setAuditOpen(!auditOpen)}
       onCloseAudit={() => setAuditOpen(false)}
-      onViewEvidence={viewEvidence}
+      onViewEvidence={canShowEvidence ? field => { setSelectedField(field); setAuditOpen(false) } : null}
       events={events}
     >
       {content}
+      <Actions kase={kase} onChanged={refreshCase} />
       <WorkflowPanel kase={kase} onChanged={refreshCase} />
     </Frame>
   )
-}
-
-// A refusal with a readable draft still gets drawn, because the confidence mark
-// on each field says which ones we would not stand behind. Only when there is no
-// draft to draw, or nothing was compared, does the case fall back to cards.
-function drawable(kase) {
-  const bl = kase.documents.find(d => d.role === 'BL')
-  const hasValues = bl && bl.readable && bl.fields &&
-    Object.values(bl.fields).some(f => f && f.value)
-  return Boolean(hasValues) && kase.comparisons.length > 0
 }
 
 function Frame({ meta, kase, events, auditOpen, onAudit, onCloseAudit, onViewEvidence, children }) {
@@ -139,9 +125,6 @@ function NotACheck({ kase }) {
   )
 }
 
-// A comparison request that came out OK with nothing to draw is not a refusal.
-// Saying "needs a person" here would contradict the worklist, which shows the
-// same case as all clear.
 function NothingToCompare({ kase }) {
   return (
     <div className="panel">
@@ -153,120 +136,106 @@ function NothingToCompare({ kase }) {
           <div><em>Attachments</em><span>{kase.documents.length}</span></div>
         </div>
       </div>
-      <div className="quiet">Nothing was flagged, because there was nothing to check.</div>
     </div>
   )
 }
 
-function Refused({ kase, onChanged }) {
-  const si = kase.documents.find(d => d.role === 'SI')
-  const bl = kase.documents.find(d => d.role === 'BL')
-  return (
-    <>
-    <div className="rmain">
-      <div className="cards">
-        <div className="card">
-          <span className="eyebrow">Why this was flagged</span>
-          <span className="card__title">{REASON_TITLE[kase.wire_review_reason] ?? 'Needs a person'}</span>
-          <p className="card__body">{kase.summary}</p>
-          <div className="card__evidence">
-            <div><em>Instruction</em><span>{si ? si.detected_kind : 'not attached'}</span></div>
-            <div><em>Draft</em><span>{bl ? bl.detected_kind : 'not attached'}</span></div>
-          </div>
-        </div>
-      </div>
-      <span className="grow"></span>
-      <div className="quiet">We would rather ask than guess. Nothing here was compared.</div>
-    </div>
-    <Actions kase={kase} onChanged={onChanged} />
-    </>
-  )
-}
-
-function Compared({ kase, selected, onSelect, onChanged }) {
-
-  const wrong = kase.comparisons.filter(c => c.verdict === 'MISMATCH')
-  const blocked = kase.comparisons.filter(
-    c => c.verdict !== 'MISMATCH' && (
-      ['REVIEW', 'ABSENT'].includes(c.verdict) || c.confidence?.hard_fail
-    ))
-  const matched = kase.comparisons.filter(c => c.verdict === 'MATCH').length
-  const noted = wrong.length + blocked.length
-  const open = kase.comparisons.find(c => c.field === selected)
-  const close = () => onSelect(null)
-  const siDocument = kase.documents.find(document => document.role === 'SI')
-  const blDocument = kase.documents.find(document => document.role === 'BL')
-  const sourceFields = open ? {
-    si: siDocument?.fields?.[open.field],
-    bl: blDocument?.fields?.[open.field],
-  } : null
+function Check({ kase, docs, selected, onSelect }) {
+  const hits = buildHits(kase, docs?.SI?.text, docs?.BL?.text)
+  const wrong = hits.filter(h => h.kind === 'wrong')
+  const review = hits.filter(h => h.kind === 'review')
+  const clear = hits.filter(h => h.kind === 'clear').length
+  const notes = kase.comparisons.length > 0 ? [...wrong, ...review] : []
+  const pick = field => onSelect(selected === field ? null : field)
 
   return (
-    <>
-    <div className="stage">
-      <div className="sheetwrap">
-        <Sheet kase={kase} selected={selected} onSelect={onSelect} />
-        <p className="sheet__hint">Click any checked field to see the line it came from.</p>
+    <div className="casemain">
+      <div className="pageshead">
+        <Headline kase={kase} docs={docs} wrong={wrong.length} review={review.length} clear={clear} />
       </div>
-      <div className="margin">
-        {noted > 0 && (
-          <div className="whyhead">
-            <span className="eyebrow">What needs review</span>
-            <h2>{noted} field{noted === 1 ? ' needs' : 's need'} your review</h2>
-            <p>Each item compares the instruction with the draft and links to the original evidence.</p>
-          </div>
-        )}
-        {wrong.map(c => (
-          <div className="issuegroup" key={c.field}>
-            <MismatchNote c={c} selected={c.field === selected} onSelect={onSelect} />
-          </div>
-        ))}
-
-        {blocked.map(c => (
-          <div className="issuegroup" key={c.field}>
-            <BlockedNote c={c} selected={c.field === selected} onSelect={onSelect} />
-          </div>
-        ))}
-
-        {noted === 0
-          ? <div className="quiet">All {matched} details match the instruction.</div>
-          : <div className="quiet">The other {matched} details match the instruction.</div>}
-      </div>
-    </div>
-    {open && (
-      <Evidence
-        emailId={kase.email_id}
-        comparison={open}
-        sourceFields={sourceFields}
-        onClose={close}
-      />
-    )}
-    <Actions kase={kase} onChanged={onChanged} />
-    </>
-  )
-}
-
-function MismatchNote({ c, selected, onSelect }) {
-  return (
-    <article className="note note--reason">
-      <span className="note__field">{FIELD_PLAIN[c.field]} values differ</span>
-      <dl className="reasonfacts">
-        <div><dt>Instruction</dt><dd>{c.si.value ?? DASH}</dd></div>
-        <div><dt>Draft</dt><dd className="reasonfacts__wrong">{c.bl.value ?? DASH}</dd></div>
-        <div><dt>Similarity</dt><dd>{similarity(c)}</dd></div>
-        <div><dt>Machine confidence</dt><dd>{confidencePercent(c) || 'Not recorded'}</dd></div>
-        <div><dt>Status</dt><dd>Confirmed difference</dd></div>
-      </dl>
-      {c.si.label_seen && c.bl.label_seen && c.si.label_seen !== c.bl.label_seen && (
-        <div className="note__synonym">
-          Instruction calls this <b>{c.si.label_seen}</b>. Draft calls it <b>{c.bl.label_seen}</b>.
+      <Pages kase={kase} docs={docs} selected={selected} onSelect={onSelect} />
+      {notes.length > 0 && (
+        <div className="corrections">
+          {notes.map((h, i) => (
+            <article className={'corr' + (h.kind === 'review' ? ' corr--review' : '')} key={h.field} data-on={selected === h.field}>
+              <span className="corr__k">
+                <span className={'mk mk--' + h.kind} aria-hidden="true"></span>
+                {h.kind === 'wrong' ? `Correction ${i + 1}` : 'Not checked'} · {h.name}
+              </span>
+              <span className="corr__t">
+                {h.kind === 'wrong' ? `${h.name} differs from the instruction.` : whyNotChecked(h.comparison)}
+              </span>
+              <Labels comparison={h.comparison} />
+              {(h.SI || h.BL) && (
+                <button className="corr__src" type="button" onClick={() => pick(h.field)}>
+                  {selected === h.field ? 'Clear the highlight' : (h.SI && h.BL ? 'Show on both pages' : 'Show on the page')}
+                </button>
+              )}
+            </article>
+          ))}
         </div>
       )}
-      <button className="evidencelink" type="button" onClick={() => onSelect(selected ? null : c.field)}>
-        {selected ? 'Hide source evidence' : 'View highlighted source evidence'}
-      </button>
-    </article>
+    </div>
   )
+}
+
+function Headline({ kase, docs, wrong, review, clear }) {
+  if (kase.comparisons.length === 0) {
+    const si = kase.documents.find(d => d.role === 'SI')
+    const read = si?.fields ? Object.values(si.fields).filter(f => f && f.value).length : 0
+    return (
+      <>
+        <h2><b className="review">Stopped</b> before comparing. {stopSentence(kase)}</h2>
+        {docs?.SI?.text && <p>{read} of 7 instruction values were read. None were compared.</p>}
+      </>
+    )
+  }
+  if (wrong > 0) {
+    return (
+      <>
+        <h2>
+          <b>{wrong} correction{wrong === 1 ? '' : 's'}</b>, {clear} detail{clear === 1 ? '' : 's'} checked and left alone
+          {review > 0 && `, ${review} not checked`}
+        </h2>
+        <p>Each correction is the instruction's value, written in where the draft's value was struck.</p>
+      </>
+    )
+  }
+  if (review > 0) {
+    return (
+      <>
+        <h2><b className="review">{review} detail{review === 1 ? '' : 's'} not checked</b>, {clear} checked and left alone</h2>
+        <p>A blank or unreadable value is not compared.</p>
+      </>
+    )
+  }
+  return <h2><b className="clear">All {clear} details match</b> the instruction.</h2>
+}
+
+function stopSentence(kase) {
+  const bl = kase.documents.find(d => d.role === 'BL')
+  const si = kase.documents.find(d => d.role === 'SI')
+  switch (kase.wire_review_reason) {
+    case 'unreadable': return 'The draft has no readable text.'
+    case 'wrong_doc_type': return `The attachment named as the draft is ${article(bl?.detected_kind)}.`
+    case 'missing_attachment': return si ? 'No draft was attached.' : 'Nothing was attached.'
+    case 'missing_value': return 'A required value is blank.'
+    default: return kase.summary
+  }
+}
+
+function article(kind) {
+  const word = String(kind || 'another document').toLowerCase().replace(/_/g, ' ')
+  return (/^[aeiou]/.test(word) ? 'an ' : 'a ') + word
+}
+
+function Labels({ comparison }) {
+  const a = comparison.si?.label_seen
+  const b = comparison.bl?.label_seen
+  if (!a && !b) return null
+  if (a && b && a === b) return <p className="corr__p">Both documents call this <b>{a}</b>.</p>
+  if (a && b) return <p className="corr__p">Draft calls this <b>{b}</b>; the instruction calls it <b>{a}</b>. Read as the same field.</p>
+  return <p className="corr__p">{a ? 'The instruction' : 'The draft'} calls this <b>{a || b}</b>.</p>
 }
 
 const WORKFLOW_STATUS = {
@@ -335,7 +304,7 @@ function WorkflowPanel({ kase, onChanged }) {
       <div className="workflow__head">
         <div>
           <span className="eyebrow">Review ownership</span>
-          <h2 id="workflow-title">Review ownership and status</h2>
+          <h2 id="workflow-title">Owner and review status</h2>
         </div>
         <span className={'priority priority--' + priority.key} title={priority.reason}>{priority.label}</span>
       </div>
@@ -367,49 +336,33 @@ function WorkflowPanel({ kase, onChanged }) {
         </div>
       </div>
       {message && <p className={'workflow__message workflow__message--' + message.type} role="status">{message.text}</p>}
-      <p className="workflow__note">{priority.reason} Changes are recorded with the reviewer, previous value and new value in the audit trail.</p>
+      <p className="workflow__note">Changes are recorded with the reviewer, previous value and new value in the audit trail.</p>
     </section>
   )
-}
-
-function BlockedNote({ c, selected, onSelect }) {
-  return (
-    <article className="note note--reason note--review">
-      <span className="note__field">{FIELD_PLAIN[c.field]} requires confirmation</span>
-      <p className="note__body">{whyNotChecked(c)}</p>
-      <dl className="reasonfacts">
-        <div><dt>Instruction</dt><dd>{c.si.value || DASH}</dd></div>
-        <div><dt>Draft</dt><dd>{c.bl.value || DASH}</dd></div>
-        <div><dt>Similarity</dt><dd>{similarity(c)}</dd></div>
-        <div><dt>Machine confidence</dt><dd>{confidencePercent(c) || 'Not recorded'}</dd></div>
-        <div><dt>Status</dt><dd>Requires human confirmation</dd></div>
-      </dl>
-      <button className="evidencelink" type="button" onClick={() => onSelect(selected ? null : c.field)}>
-        {selected ? 'Hide source evidence' : 'View highlighted source evidence'}
-      </button>
-    </article>
-  )
-}
-
-function similarity(comparison) {
-  return Number.isFinite(comparison.similarity)
-    ? `${Math.round(comparison.similarity)}%`
-    : 'Not applicable'
 }
 
 const CHOICES = {
   MISMATCH: [
     { action: 'reject', label: 'Reject the draft', done: 'Draft rejected.' },
-    { action: 'review', label: 'Send to a person', done: 'Sent to a person.' },
+    { action: 'review', label: 'Hold for review', done: 'Held for review.' },
   ],
   OK: [
     { action: 'approve', label: 'Approve the draft', done: 'Draft approved.' },
-    { action: 'review', label: 'Send to a person', done: 'Sent to a person.' },
+    { action: 'review', label: 'Hold for review', done: 'Held for review.' },
   ],
   NEEDS_REVIEW: [
-    { action: 'review', label: 'Send to a person', done: 'Sent to a person.' },
-    { action: 'request', label: 'Ask for a complete instruction', done: 'Asked for a complete instruction.' },
+    { action: 'request', label: 'Ask for a complete instruction', done: 'Request recorded.' },
+    { action: 'review', label: 'Hold for review', done: 'Held for review.' },
   ],
+}
+
+// A held case asks the sender for the specific thing that was missing.
+function choicesFor(kase) {
+  const base = CHOICES[kase.status] ?? CHOICES.OK
+  if (kase.status !== 'NEEDS_REVIEW') return base
+  const step = stepOf(kase)
+  const label = ['document', 'text', 'complete'].includes(step.key) ? step.word : base[0].label
+  return [{ ...base[0], label }, base[1]]
 }
 
 const CHOICE_IMPACT = {
@@ -424,13 +377,13 @@ const CHOICE_IMPACT = {
     confirm: 'Confirm approval',
   },
   review: {
-    title: 'Send this for a second check?',
-    detail: 'This adds the case to the Needs a person queue and records the handoff. It does not send an email or change either document.',
-    confirm: 'Confirm handoff',
+    title: 'Hold this case for review?',
+    detail: 'This adds the case to the review queue and records the handoff. It does not send an email or change either document.',
+    confirm: 'Confirm hold',
   },
   request: {
-    title: 'Request a complete instruction?',
-    detail: 'This adds a follow-up item to the Needs a person queue. It records the request but does not email the sender automatically.',
+    title: 'Record this request?',
+    detail: 'This adds a follow-up item to the review queue. It records the request but does not email the sender automatically.',
     confirm: 'Confirm request',
   },
 }
@@ -438,8 +391,8 @@ const CHOICE_IMPACT = {
 const DECISION_RESULT = {
   reject: 'The case is closed as rejected. No email was sent.',
   approve: 'The case is closed as approved. Nothing was sent automatically.',
-  review: 'The case is now in the Needs a person queue.',
-  request: 'A follow-up item is now in the Needs a person queue.',
+  review: 'The case is now in the review queue.',
+  request: 'A follow-up item is now in the review queue.',
 }
 
 function Actions({ kase, onChanged }) {
@@ -447,7 +400,7 @@ function Actions({ kase, onChanged }) {
   const [pendingChoice, setPendingChoice] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
-  const choices = CHOICES[kase.status] ?? CHOICES.OK
+  const choices = choicesFor(kase)
 
   useEffect(() => {
     let live = true
@@ -538,10 +491,11 @@ const NOT_A_VALUE = /^(n\/?a|-+|_+|none|nil)$/i
 
 function whyNotChecked(c) {
   const gap = v => !v || NOT_A_VALUE.test(String(v).trim())
-  const siGap = gap(c.si.value)
-  const blGap = gap(c.bl.value)
-  if (siGap && blGap) return 'Neither document gives this, so there was nothing to compare.'
-  if (siGap) return 'The instruction does not give this, so there is nothing to compare the draft against. A blank is a gap in what we were given, not a disagreement.'
-  if (blGap) return 'The draft does not give this in a form we could read, so we have not checked it.'
-  return 'We could not stand behind our reading of this one, so we have not checked it.'
+  const siGap = gap(c.si?.value)
+  const blGap = gap(c.bl?.value)
+  if (siGap && blGap) return 'Neither document gives this value.'
+  if (siGap) return 'The instruction does not give this value, so there was nothing to compare the draft against.'
+  if (blGap) return 'The draft does not give this value in a form that could be read.'
+  return 'This value was read with low confidence, so it was not compared.'
 }
+

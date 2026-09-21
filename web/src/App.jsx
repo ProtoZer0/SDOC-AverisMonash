@@ -47,7 +47,7 @@ export default function App() {
       {route.name === 'worklist' && <Worklist health={health} />}
       {route.name === 'analytics' && <Analytics health={health} />}
       {route.name === 'review' && <Review />}
-      {route.name === 'case' && <CaseView id={route.id} />}
+      {route.name === 'case' && <CaseView id={route.id} field={route.field} />}
     </div>
   )
 }

@@ -204,7 +204,7 @@ export default function AuditTrail({ kase, onClose, onViewEvidence }) {
   )
 }
 
-function buildStages(kase) {
+export function buildStages(kase) {
   const isComparison = kase.category === 'BL_COMPARISON'
   const reasons = new Set(kase.escalation_reasons || [])
   const documents = kase.documents || []
@@ -364,7 +364,7 @@ function buildStages(kase) {
     summary: kase.status === 'MISMATCH'
       ? `Reported ${kase.defect_fields.length} confirmed difference${kase.defect_fields.length === 1 ? '' : 's'}.`
       : kase.status === 'NEEDS_REVIEW'
-        ? 'Stopped short of a guess and sent the case to a person.'
+        ? 'Held the case for review instead of guessing.'
         : noDocsYet
           ? 'Recorded that there was nothing to compare yet.'
           : 'Cleared the draft because every checked field matched.',

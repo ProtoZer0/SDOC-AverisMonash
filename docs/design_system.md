@@ -174,7 +174,7 @@ removed, the row still reads.
 | State | Colour | Shape | Icon | Word |
 | --- | --- | --- | --- | --- |
 | Something is wrong | `--status-wrong` | Circle | `ti-x` | "2 differences" |
-| Needs a person | `--status-review` | Rounded square | `ti-user` | "Needs a person" |
+| Held for review | `--status-review` | Rounded square | `ti-user` | "Held for review" |
 | All clear | `--status-clear` | Square | `ti-check` | "All clear" |
 | Not a check | `--muted` | None | none | "Invoice query" etc. |
 
@@ -489,3 +489,13 @@ component covers all three.
   responsive expandable filter panel that never overlaps the case list. The
   reporting-period control scopes both the visible worklist and Excel export;
   keyword and advanced filters remain screen-only refinements.
+- **v8, 21 Sep 2026** — the held state's word changed from "Needs a person" to
+  "Held for review" on seunniee's call: it names the action the system took
+  rather than a lack. Shape and colour unchanged. The comparison screen was
+  rebuilt as two facing documents (instruction and draft, every line, the
+  seven compared lines named in the margin, a thread joining each to its twin)
+  with corrections written in place and a note per correction beneath the
+  pages; the separate evidence panel and margin cards are gone, see
+  `web/mockups/direction-d-hybrid.html`. Fonts are bundled in `web/src/fonts/`
+  so the app renders identically offline. Editorial sentences that asserted
+  the system's own trustworthiness were removed; the UI states what happened.

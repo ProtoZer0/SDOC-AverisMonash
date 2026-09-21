@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction C · Redline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@700&family=Lato:wght@700&display=swap">
+<link rel="stylesheet" href="../src/index.css">
+<style>
+  body{ background: #DEDCD6 }
+  .page{ max-width: 1360px; margin: 0 auto; padding: 40px 24px 90px }
+  .lede{ max-width: 760px; margin: 0 0 30px }
+  .lede h1{ margin: 6px 0 10px; font-size: 34px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05 }
+  .lede p{ margin: 0 0 10px; color: #3D4650; font-size: 14.5px; line-height: 1.6 }
+  .lede .cost{ padding: 10px 14px; border-left: 3px solid var(--ink); background: rgba(16,26,36,.05) }
+  .screen{ margin: 0 0 46px }
+  .cap{ display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px }
+  .cap b{ font-size: 16px; font-weight: 600 }
+  .cap span{ font-size: 13px; color: #3D4650 }
+  .frame{ width: 1280px; max-width: 100%; background: var(--paper); border-radius: 14px;
+          overflow: hidden; box-shadow: 0 30px 60px rgba(16,26,36,.18); display: flex; flex-direction: column }
+
+  /* ---------- redline ---------- */
+  .rl-main{ padding: 20px var(--case-gutter) 0 }
+  .rl-head{ display: flex; align-items: flex-end; gap: 18px; margin-bottom: 14px }
+  .rl-head h2{ margin: 3px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -.02em }
+  .rl-head h2 b{ color: var(--wrong); font-weight: 600 }
+  .rl-head h2 b.review{ color: var(--blue) }
+  .rl-head p{ margin: 4px 0 0; color: var(--muted); font-size: var(--fs-small) }
+  .rl-head__actions{ margin-left: auto; display: flex; gap: 8px }
+
+  .rl-stage{ position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 26px; align-items: start }
+  .rl-sheet{ position: relative; background: var(--sheet); border: 1px solid rgba(16,26,36,.20);
+             border-bottom-width: 2px; border-right-width: 2px }
+  .rl-sheet__head{ display: flex; align-items: flex-start; gap: 14px; padding: 15px 18px 11px; border-bottom: 1px solid var(--rule) }
+  .rl-sheet__title{ margin: 0 0 3px; font-size: 14px; font-weight: 600; letter-spacing: .10em }
+  .rl-sheet__file{ font-family: var(--mono); font-size: 11px; color: var(--muted) }
+  .rl-sheet__stamp{ margin-left: auto; font-size: 10px; font-weight: 600; letter-spacing: .18em; color: var(--muted);
+                    border: 1px solid var(--rule); border-radius: 3px; padding: 3px 9px }
+  .rl-sheet__stamp--marked{ color: var(--wrong); border-color: rgba(184,58,40,.5) }
+
+  .rl-lines{ margin: 0; padding: 14px 0 16px; list-style: none; font-family: var(--mono); font-size: 13px; line-height: 1.75 }
+  .rl-line{ position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) 90px; align-items: baseline }
+  .rl-line__num{ padding-right: 14px; text-align: right; font-size: 10px; color: rgba(85,96,107,.55) }
+  .rl-line__text{ white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 12px }
+  .rl-line__conf{ padding-right: 16px; text-align: right; font-family: var(--sans); font-size: 9.5px; font-weight: 500;
+                  letter-spacing: .08em; color: var(--muted); white-space: nowrap }
+  /* the proofreader's marginal mark: a short red rule in the left gutter, one per correction */
+  .rl-line--wrong::before{ content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--wrong) }
+  .rl-line--fix .rl-line__text{ color: var(--clear); font-weight: 700; padding-left: 0 }
+  .rl-line--fix .rl-line__num{ color: var(--clear); font-family: var(--sans); font-size: 12px; font-weight: 700 }
+
+  .rl-hit{ display: inline; margin: 0; padding: 1px 2px; border: 0; border-radius: 2px; background: none; color: inherit;
+           font: inherit; cursor: pointer; text-align: left;
+           background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13));
+           background-repeat: no-repeat; background-size: 0% 100%;
+           transition: background-size 180ms cubic-bezier(.2,0,0,1), box-shadow 120ms ease }
+  .rl-hit:hover{ box-shadow: inset 0 -1px 0 rgba(16,26,36,.45) }
+  .rl-hit:focus-visible{ outline: 2px solid var(--blue); outline-offset: 1px }
+  .rl-hit[data-on="true"]{ background-size: 100% 100%; box-shadow: inset 0 -2px 0 var(--ink) }
+  .rl-hit--wrong{ color: var(--wrong); font-weight: 700 }
+  .rl-hit--wrong s{ text-decoration-thickness: 1.5px; text-decoration-color: rgba(184,58,40,.7) }
+  @media (prefers-reduced-motion: reduce){
+    .rl-hit{ background-size: 100% 100%; background-image: none }
+    .rl-hit[data-on="true"]{ background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13)) }
+  }
+
+  /* margin notes sit level with their line; a leader runs back to the sheet edge */
+  .rl-margin{ position: relative; min-height: 100% }
+  .rl-note{ position: absolute; left: 0; right: 0; background: var(--sheet); border: 1px solid var(--rule);
+            border-left: 3px solid var(--wrong); border-radius: 0 10px 10px 0; padding: 11px 14px 12px;
+            display: flex; flex-direction: column; gap: 5px; transition: opacity 160ms ease }
+  .rl-note--match{ border-left-color: var(--clearmark) }
+  .rl-note--ghost{ opacity: 0; pointer-events: none }
+  .rl-note::before{ content: ''; position: absolute; top: 18px; right: 100%; width: 26px; height: 1px; background: rgba(16,26,36,.35) }
+  .rl-note__k{ display: flex; align-items: center; gap: 8px; font-size: 9.5px; font-weight: 600; letter-spacing: .12em;
+               text-transform: uppercase; color: var(--muted) }
+  .rl-note__k .mk{ width: 8px; height: 8px }
+  .rl-note__t{ font-size: 14px; font-weight: 600 }
+  .rl-note__p{ margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.5 }
+  .rl-note__src{ align-self: flex-start; margin-top: 2px; padding: 2px 0; border: 0; border-bottom: 1px solid currentColor;
+                 background: transparent; color: var(--blue); font: inherit; font-size: var(--fs-meta); cursor: pointer }
+  .rl-note__src:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
+  .rl-call{ display: grid; grid-template-rows: 0fr; transition: grid-template-rows 200ms cubic-bezier(.2,0,0,1) }
+  .rl-call[data-open="true"]{ grid-template-rows: 1fr }
+  .rl-call > div{ overflow: hidden; min-height: 0 }
+  .rl-call__in{ margin-top: 6px; padding: 8px 10px; background: #F7F5F0; border: 1px solid var(--hair); border-radius: 6px }
+  .rl-call__where{ display: block; margin-bottom: 4px; font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+  .rl-call__line{ font-family: var(--mono); font-size: 12px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere }
+  .rl-call__line mark{ padding: 1px 2px; border-radius: 2px; color: inherit;
+                       background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13));
+                       background-repeat: no-repeat; background-size: 0% 100%; box-shadow: inset 0 -2px 0 var(--ink);
+                       transition: background-size 180ms cubic-bezier(.2,0,0,1) 60ms; background-color: transparent }
+  .rl-call[data-open="true"] mark{ background-size: 100% 100% }
+  @media (prefers-reduced-motion: reduce){ .rl-call__line mark{ background-size: 100% 100% } }
+  .rl-tail{ margin: 10px 0 0; color: var(--muted); font-size: var(--fs-small) }
+
+  /* the return note, when there is no draft to mark up */
+  .rl-reply{ padding: 22px 26px 26px; display: flex; flex-direction: column; gap: 14px }
+  .rl-reply__meta{ margin: 0; display: grid; grid-template-columns: 60px 1fr; row-gap: 3px; column-gap: 12px;
+                   padding-bottom: 12px; border-bottom: 1px solid var(--rule) }
+  .rl-reply__meta dt{ color: var(--muted); font-size: var(--fs-meta) }
+  .rl-reply__meta dd{ margin: 0; font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere }
+  .rl-reply p{ margin: 0; font-size: 15px; line-height: 1.6; max-width: 640px }
+  .rl-reply p.lead{ font-size: 19px; font-weight: 500; line-height: 1.35; letter-spacing: -.01em }
+  .rl-reply ol{ margin: 0; padding: 12px 0 0; list-style: none; border-top: 1px solid var(--rule);
+                display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px }
+  .rl-reply li{ display: grid; grid-template-columns: 118px 1fr; gap: 10px; font-family: var(--mono); font-size: 12px }
+  .rl-reply li span:first-child{ font-family: var(--sans); font-size: 11px; color: var(--muted) }
+
+  /* worklist, this direction: every row ends with the thing you send back */
+  .rl-work{ padding: 24px var(--case-gutter) 26px; display: flex; flex-direction: column; gap: 14px }
+  .rl-work h1{ margin: 4px 0 4px; font-size: 26px; font-weight: 600; letter-spacing: -.03em }
+  .rl-work p{ margin: 0; color: var(--muted); font-size: var(--fs-small) }
+  .wrow__next{ flex: none; width: 190px; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink) }
+  .wrow__next i{ width: 18px; height: 14px; flex: none; border: 1px solid rgba(16,26,36,.5); border-radius: 2px; position: relative }
+  .wrow__next i::after{ content: ''; position: absolute; left: 3px; right: 3px; top: 4px; height: 1px; background: rgba(16,26,36,.5); box-shadow: 0 3px 0 rgba(16,26,36,.5) }
+  .wrow__next--redline i{ border-color: var(--wrong) }
+  .wrow__next--redline i::after{ background: var(--wrong); box-shadow: 0 3px 0 var(--wrong) }
+  .wrow__next--none{ color: var(--muted) }
+  .wrow__next--none i{ border-style: dashed; opacity: .6 }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="lede">
+    <span class="eyebrow">Direction C</span>
+    <h1>Redline</h1>
+    <p><b>The argument: the output is a marked-up draft you could send straight back to the carrier.</b> One sheet
+       only, the draft, as the real document, and the instruction appears on it the way a proofreader appears on a
+       galley: a red rule in the gutter, the wrong words struck, the right words written in beneath, and a note in
+       the margin level with each mark that explains the correction and points at its source. Click a mark, or its
+       note, and the note unfolds to show the exact instruction line the correction came from, swept. Everything
+       that matched gets its "checked" word on the page and nothing else, so the eye goes to the red rules. When
+       there is no draft to mark up, the sheet becomes the reply you would send instead, drafted and not sent,
+       listing the seven values we did read and stating exactly why the check stopped.</p>
+    <p class="cost"><b>What it costs.</b> The instruction is never shown whole, only line by line on request, so a
+       judge who wants to see both documents has to ask. The margin notes are positioned to their lines by script
+       and must be pushed apart when two corrections sit close together. The refusal page is the boldest of the
+       three and needs the words "draft reply, not sent" to stay honest, because the product records the request
+       and does not email anyone.</p>
+  </div>
+
+  <!-- ============ THE CHECK ============ -->
+  <div class="screen">
+    <div class="cap"><b>The check</b><span>email_004 · click a struck value, a checked value, or a margin note</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__back" href="#" aria-label="Back to the worklist">&#8592;</a>
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Document check</span>
+        <span class="thin__meta">email_004</span>
+        <span class="thin__actions"><button class="thin__audit" type="button"><span class="thin__auditmark"></span>Audit trail</button></span>
+      </div></header>
+      <section class="casebanner">
+        <span class="mk mk--wrong"></span>
+        <div><span class="casebanner__status casebanner__status--wrong">Differences found</span>
+          <h1>REQUEST BL DRAFT _ PO 26067_ COATED IVORY BOARD__138MT</h1></div>
+        <dl class="casebanner__meta"><div><dt>Case</dt><dd>email_004</dd></div><div><dt>From</dt><dd>docs@vitalsolutions.sg</dd></div></dl>
+      </section>
+
+      <div class="rl-main">
+        <div class="rl-head">
+          <div><span class="eyebrow">Marked-up draft</span><h2><b>2 corrections</b>, 5 details checked and left alone</h2>
+            <p>Every correction is the instruction's value, written in where the draft's value was struck.</p></div>
+          <div class="rl-head__actions"><button class="btn btn--ghost btn--small" type="button">Copy amendments</button></div>
+        </div>
+        <div class="rl-stage" id="stage-4">
+          <div class="rl-sheet">
+            <div class="rl-sheet__head"><div><h4 class="rl-sheet__title">BILL OF LADING</h4><div class="rl-sheet__file">attachments/email_004_BL.txt</div></div>
+              <span class="rl-sheet__stamp rl-sheet__stamp--marked">DRAFT · MARKED</span></div>
+            <ol class="rl-lines" id="lines-4"></ol>
+          </div>
+          <div class="rl-margin" id="margin-4"></div>
+        </div>
+        <p class="rl-tail" id="tail-4">Click any checked value to see the instruction line it was set against.</p>
+      </div>
+
+      <div class="fbar" style="margin-top:14px">
+        <span class="fbar__prompt">Choose what should happen next. The decision will appear in the audit trail.</span>
+        <span class="grow"></span>
+        <button class="btn btn--ghost" type="button">Send to a person</button>
+        <button class="btn" type="button">Reject the draft</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THE REFUSAL ============ -->
+  <div class="screen">
+    <div class="cap"><b>The refusal</b><span>email_511 · no draft to mark up, so the sheet is the reply you would send</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__back" href="#" aria-label="Back to the worklist">&#8592;</a>
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Document check</span>
+        <span class="thin__meta">email_511</span>
+        <span class="thin__actions"><button class="thin__audit" type="button"><span class="thin__auditmark"></span>Audit trail</button></span>
+      </div></header>
+      <section class="casebanner">
+        <span class="mk mk--review"></span>
+        <div><span class="casebanner__status casebanner__status--review">Needs a person</span>
+          <h1>RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768</h1></div>
+        <dl class="casebanner__meta"><div><dt>Case</dt><dd>email_511</dd></div><div><dt>From</dt><dd>willy_ss@aprilasia.com</dd></div></dl>
+      </section>
+
+      <div class="rl-main">
+        <div class="rl-head">
+          <div><span class="eyebrow">Nothing to mark up</span><h2><b class="review">Stopped</b> before comparing. The draft has no readable text.</h2>
+            <p>Seven values were read from the instruction. None were guessed for the draft.</p></div>
+          <div class="rl-head__actions"><button class="btn btn--ghost btn--small" type="button">Copy reply</button></div>
+        </div>
+        <div class="rl-stage">
+          <div class="rl-sheet">
+            <div class="rl-sheet__head"><div><h4 class="rl-sheet__title">REPLY TO SENDER</h4><div class="rl-sheet__file">draft reply · not sent · a person decides</div></div>
+              <span class="rl-sheet__stamp" style="color:var(--blue);border-color:rgba(0,109,174,.5)">NOT SENT</span></div>
+            <div class="rl-reply">
+              <dl class="rl-reply__meta">
+                <dt>To</dt><dd>willy_ss@aprilasia.com</dd>
+                <dt>Re</dt><dd>RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768</dd>
+              </dl>
+              <p class="lead">The draft bill of lading attached as email_511_BL.pdf is a scanned image with no text layer, so it could not be checked against the shipping instruction.</p>
+              <p>Please resend the draft as a text PDF, or as the original file from the carrier's system. The shipping instruction has been read in full and is on file; the seven details below are what the draft will be checked against.</p>
+              <ol>
+                <li><span>Shipper</span>APRIL FINE PAPER TRADING</li>
+                <li><span>To the order of</span>AL GURG STATIONERY LLC</li>
+                <li><span>Notify</span>AL GURG STATIONERY LLC</li>
+                <li><span>Port of loading</span>NHAVA SHEVA, INDIA (INNSA)</li>
+                <li><span>Port of discharge</span>KOPER, SLOVENIA (SIKOP)</li>
+                <li><span>Containers</span>6 x 40'HC</li>
+                <li><span>Gross weight</span>134,904 KG</li>
+              </ol>
+            </div>
+          </div>
+          <div class="rl-margin" style="position:static">
+            <div class="rl-note" style="position:static;border-left-color:var(--blue)">
+              <span class="rl-note__k"><span class="mk mk--review"></span>Why it stopped</span>
+              <span class="rl-note__t">No text layer, 0 characters</span>
+              <p class="rl-note__p">Classify and gate passed. Extract found nothing to read in the PDF, so normalise, compare, confidence and decide did not run. Nothing here is a guess.</p>
+            </div>
+            <div class="rl-note rl-note--match" style="position:static;margin-top:14px">
+              <span class="rl-note__k"><span class="mk mk--clear"></span>What was read</span>
+              <span class="rl-note__t">The instruction, 7 of 7 values</span>
+              <p class="rl-note__p">Read by the parser in 41 ms. It stays on file, so the resent draft is checked against the same instruction, not a new reading of it.</p>
+            </div>
+          </div>
+        </div>
+        <p class="rl-tail">A person sends the reply, retries with OCR, or checks the original by hand. The system waits.</p>
+      </div>
+
+      <div class="fbar" style="margin-top:14px">
+        <span class="fbar__prompt">Choose what should happen next. The decision will appear in the audit trail.</span>
+        <span class="grow"></span>
+        <button class="btn btn--ghost" type="button">Send to a person</button>
+        <button class="btn" type="button">Ask for a readable draft</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THE WORKLIST ============ -->
+  <div class="screen">
+    <div class="cap"><b>The worklist, top</b><span>every row ends with the thing you send back</span></div>
+    <div class="frame">
+      <header class="thin"><div class="thin__inner">
+        <a class="thin__home" href="#"><span class="thin__mark">ProtoZer<span class="z">0</span></span></a>
+        <span class="thin__divider"></span><span class="thin__section">Email checks</span>
+        <span class="thin__meta">12 emails</span>
+        <nav class="thin__nav"><a href="#" aria-current="page">Worklist</a><a href="#">Analytics</a></nav>
+        <span class="thin__actions"><a class="thin__queue" href="#"><span class="mk mk--review"></span>Review queue <b>5</b></a></span>
+      </div></header>
+      <div class="rl-work">
+        <div><span class="eyebrow">Shipping document control desk · 12 emails read</span>
+          <h1>1 draft to send back marked up. 5 replies to write. 6 need nothing.</h1>
+          <p>Priority first. The right-hand column is the next thing that leaves this desk.</p></div>
+        <div class="wtable" id="rows-w"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+
+const SI4 = `SHIPPING INSTRUCTION
+========================================
+
+Shipper: APRIL FAR EAST (M) SDN BHD
+  TOWER 2, AVENUE 5, LEVEL 6; BANGSAR SOUTH CITY, NO. 8 JALAN KERINCHI; 59200 KUALA LUMPUR, MALAYSIA
+Consignee (Non-Negotiable): EAST BRIGHT FZ-LLC
+  RAKEZ AMENITY CENTER; AL HAMRA INDUSTRIAL ZONE, RAK, UAE
+Notify: EAST BRIGHT FZ-LLC
+Port of Loading (POL): NANTONG, CHINA (CNNTG)
+POD: KARACHI, PAKISTAN (PKKHI)
+Total Containers: 6 x 40'HC
+Gross Wt (kgs): 131,058 KG
+Vessel: NAP 914 V.BS007
+Voyage: BS012
+Kinds of Packages; Description of Goods: COATED IVORY BOARD
+HS Code: 48105900
+Booking Ref: ONEYSINF32871
+OC No.: 5ALT-01226
+Freight: PREPAID`.split('\n')
+
+const BL4 = `BILL OF LADING (DRAFT)
+========================================
+
+SHIPPER: APRIL FAR EAST (M) SDN BHD
+  TOWER 2, AVENUE 5, LEVEL 6; BANGSAR SOUTH CITY, NO. 8 JALAN KERINCHI; 59200 KUALA LUMPUR, MALAYSIA
+To the Order of: UAB NOVAKOPA
+  RAKEZ AMENITY CENTER; AL HAMRA INDUSTRIAL ZONE, RAK, UAE
+Notify Party: UAB NOVAKOPA
+Port of Loading (POL): NANTONG, CHINA (CNNTG)
+POD: KARACHI, PAKISTAN (PKKHI)
+Container Count: 6 x 40'HC
+Gross Weight (KG): 131,058 KG
+Export Carrier (vessel, voyage): NAP 914 V.BS007
+Voyage: BS012
+Commodity: COATED IVORY BOARD
+Bill of Lading No.: SINF88496965
+Booking Ref: ONEYSINF32871
+Freight: PREPAID`.split('\n')
+
+const HITS4 = [
+  { f:'shipper', name:'Sender', verdict:'match', conf:'checked', si:{ line:3, v:'APRIL FAR EAST (M) SDN BHD', label:'Shipper' }, bl:{ line:3, v:'APRIL FAR EAST (M) SDN BHD', label:'SHIPPER' } },
+  { f:'consignee', name:'Receiver', verdict:'wrong', conf:'checked', si:{ line:5, v:'EAST BRIGHT FZ-LLC', label:'Consignee (Non-Negotiable)' }, bl:{ line:5, v:'UAB NOVAKOPA', label:'To the Order of' } },
+  { f:'notify_party', name:'Notify on arrival', verdict:'wrong', conf:'checked', si:{ line:7, v:'EAST BRIGHT FZ-LLC', label:'Notify' }, bl:{ line:7, v:'UAB NOVAKOPA', label:'Notify Party' } },
+  { f:'port_of_loading', name:'Port of loading', verdict:'match', conf:'checked', si:{ line:8, v:'NANTONG, CHINA (CNNTG)', label:'Port of Loading (POL)' }, bl:{ line:8, v:'NANTONG, CHINA (CNNTG)', label:'Port of Loading (POL)' } },
+  { f:'port_of_discharge', name:'Port of discharge', verdict:'match', conf:'checked', si:{ line:9, v:'KARACHI, PAKISTAN (PKKHI)', label:'POD' }, bl:{ line:9, v:'KARACHI, PAKISTAN (PKKHI)', label:'POD' } },
+  { f:'container_count', name:'Containers', verdict:'match', conf:'checked', si:{ line:10, v:"6 x 40'HC", label:'Total Containers' }, bl:{ line:10, v:"6 x 40'HC", label:'Container Count' } },
+  { f:'gross_weight_kg', name:'Gross weight', verdict:'match', conf:'checked', si:{ line:11, v:'131,058 KG', label:'Gross Wt (kgs)' }, bl:{ line:11, v:'131,058 KG', label:'Gross Weight (KG)' } },
+]
+
+// the draft, line by line, with corrections written in beneath the struck value
+const linesEl = document.getElementById('lines-4')
+const byLine = {}; for (const h of HITS4) byLine[h.bl.line] = h
+let k = 0
+linesEl.innerHTML = BL4.map((line, i) => {
+  const h = byLine[i]
+  if (!h) return `<li class="rl-line"><span class="rl-line__num">${i + 1}</span><span class="rl-line__text">${esc(line) || ' '}</span><span></span></li>`
+  const wrong = h.verdict === 'wrong'
+  const at = line.indexOf(h.bl.v)
+  const btn = `<button class="rl-hit${wrong ? ' rl-hit--wrong' : ''}" type="button" data-f="${h.f}" aria-pressed="false">${wrong ? `<s>${esc(h.bl.v)}</s>` : esc(h.bl.v)}</button>`
+  let out = `<li class="rl-line${wrong ? ' rl-line--wrong' : ''}" data-f="${h.f}"><span class="rl-line__num">${i + 1}</span>`
+          + `<span class="rl-line__text">${esc(line.slice(0, at))}${btn}${esc(line.slice(at + h.bl.v.length))}</span>`
+          + `<span class="rl-line__conf">${esc(h.conf)}</span></li>`
+  if (wrong) out += `<li class="rl-line rl-line--fix"><span class="rl-line__num">${++k}</span><span class="rl-line__text">${esc(h.si.v)}</span><span></span></li>`
+  return out
+}).join('')
+
+// margin notes: one per correction, level with its line; one ghost note for whichever match is selected
+const marginEl = document.getElementById('margin-4')
+const stage = document.getElementById('stage-4')
+const noteHtml = (h, n) => {
+  const wrong = h.verdict === 'wrong'
+  const siLine = SI4[h.si.line]; const at = siLine.indexOf(h.si.v)
+  const call = `<div class="rl-call" data-open="false"><div><div class="rl-call__in"><span class="rl-call__where">Shipping instruction · line ${h.si.line + 1} of ${SI4.length}</span>`
+             + `<span class="rl-call__line">${esc(siLine.slice(0, at))}<mark>${esc(h.si.v)}</mark>${esc(siLine.slice(at + h.si.v.length))}</span></div></div></div>`
+  return `<div class="rl-note${wrong ? '' : ' rl-note--match rl-note--ghost'}" data-f="${h.f}">`
+    + `<span class="rl-note__k"><span class="mk mk--${wrong ? 'wrong' : 'clear'}"></span>${wrong ? `Correction ${n}` : 'Checked'} · ${esc(h.name)}</span>`
+    + `<span class="rl-note__t">${wrong ? 'The draft names a different company.' : 'Same value on the instruction.'}</span>`
+    + `<p class="rl-note__p">${h.si.label === h.bl.label ? `Both documents call this <b>${esc(h.si.label)}</b>.` : `Draft calls this <b>${esc(h.bl.label)}</b>; the instruction calls it <b>${esc(h.si.label)}</b>. Read as the same field.`}</p>`
+    + `<button class="rl-note__src" type="button" data-f="${h.f}">${wrong ? 'Show the instruction line' : 'Show the instruction line'}</button>${call}</div>`
+}
+let n = 0
+marginEl.innerHTML = HITS4.map(h => noteHtml(h, h.verdict === 'wrong' ? ++n : 0)).join('')
+
+function place() {
+  const box = stage.getBoundingClientRect()
+  let floor = 0
+  for (const h of HITS4) {
+    const line = linesEl.querySelector(`.rl-line[data-f="${h.f}"]`)
+    const note = marginEl.querySelector(`.rl-note[data-f="${h.f}"]`)
+    if (!line || !note) continue
+    if (note.classList.contains('rl-note--ghost')) continue
+    let y = line.getBoundingClientRect().top - box.top - 6
+    if (y < floor) y = floor
+    note.style.top = y + 'px'
+    floor = y + note.offsetHeight + 10
+  }
+}
+let selected = null
+function select(f) {
+  selected = selected === f ? null : f
+  stage.querySelectorAll('.rl-hit').forEach(b => { const on = b.dataset.f === selected; b.dataset.on = on; b.setAttribute('aria-pressed', on) })
+  for (const h of HITS4) {
+    const note = marginEl.querySelector(`.rl-note[data-f="${h.f}"]`)
+    const on = h.f === selected
+    if (h.verdict !== 'wrong') note.classList.toggle('rl-note--ghost', !on)
+    note.querySelector('.rl-call').dataset.open = on
+    note.querySelector('.rl-note__src').textContent = on ? 'Hide the instruction line' : 'Show the instruction line'
+  }
+  place()
+  setTimeout(place, 210)
+}
+stage.addEventListener('click', e => {
+  const t = e.target.closest('.rl-hit, .rl-note__src'); if (!t) return
+  select(t.dataset.f)
+})
+place(); window.addEventListener('resize', place)
+if (document.fonts) document.fonts.ready.then(place)
+setTimeout(place, 300)
+if (location.hash === '#demo') select('consignee')
+
+const ROWS = [
+  { id:'email_501', k:'review', p:'Blocked', h:'Wrong document attached', s:'RE_ TO CONFIRM DOCS _ 5RSG-51584 _ HOUSTON_US _ KPP-ANTALIS (SINGAPORE) PTE. LTD. _ YMJAI905670867', from:'exports@ifpla.com', next:['reply','Ask for the right file'] },
+  { id:'email_506', k:'review', p:'Blocked', h:'Nothing attached to check', s:'RE_ AFRT - LONG BEACH_US - EVER(EGLV433335384951) - 5RSG-19787 - 5250071809 - EAST BRIGHT FZ-LLC - OA_CFR', from:'arlene_yamomo@aprilasia.com', next:['reply','Ask for the draft'] },
+  { id:'email_507', k:'review', p:'Blocked', h:'Nothing attached to check', s:'RE_ TO CONFIRM DOCS _ 5AKR-00230 _ KOPER_SLOVENIA _ 3S PAPER PRODUCTS SDN BHD _ MCLSIN6917702', from:'docs@vitalsolutions.sg', next:['reply','Ask for the draft'] },
+  { id:'email_511', k:'review', p:'Blocked', h:'The file will not open', s:'RE_ TO CONFIRM DOCS _ 5SUS-40134 _ KOPER_SLOVENIA _ AL GURG STATIONERY LLC _ MCLSIN6917768', from:'willy_ss@aprilasia.com', next:['reply','Ask for a text copy'] },
+  { id:'email_004', k:'wrong', p:'High', h:'Receiver and notify on arrival do not match', s:'REQUEST BL DRAFT _ PO 26067_ COATED IVORY BOARD__138MT', from:'docs@vitalsolutions.sg', next:['redline','Send back, 2 marks'] },
+  { id:'email_516', k:'review', p:'High', h:'A value is blank', s:'RE_ AFEMY - CONAKRY_GUINEA - MONTER(MCLSIN6123859) - 5RCY-68239 - 5250071820 - KPP-ANTALIS (SINGAPORE) PTE. LTD.', from:'elisa_tukiman@april.com.my', next:['reply','Ask to complete the SI'] },
+  { id:'email_001', k:'clear', p:null, h:'All 7 details match.', s:'TO CONFIRM DOCS _ 5RSG-00133 _ CALLAO_PERU _ MOORIM SP CO., LTD _ MEDUUD104332', from:'aziztz@safqa.co.ke', next:['none','Nothing to send'] },
+  { id:'email_003', k:'clear', p:null, h:'No documents attached to compare.', s:'RE_ TO CONFIRM DOCS _ 5AAT-03056 _ AQABA_JORDAN _ ROXCEL TRADING GMBH _ SIN525534192', from:'exports@ifpla.com', next:['none','Nothing to send'] },
+]
+const PCLS = { Blocked:'urgent', High:'high' }
+document.getElementById('rows-w').innerHTML = ROWS.map(r =>
+  `<a class="wrow wrow--link" href="#"><span class="mk mk--${r.k}"></span>`
+  + `<span class="wrow__body"><span class="wrow__headline"><span class="wrow__found wrow__found--${r.k}">${esc(r.h)}</span>`
+  + (r.p ? `<span class="priority priority--${PCLS[r.p]}">${r.p}</span>` : '') + `</span>`
+  + `<span class="wrow__ref trunc">${esc(r.s)} &nbsp;&middot;&nbsp; ${esc(r.from)}</span></span>`
+  + `<span class="wrow__next wrow__next--${r.next[0]}"><i></i>${esc(r.next[1])}</span>`
+  + `<span class="wrow__id">${r.id}</span><span class="wrow__open">&rarr;</span></a>`).join('')
+</script>
+</body>
+</html>

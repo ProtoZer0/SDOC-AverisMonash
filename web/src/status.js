@@ -9,7 +9,7 @@ export function kindOf(c) {
 
 export const KIND_WORD = {
   wrong: 'Differences found',
-  review: 'Needs a person',
+  review: 'Held for review',
   clear: 'All clear',
   none: 'Not a check',
 }
@@ -94,4 +94,42 @@ export function clockOf(iso) {
   if (isNaN(d)) return ''
   return String(d.getUTCHours()).padStart(2, '0') + ':' +
          String(d.getUTCMinutes()).padStart(2, '0')
+}
+
+// The three verdict kinds a compared field can carry, in the same words and
+// shapes the case status uses: wrong (circle), review (rounded square), clear (square).
+export function verdictKind(comparison) {
+  if (!comparison) return 'review'
+  if (comparison.verdict === 'MISMATCH') return 'wrong'
+  if (comparison.verdict === 'MATCH' && !comparison.confidence?.hard_fail) return 'clear'
+  return 'review'
+}
+
+// What leaves the desk next. Derived from status and the review reason only,
+// so the worklist, the analytics page and the case page all agree.
+export const STEPS = [
+  { key: 'redline', label: 'Send back marked up', mk: 'wrong' },
+  { key: 'document', label: 'Ask for a document', mk: 'review' },
+  { key: 'text', label: 'Ask for a text copy', mk: 'review' },
+  { key: 'complete', label: 'Ask to complete the instruction', mk: 'review' },
+  { key: 'hand', label: 'Check by hand', mk: 'review' },
+  { key: 'cleared', label: 'Cleared', mk: 'clear' },
+  { key: 'other', label: 'Not a check', mk: 'none' },
+]
+
+export function stepOf(c) {
+  if (c.category !== 'BL_COMPARISON') return { key: 'other', word: 'No check needed', mk: 'none' }
+  if (c.status === 'MISMATCH') {
+    const n = (c.defect_fields || []).length
+    return { key: 'redline', word: `Send back, ${n} mark${n === 1 ? '' : 's'}`, mk: 'wrong' }
+  }
+  if (c.status === 'NEEDS_REVIEW') {
+    const reason = c.wire_review_reason
+    if (reason === 'missing_attachment') return { key: 'document', word: 'Ask for the draft', mk: 'review' }
+    if (reason === 'wrong_doc_type') return { key: 'document', word: 'Ask for the right file', mk: 'review' }
+    if (reason === 'unreadable') return { key: 'text', word: 'Ask for a text copy', mk: 'review' }
+    if (reason === 'missing_value') return { key: 'complete', word: 'Ask to complete the instruction', mk: 'review' }
+    return { key: 'hand', word: 'Check by hand', mk: 'review' }
+  }
+  return { key: 'cleared', word: 'Nothing to send', mk: 'clear' }
 }

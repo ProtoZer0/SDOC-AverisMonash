@@ -180,7 +180,7 @@ function locatorWord(locator) {
 function resultOf(kase) {
   if (kase.category !== 'BL_COMPARISON') return 'NOT A CHECK'
   if (kase.status === 'MISMATCH') return 'MISMATCH'
-  if (kase.status === 'NEEDS_REVIEW') return 'REVIEW REQUIRED'
+  if (kase.status === 'NEEDS_REVIEW') return 'HELD FOR REVIEW'
   return kase.comparisons?.length ? 'MATCH' : 'NOT COMPARED'
 }
 
