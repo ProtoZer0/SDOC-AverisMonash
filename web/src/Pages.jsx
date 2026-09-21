@@ -12,11 +12,12 @@ export default function Pages({ kase, docs, selected, onSelect }) {
   const siText = docs?.SI?.text || null
   const blText = docs?.BL?.text || null
   const hits = buildHits(kase, siText, blText)
+  const wired = Boolean(siText && blText)
 
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    const draw = () => drawWires(el, svgRef.current, hits, selected)
+    const draw = () => drawWires(el, svgRef.current, wired ? hits : [], selected)
     draw()
     const ro = new ResizeObserver(draw)
     ro.observe(el)
@@ -42,20 +43,20 @@ export default function Pages({ kase, docs, selected, onSelect }) {
   const pick = field => onSelect(selected === field ? null : field)
 
   return (
-    <div className="pages" ref={ref}>
+    <div className={'pages' + (wired ? '' : ' pages--record')} ref={ref}>
       <svg className="pages__wires" ref={svgRef} aria-hidden="true"></svg>
       {siText
-        ? <Sheet role="SI" document={si} text={siText} hits={hits} selected={selected} onPick={pick} />
+        ? <Sheet role="SI" document={si} text={siText} hits={hits} selected={selected} onPick={pick} wired={wired} />
         : <Record role="SI" document={si} kase={kase} />}
       <div className="pages__gutter" aria-hidden="true"></div>
       {blText
-        ? <Sheet role="BL" document={bl} text={blText} hits={hits} selected={selected} onPick={pick} showConf />
+        ? <Sheet role="BL" document={bl} text={blText} hits={hits} selected={selected} onPick={pick} showConf wired={wired} />
         : <Record role="BL" document={bl} kase={kase} />}
     </div>
   )
 }
 
-function Sheet({ role, document, text, hits, selected, onPick, showConf }) {
+function Sheet({ role, document, text, hits, selected, onPick, showConf, wired }) {
   const lines = text.split('\n')
   const byLine = {}
   for (const h of hits) if (h[role]) byLine[h[role].line] = h
@@ -97,7 +98,7 @@ function Sheet({ role, document, text, hits, selected, onPick, showConf }) {
                   className={'hit' + (wrong ? ' hit--wrong' : '')}
                   data-on={on}
                   aria-pressed={on}
-                  aria-label={`${h.name} on the ${role === 'SI' ? 'instruction' : 'draft'}: ${side.value}. Show on both pages`}
+                  aria-label={`${h.name} on the ${role === 'SI' ? 'instruction' : 'draft'}: ${side.value}. ${wired ? 'Show on both pages' : 'Show on the page'}`}
                   onClick={() => onPick(h.field)}
                 >
                   {wrong ? <s>{side.value}</s> : side.value}
@@ -169,7 +170,7 @@ export function buildHits(kase, siText, blText) {
   const bl = kase.documents.find(d => d.role === 'BL')
   const out = []
   // A refusal has no comparisons, but whatever the instruction gave us was
-  // still read. Name those lines and let each thread stop at the gutter.
+  // still read. Name those lines; no thread is drawn, there is nothing to join.
   if (kase.comparisons.length === 0) {
     for (const field of FIELD_ORDER) {
       const SI = locate(siText, si?.fields?.[field])
@@ -243,16 +244,12 @@ function drawWires(el, svg, hits, selected) {
     const yb = b ? mid(b, box) : null
     const on = selected === h.field
     const cls = on ? 'on' : ''
-    if (ya != null && yb != null) {
-      out += `<path class="${cls}" pathLength="1" d="M${x1},${ya} C${mx},${ya} ${mx},${yb} ${x2},${yb}"/>`
-      out += shape(x1, ya, h.kind, on) + shape(x2, yb, h.kind, on)
-    } else if (ya != null) {
-      out += `<path class="${cls}" pathLength="1" d="M${x1},${ya} L${mx + 6},${ya}"/>`
-      out += shape(x1, ya, h.kind, on) + shape(mx + 6, ya, 'review', on)
-    } else {
-      out += `<path class="${cls}" pathLength="1" d="M${x2},${yb} L${mx - 6},${yb}"/>`
-      out += shape(x2, yb, h.kind, on) + shape(mx - 6, yb, 'review', on)
-    }
+    // A thread joins two located lines. A value whose twin could not be
+    // pinpointed on the other page gets no thread and no lone marker; the
+    // struck line and its note below already say what happened.
+    if (ya == null || yb == null) continue
+    out += `<path class="${cls}" pathLength="1" d="M${x1},${ya} C${mx},${ya} ${mx},${yb} ${x2},${yb}"/>`
+    out += shape(x1, ya, h.kind, on) + shape(x2, yb, h.kind, on)
   }
   svg.innerHTML = out
   if (selected && svg.dataset.drawnFor === selected) svg.querySelector('path.on')?.classList.add('drawn')

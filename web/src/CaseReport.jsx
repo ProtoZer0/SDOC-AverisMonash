@@ -19,7 +19,6 @@ export default function CaseReport({ kase, events }) {
   const methods = new Set(documents.flatMap(document =>
     FIELD_ORDER.map(field => document.fields?.[field]?.extracted_by).filter(Boolean)))
   const usedAi = methods.has('llm') || methods.has('doc_intelligence')
-  const finalResult = resultOf(kase)
   const confidenceScores = comparisons
     .map(value => value.confidence?.score)
     .filter(Number.isFinite)
@@ -82,10 +81,7 @@ export default function CaseReport({ kase, events }) {
   return (
     <section className="casereport" aria-labelledby="case-report-title">
       <div className="casereport__head">
-        <div>
-          <span className="eyebrow">Case report</span>
-          <h2 id="case-report-title">Decision summary</h2>
-        </div>
+        <h2 id="case-report-title">Case report</h2>
         <div className="casereport__actions">
           <button
             className="casereport__download"
@@ -97,7 +93,6 @@ export default function CaseReport({ kase, events }) {
           >
             {building ? 'Building the report…' : 'Download PDF'}
           </button>
-          <span className={'casereport__result casereport__result--' + resultTone(kase)}>{finalResult}</span>
           {amendments.length > 0 && (
             <button className="casereport__download" type="button" onClick={copyAmendments}>
               {copied ? 'Copied' : 'Copy amendments'}
@@ -112,12 +107,8 @@ export default function CaseReport({ kase, events }) {
         <div className="reportfact">
           <dt>Documents</dt>
           <dd className="reportdocs">
-            <span className={documents.some(document => document.role === 'SI') ? 'is-present' : ''}>
-              {documents.some(document => document.role === 'SI') ? '✓' : '—'} Shipping instruction
-            </span>
-            <span className={documents.some(document => document.role === 'BL') ? 'is-present' : ''}>
-              {documents.some(document => document.role === 'BL') ? '✓' : '—'} Bill of lading
-            </span>
+            <DocumentState role="SI" documents={documents} />
+            <DocumentState role="BL" documents={documents} />
           </dd>
         </div>
         <div className="reportfact">
@@ -139,6 +130,18 @@ export default function CaseReport({ kase, events }) {
       </dl>
     </section>
   )
+}
+
+// The tick means read and usable. Anything less says what it is instead.
+function DocumentState({ role, documents }) {
+  const name = role === 'SI' ? 'Shipping instruction' : 'Bill of lading'
+  const document = documents.find(item => item.role === role)
+  if (!document) return <span>{DASH} {name}, not attached</span>
+  if (document.readable === false) return <span className="is-review">{name}, not read</span>
+  if (document.detected_kind && document.detected_kind !== 'UNKNOWN' && document.detected_kind !== role) {
+    return <span className="is-review">{name}, wrong document</span>
+  }
+  return <span className="is-present">✓ {name}</span>
 }
 
 function ReportFact({ label, value, note, mono = false }) {
@@ -169,7 +172,7 @@ function issueSummary(kase, issueFields, comparisons) {
     ].filter(Boolean).join(', ')
   }
   if (kase.wire_review_reason) return REASON_TITLE[kase.wire_review_reason] || kase.wire_review_reason
-  return 'None'
+  return comparisons.length ? 'None' : 'Not compared'
 }
 
 function evidenceLocation(comparison) {
@@ -182,19 +185,6 @@ function locatorWord(locator) {
   if (locator.sheet) return `${locator.sheet}, row ${locator.line ?? '—'}`
   if (locator.line != null) return `line ${locator.line + 1}`
   return 'location unavailable'
-}
-
-function resultOf(kase) {
-  if (kase.category !== 'BL_COMPARISON') return 'NOT A CHECK'
-  if (kase.status === 'MISMATCH') return 'MISMATCH'
-  if (kase.status === 'NEEDS_REVIEW') return 'HELD FOR REVIEW'
-  return kase.comparisons?.length ? 'MATCH' : 'NOT COMPARED'
-}
-
-function resultTone(kase) {
-  if (kase.status === 'MISMATCH') return 'wrong'
-  if (kase.status === 'NEEDS_REVIEW') return 'review'
-  return 'clear'
 }
 
 function hasValue(value) {

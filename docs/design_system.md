@@ -146,11 +146,18 @@ chart on the dashboard. Measured against our paper:
 | Role | Face | Size | Weight |
 | --- | --- | --- | --- |
 | Screen title | Archivo | 22px | 600 |
-| Section heading | Archivo | 18px | 600 |
-| Body and table cells | Archivo | 14px | 400 |
-| Secondary and metadata | Archivo | 13px | 400 |
-| **Document values** | **Azeret Mono** | 13px | 400 |
-| Numeric columns | Azeret Mono | 14px | 400 |
+| Section heading | Archivo | 17px | 600 |
+| Body and table cells | Archivo | 15px | 400 |
+| Secondary | Archivo | 14px | 400 |
+| Metadata and counts | Archivo | 12.5px | 400 |
+| Tracked labels (compact capitals) | Archivo | 11px | 600 |
+| **Document values** | **Azeret Mono** | 14px | 400 |
+
+Each row is a token in `web/src/index.css` (`--fs-title`, `--fs-head`,
+`--fs-body`, `--fs-small`, `--fs-meta`, `--fs-label`). Every size below 15px
+goes through a token; a few display numbers, hero headings and glyphs at 15px
+or larger are written in place. Nothing a person is meant to read sits below 11px. The scale
+was raised one step on 22 Sep 2026 after it read too small at 100% zoom.
 
 The protected ProtoZero wordmark is the sole typography exception: it retains
 the original Lato 700 lettering and JetBrains Mono 700 orange zero.

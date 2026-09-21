@@ -7,7 +7,7 @@ import {
   clearCaseDecision, getAuditEvents, getCase, getCaseDecision, getDocument, recordCaseDecision,
   reviewerId, updateCaseWorkflow,
 } from './api.js'
-import { KIND_WORD, kindOf, priorityOf, stepOf } from './status.js'
+import { KIND_WORD, kindOf, stepOf } from './status.js'
 
 export default function CaseView({ id, field }) {
   const [kase, setCase] = useState(null)
@@ -249,7 +249,6 @@ function WorkflowPanel({ kase, onChanged }) {
   const [status, setStatus] = useState(kase.review_status || 'unassigned')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState(null)
-  const priority = priorityOf(kase)
 
   useEffect(() => {
     setAssignee(kase.assigned_to || '')
@@ -302,11 +301,7 @@ function WorkflowPanel({ kase, onChanged }) {
   return (
     <section className="workflow" aria-labelledby="workflow-title">
       <div className="workflow__head">
-        <div>
-          <span className="eyebrow">Review ownership</span>
-          <h2 id="workflow-title">Owner and review status</h2>
-        </div>
-        <span className={'priority priority--' + priority.key} title={priority.reason}>{priority.label}</span>
+        <h2 id="workflow-title">Owner and review status</h2>
       </div>
       <div className="workflow__controls">
         <label>
@@ -330,7 +325,7 @@ function WorkflowPanel({ kase, onChanged }) {
           {currentOwner && !ownedByMe && (
             <button className="btn btn--ghost btn--small" type="button" disabled={busy} onClick={assignToMe}>Take ownership</button>
           )}
-          <button className="btn btn--small" type="button" disabled={busy || unchanged} onClick={() => save()}>
+          <button className="btn btn--ghost btn--small" type="button" disabled={busy || unchanged} onClick={() => save()}>
             {busy ? 'Saving…' : 'Save changes'}
           </button>
         </div>

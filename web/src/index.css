@@ -29,12 +29,12 @@
   --sans: 'Archivo', 'Segoe UI', system-ui, sans-serif;
   --mono: 'Azeret Mono', 'Cascadia Mono', ui-monospace, monospace;
 
-  --fs-title:  24px;
-  --fs-head:   16px;
-  --fs-body:   14px;
-  --fs-small:  13px;
-  --fs-meta:   11.5px;
-  --fs-label:  9.5px;
+  --fs-title:  22px;
+  --fs-head:   17px;
+  --fs-body:   15px;
+  --fs-small:  14px;
+  --fs-meta:   12.5px;
+  --fs-label:  11px;
 
   --r-control:   8px;
   --r-panel:    12px;
@@ -63,7 +63,7 @@ body{
 .mono{ font-family: var(--mono) }
 .grow{ flex-grow: 1 }
 .trunc{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.quiet{ font-size: 12.5px; color: var(--muted) }
+.quiet{ font-size: var(--fs-small); color: var(--muted) }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible{
   outline: 2px solid var(--blue);
@@ -105,7 +105,7 @@ body{
                 font-size: 1.06em; color: var(--orange) }
 .thin__divider{ width: 1px; height: 18px; background: rgba(255,255,255,.24) }
 .thin__section{ font-size: var(--fs-small); color: var(--on-dark) }
-.thin__meta{ font-family: var(--mono); font-size: 12px; color: var(--on-dark-dim) }
+.thin__meta{ font-family: var(--mono); font-size: var(--fs-small); color: var(--on-dark-dim) }
 .thin__nav{ display: flex; align-self: stretch; align-items: center; gap: 2px; margin-left: 12px }
 .thin__nav a{ display: inline-flex; height: 100%; align-items: center; padding: 0 11px;
               border-bottom: 2px solid transparent; color: var(--on-dark-dim);
@@ -153,7 +153,9 @@ body{
         display: flex; flex-direction: column; gap: 14px }
 .chips{ display: flex; gap: 8px; flex-wrap: wrap }
 .fbar{ flex: none; display: flex; align-items: center; gap: 12px;
-       padding: 14px 34px; border-top: 1px solid var(--rule); background: var(--sheet) }
+       width: calc(100% - var(--case-gutter) - var(--case-gutter)); max-width: var(--case-content-max);
+       margin: 4px auto 0; padding: 14px 20px;
+       border: 1px solid rgba(16,26,36,.18); border-radius: var(--r-panel); background: var(--sheet) }
 .panel{ padding: 24px 34px; max-width: 660px;
         display: flex; flex-direction: column; gap: 14px }
 .state{ padding: 34px; color: var(--muted) }
@@ -173,7 +175,7 @@ body{
                     font-size: clamp(28px, 3.4vw, 43px); font-weight: 600;
                     line-height: 1.06; letter-spacing: -.035em }
 .welcome__copy p{ max-width: 680px; margin: 0 0 20px; color: var(--muted);
-                  font-size: 14px; line-height: 1.65 }
+                  font-size: var(--fs-body); line-height: 1.65 }
 .welcome__copy .btn{ display: inline-flex; align-items: center; text-decoration: none }
 .welcome__path{ min-width: 0; padding: 20px 22px; border: 1px solid var(--rule);
                 border-radius: 10px; background: #F8F6F1 }
@@ -188,14 +190,14 @@ body{
                         align-items: center; justify-content: center;
                         border: 1px solid rgba(0,109,174,.45); border-radius: 7px;
                         background: var(--sheet); color: var(--blue);
-                        font-family: var(--mono); font-size: 9px; font-weight: 600 }
+                        font-family: var(--mono); font-size: var(--fs-label); font-weight: 600 }
 .welcome__steps span{ display: flex; flex-direction: column }
 .welcome__steps strong{ padding-top: 1px; font-size: var(--fs-small); font-weight: 600 }
 .welcome__steps small{ margin-top: 2px; color: var(--muted); font-size: var(--fs-meta); line-height: 1.45 }
 .ops{ display: flex; flex-direction: column; gap: 14px }
 .funnel{ padding: 22px 24px 24px; background: var(--sheet); border: 1px solid var(--rule);
          border-radius: 14px; box-shadow: 0 14px 34px rgba(16,26,36,.035) }
-.funnel h2{ margin: 5px 0 18px; font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25 }
+.funnel h2{ margin: 5px 0 18px; font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em; line-height: 1.25 }
 .funnel h2 b{ font-weight: 600; color: var(--clear) }
 .funnel__row{ display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1.7fr);
               align-items: stretch; gap: 8px }
@@ -209,7 +211,7 @@ body{
               transition: border-color .16s ease, box-shadow .16s ease }
 .funnel__box:hover, .funnel__outcome:hover{ border-color: var(--blue); box-shadow: 0 6px 14px rgba(16,26,36,.08) }
 .funnel__box:focus-visible, .funnel__outcome:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
-.funnel__box small{ color: var(--muted); font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase }
+.funnel__box small{ color: var(--muted); font-size: var(--fs-label); font-weight: 600; letter-spacing: .1em; text-transform: uppercase }
 .funnel__box strong{ font-family: var(--mono); font-size: 30px; font-weight: 500; line-height: 1.1 }
 .funnel__box span{ color: var(--muted); font-size: var(--fs-meta) }
 .funnel__outcomes{ display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 6px }
@@ -222,7 +224,7 @@ body{
 .funnel__outcome--review{ border-left: 3px solid var(--blue) }
 .funnel__word{ font-size: var(--fs-small); font-weight: 500 }
 .funnel__outcome strong{ font-family: var(--mono); font-size: 19px; font-weight: 500 }
-.funnel__outcome small{ min-width: 46px; color: var(--muted); font-family: var(--mono); font-size: 10.5px; text-align: right }
+.funnel__outcome small{ min-width: 46px; color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta); text-align: right }
 .qgrid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
 .healthline{ display: flex; align-items: center; gap: 9px; margin: 4px 2px 0; color: var(--muted); font-size: var(--fs-meta) }
 .healthline i{ width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none }
@@ -231,7 +233,7 @@ body{
 .healthline--wrong i{ background: var(--wrong) }
 .chartpanel{ min-width: 0; min-height: 228px; padding: 18px 20px 20px;
              border: 1px solid var(--rule); border-radius: 12px; background: var(--sheet) }
-.chartpanel__head h3{ margin: 4px 0 0; font-size: 16px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3 }
+.chartpanel__head h3{ margin: 4px 0 0; font-size: var(--fs-head); font-weight: 600; letter-spacing: -.01em; line-height: 1.3 }
 .chartpanel__empty{ margin: 28px 0 0; color: var(--muted); font-size: var(--fs-meta) }
 .chartbars{ display: flex; flex-direction: column; gap: 9px; margin: 16px 0 0;
             padding: 0; list-style: none }
@@ -247,9 +249,9 @@ body{
 .chartbars__label .mk{ width: 8px; height: 8px }
 .chartbars__text{ min-width: 0; flex: 1; overflow-wrap: anywhere }
 .chartbars__value{ display: inline-flex; flex: none; align-items: baseline; gap: 6px }
-.chartbars__value b{ font-family: var(--mono); font-size: 12px; font-weight: 600 }
+.chartbars__value b{ font-family: var(--mono); font-size: var(--fs-small); font-weight: 600 }
 .chartbars__value small{ min-width: 40px; color: var(--muted); font-family: var(--mono);
-                         font-size: 10px; text-align: right }
+                         font-size: var(--fs-meta); text-align: right }
 .chartbars__track{ display: block; width: 100%; height: 6px; overflow: hidden;
                    border-radius: var(--r-pill); background: rgba(16,26,36,.07) }
 .chartbars__fill{ display: block; height: 100%; border-radius: inherit; background: var(--ink) }
@@ -269,7 +271,7 @@ body{
 .workbench{ padding: 24px; background: var(--sheet); border: 1px solid var(--rule);
             border-radius: 14px; box-shadow: 0 14px 34px rgba(16,26,36,.035) }
 .listhead{ display: flex; align-items: flex-end; justify-content: space-between; gap: 24px }
-.listhead h2, .reviewhead h1{ margin: 3px 0 0; font-size: 22px; font-weight: 600;
+.listhead h2, .reviewhead h1{ margin: 3px 0 0; font-size: var(--fs-title); font-weight: 600;
                              letter-spacing: -.02em }
 .listhead p{ margin: 5px 0 0; color: var(--muted); font-size: var(--fs-small) }
 .workbench__total{ flex: none; padding-bottom: 2px; color: var(--muted); font-size: var(--fs-meta) }
@@ -287,7 +289,7 @@ body{
 .chip:disabled{ opacity: .45; cursor: default }
 .chip:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
 .wrow__next{ flex: none; width: 200px; display: inline-flex; align-items: center; gap: 8px;
-             font-size: 12.5px; color: var(--ink) }
+             font-size: var(--fs-small); color: var(--ink) }
 .wrow__next i{ position: relative; width: 18px; height: 14px; flex: none; border: 1px solid rgba(16,26,36,.5); border-radius: 2px }
 .wrow__next i::after{ content: ''; position: absolute; left: 3px; right: 3px; top: 4px; height: 1px;
                       background: rgba(16,26,36,.5); box-shadow: 0 3px 0 rgba(16,26,36,.5) }
@@ -304,7 +306,7 @@ body{
                    border: 1px solid rgba(16,26,36,.25); border-radius: var(--r-control);
                    background: var(--sheet); color: var(--ink); font: inherit }
 .worksearch input::placeholder{ color: var(--muted) }
-.worksearch small{ color: var(--muted); font-size: 10px; line-height: 1.35 }
+.worksearch small{ color: var(--muted); font-size: var(--fs-meta); line-height: 1.35 }
 .workexport-group{ display: flex; min-width: 0; flex-direction: column; gap: 5px }
 .workexport-row{ min-width: 0 }
 .workexport-options{ min-width: 0 }
@@ -316,7 +318,7 @@ body{
 .workexport-row input{ padding-right: 13px }
 .workexport-foot{ display: grid; grid-template-columns: minmax(0, 1fr) auto;
                   align-items: start; gap: 12px }
-.workexport-group small{ padding-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.35 }
+.workexport-group small{ padding-top: 3px; color: var(--muted); font-size: var(--fs-meta); line-height: 1.35 }
 .workexport{ display: inline-flex; flex: none; align-items: center; justify-content: center;
              min-height: 38px; white-space: nowrap; text-decoration: none }
 .inboxpulse{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -324,7 +326,7 @@ body{
              overflow: hidden; background: var(--sheet) }
 .inboxpulse > div{ min-width: 0; padding: 11px 14px; border-right: 1px solid var(--rule) }
 .inboxpulse > div:last-child{ border-right: 0 }
-.inboxpulse dt{ color: var(--muted); font-size: 9px; font-weight: 600;
+.inboxpulse dt{ color: var(--muted); font-size: var(--fs-label); font-weight: 600;
                 letter-spacing: .08em; text-transform: uppercase }
 .inboxpulse dd{ margin: 3px 0 0; color: var(--ink); font-family: var(--mono);
                 font-size: 19px; font-weight: 500 }
@@ -337,23 +339,23 @@ body{
                         font-size: var(--fs-small); cursor: pointer }
 .inboxnav__tabs button:hover{ color: var(--ink) }
 .inboxnav__tabs button[aria-selected="true"]{ border-bottom-color: var(--blue); color: var(--ink); font-weight: 600 }
-.inboxnav__tabs button span{ color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 400 }
+.inboxnav__tabs button span{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta); font-weight: 400 }
 .inboxnav__summary{ display: flex; align-items: center; gap: 12px; padding-bottom: 11px;
-                    color: var(--muted); font-family: var(--mono); font-size: 10px }
+                    color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .inboxnav__right{ display: flex; align-items: center; gap: 14px; padding-bottom: 7px }
 .inboxnav__right .inboxnav__summary{ padding-bottom: 0 }
 .listsort{ display: flex; align-items: center; gap: 7px; color: var(--muted);
-           font-size: 10px; white-space: nowrap }
+           font-size: var(--fs-meta); white-space: nowrap }
 .listsort select{ min-height: 32px; padding: 0 28px 0 9px; border: 1px solid var(--rule);
                   border-radius: var(--r-control); background: var(--sheet);
-                  color: var(--ink); font: inherit; font-size: 10px }
+                  color: var(--ink); font: inherit; font-size: var(--fs-meta) }
 .filtermenu{ margin-top: 12px; border: 1px solid var(--rule); border-radius: 10px;
              background: #F8F6F1; overflow: hidden }
 .filtermenu__bar{ min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 6px 9px }
 .filtermenu__toggle{ display: inline-flex; min-height: 36px; align-items: center; gap: 8px;
                      padding: 0 11px; border: 1px solid rgba(16,26,36,.24);
                      border-radius: var(--r-control); background: var(--sheet); color: var(--ink);
-                     font: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
+                     font: inherit; font-size: var(--fs-meta); font-weight: 600; cursor: pointer;
                      transition: border-color .16s ease, color .16s ease,
                                  transform .16s ease, box-shadow .16s ease }
 .filtermenu__toggle:hover, .filtermenu__toggle[aria-expanded="true"]{ border-color: var(--blue); color: var(--blue) }
@@ -361,16 +363,16 @@ body{
 .filtermenu__toggle b{ display: inline-flex; min-width: 18px; height: 18px; align-items: center;
                         justify-content: center; padding: 0 5px; border-radius: 9px;
                         background: var(--blue); color: white; font-family: var(--mono);
-                        font-size: 9px; font-weight: 500 }
-.filtermenu__toggle i{ color: var(--muted); font-family: var(--mono); font-size: 13px; font-style: normal }
+                        font-size: var(--fs-label); font-weight: 500 }
+.filtermenu__toggle i{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-small); font-style: normal }
 .filtermenu__active{ display: flex; min-width: 0; align-items: center; gap: 6px; flex: 1; overflow: hidden }
 .filtermenu__active > span{ flex: none; padding: 4px 8px; border-radius: 12px;
                             background: rgba(0,109,174,.08); color: var(--blue);
-                            font-size: 9px; white-space: nowrap }
+                            font-size: var(--fs-label); white-space: nowrap }
 .filtermenu__active > span:only-child{ padding-left: 0; background: transparent; color: var(--muted) }
 .filtermenu__clear{ flex: none; padding: 0; border: 0; border-bottom: 1px solid currentColor;
                     background: transparent; color: var(--blue); font: inherit;
-                    font-size: 10px; cursor: pointer }
+                    font-size: var(--fs-meta); cursor: pointer }
 .filtermenu__panel{ display: grid; grid-template-columns: minmax(260px, .95fr) minmax(340px, 1.25fr) minmax(240px, .9fr);
                     gap: 0; padding: 17px 18px 15px; border-top: 1px solid var(--rule);
                     background: var(--sheet); transform-origin: top;
@@ -389,16 +391,16 @@ body{
                     margin-left: 20px; padding-left: 20px; border-left: 1px solid var(--rule) }
 .filtermenu legend{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px }
 .filtermenu legend, .filtermenu__dates > label{ width: 100%; padding: 0 0 9px; color: var(--ink);
-                    font-size: 10px; font-weight: 600; letter-spacing: .07em;
+                    font-size: var(--fs-meta); font-weight: 600; letter-spacing: .07em;
                     text-transform: uppercase }
-.filtermenu legend small{ flex: none; color: var(--muted); font-size: 9px;
+.filtermenu legend small{ flex: none; color: var(--muted); font-size: var(--fs-label);
                            font-weight: 400; letter-spacing: 0; text-transform: none }
 .filtermenu__choices{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px }
 .filtermenu__choices--results{ grid-template-columns: minmax(0, 1fr) }
 .filtermenu__choices label{ display: grid; grid-template-columns: 16px minmax(0, 1fr) auto;
                             align-items: center; column-gap: 9px; min-height: 38px; padding: 0 10px;
                             border: 1px solid var(--rule); border-radius: 7px;
-                            background: #FCFBF8; color: var(--ink); font-size: 10px; cursor: pointer;
+                            background: #FCFBF8; color: var(--ink); font-size: var(--fs-meta); cursor: pointer;
                             transition: border-color .16s ease, background .16s ease,
                                         transform .16s ease, box-shadow .16s ease }
 .filtermenu__choices--results label{ grid-template-columns: 16px 10px minmax(0, 1fr) auto }
@@ -410,23 +412,23 @@ body{
 .filtermenu__choices label > span:not(.mk){ min-width: 0; line-height: 1.25;
                                             overflow-wrap: normal; word-break: normal }
 .filtermenu__choices label > b{ min-width: 24px; padding-left: 5px; color: var(--muted);
-                                font-family: var(--mono); font-size: 9px; font-weight: 400;
+                                font-family: var(--mono); font-size: var(--fs-label); font-weight: 400;
                                 text-align: right }
 .filtermenu__dates{ min-width: 0 }
 .filtermenu__dates > label{ display: block }
 .filtermenu__dates select, .filtermenu__range input{ width: 100%; min-height: 38px;
                     padding: 0 10px; border: 1px solid rgba(16,26,36,.25);
                     border-radius: var(--r-control); background: var(--sheet);
-                    color: var(--ink); font: inherit; font-size: 11px }
-.filtermenu__dates > small{ display: block; margin-top: 7px; color: var(--muted); font-size: 9px; line-height: 1.4 }
+                    color: var(--ink); font: inherit; font-size: var(--fs-meta) }
+.filtermenu__dates > small{ display: block; margin-top: 7px; color: var(--muted); font-size: var(--fs-label); line-height: 1.4 }
 .filtermenu__range{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 8px }
-.filtermenu__range label{ color: var(--muted); font-size: 9px }
+.filtermenu__range label{ color: var(--muted); font-size: var(--fs-label) }
 .filtermenu__range input{ display: block; margin-top: 4px; padding-inline: 7px }
 .filtermenu__actions{ grid-column: 1 / -1; display: flex; align-items: center;
                       justify-content: flex-end; gap: 8px; padding-top: 14px }
 .filtermenu__actions button{ min-height: 34px; padding: 0 12px; border: 1px solid rgba(16,26,36,.24);
                              border-radius: var(--r-control); background: var(--sheet);
-                             color: var(--ink); font: inherit; font-size: 10px; cursor: pointer;
+                             color: var(--ink); font: inherit; font-size: var(--fs-meta); cursor: pointer;
                              transition: border-color .16s ease, background .16s ease,
                                          transform .16s ease, box-shadow .16s ease }
 .filtermenu__actions button:hover:not(:disabled){ transform: translateY(-1px); box-shadow: 0 4px 10px rgba(16,26,36,.08) }
@@ -459,10 +461,10 @@ body{
 
 .reviewhead{ max-width: 720px; margin-bottom: 3px }
 .reviewhead p{ margin: 7px 0 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.55 }
-.card__ref{ color: var(--muted); font-family: var(--mono); font-size: 10px }
+.card__ref{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .card__topline{ display: flex; align-items: center; justify-content: space-between; gap: 10px }
 .card__workflow{ display: flex; flex-wrap: wrap; gap: 7px 18px; padding: 8px 10px;
-                 background: rgba(16,26,36,.035); color: var(--muted); font-size: 10px }
+                 background: rgba(16,26,36,.035); color: var(--muted); font-size: var(--fs-meta) }
 .card__workflow b{ margin-left: 4px; color: var(--ink); font-weight: 500 }
 
 .casebanner{ display: grid; grid-template-columns: 12px minmax(0, 1fr) minmax(220px, auto);
@@ -484,13 +486,14 @@ body{
 .casebanner__meta dd{ margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
                       font-family: var(--mono); font-size: var(--fs-meta) }
 .casereport{ width: calc(100% - var(--case-gutter) - var(--case-gutter));
-             max-width: var(--case-content-max); margin: 16px auto 0;
-             padding: 17px 20px 18px;
-             background: var(--sheet); border: 1px solid var(--rule);
-             border-top: 3px solid var(--ink); border-radius: var(--r-panel) }
-.casereport__head{ display: flex; align-items: flex-start; justify-content: space-between;
-                   gap: var(--gap-md); margin-bottom: 13px }
-.casereport__head h2{ margin: 3px 0 0; font-size: var(--fs-head); font-weight: 500 }
+             max-width: var(--case-content-max); margin: 12px auto 20px;
+             padding: 16px 20px 18px;
+             background: var(--sheet); border: 1px solid rgba(16,26,36,.18);
+             border-radius: var(--r-panel) }
+.casereport__head{ display: flex; align-items: center; justify-content: space-between;
+                   gap: var(--gap-md); margin-bottom: 14px; padding-bottom: 12px;
+                   border-bottom: 1px solid var(--rule) }
+.casereport__head h2{ margin: 0; font-size: var(--fs-head); font-weight: 500 }
 .casereport__actions{ display: flex; align-items: center; justify-content: flex-end;
                       flex-wrap: wrap; gap: 8px }
 .casereport__download{ display: inline-flex; min-height: 30px; align-items: center;
@@ -504,26 +507,29 @@ body{
 .casereport__error{ flex: 1 1 100%; text-align: right; color: var(--wrong) }
 .casereport__result{ flex: none; padding: 4px 9px; border: 1px solid currentColor;
                      border-radius: var(--r-control); font-family: var(--mono);
-                     font-size: 10px; font-weight: 600; letter-spacing: .08em }
+                     font-size: var(--fs-meta); font-weight: 600; letter-spacing: .08em }
 .casereport__result--wrong{ color: var(--wrong) }
 .casereport__result--review{ color: var(--blue) }
 .casereport__result--clear{ color: var(--clear) }
 .reportgrid{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
              gap: 1px; margin: 0; background: var(--rule) }
-.reportfact{ min-width: 0; padding: 10px 11px; background: var(--sheet) }
+.reportfact{ min-width: 0; padding: 10px 14px; background: var(--sheet) }
+.reportfact:nth-child(4n + 1){ padding-left: 0 }
 /* span 1 keeps the 8 facts filling 4 columns exactly. Adding or removing a
    ReportFact leaves empty cells, which show --rule as a grey block. */
 .reportfact--evidence{ grid-column: span 1 }
-.reportfact dt{ margin-bottom: 3px; color: var(--muted); font-size: 9px;
+.reportfact dt{ margin-bottom: 3px; color: var(--muted); font-size: var(--fs-label);
                 font-weight: 600; letter-spacing: .09em; text-transform: uppercase }
 .reportfact dd{ margin: 0; overflow-wrap: anywhere; font-size: var(--fs-small); font-weight: 500 }
-.reportfact small{ display: block; margin-top: 2px; color: var(--muted); font-size: 10px }
+.reportfact small{ display: block; margin-top: 2px; color: var(--muted); font-size: var(--fs-meta) }
 .reportdocs{ display: flex; flex-direction: column; gap: 1px }
 .reportdocs span{ color: var(--muted); font-size: var(--fs-meta); font-weight: 400 }
 .reportdocs .is-present{ color: var(--clear) }
+.reportdocs .is-review{ color: var(--blue) }
 
 /* White on --orange is 2.71:1 and fails AA. Accepted on appearance,
    design_system.md 2.2. Do not copy to other orange surfaces. */
+a.btn{ display: inline-flex; align-items: center; justify-content: center; text-decoration: none }
 .btn{
   border: 0; border-radius: var(--r-control);
   background: var(--orange); color: #FFFFFF;
@@ -560,6 +566,8 @@ body{
 .pages{ position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
         align-items: start }
 .pages__gutter{ min-height: 1px }
+.pages--record{ align-items: stretch }
+.pages--record .doc--record{ display: flex; flex-direction: column }
 .pages__wires{ position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: visible }
 .pages__wires path{ fill: none; stroke: var(--ink); stroke-width: 1.25; opacity: .16;
                     transition: opacity 160ms ease }
@@ -574,26 +582,26 @@ body{
 
 .doc{ position: relative; z-index: 1; min-width: 0; background: var(--sheet);
       border: 1px solid rgba(16,26,36,.20); border-bottom-width: 2px; border-right-width: 2px }
-.doc__head{ display: flex; align-items: flex-start; gap: 14px; padding: 15px 18px 11px;
+.doc__head{ display: flex; align-items: flex-start; gap: 14px; padding: 16px 22px 12px;
             border-bottom: 1px solid var(--rule) }
-.doc__title{ margin: 0 0 3px; font-size: 14px; font-weight: 600; letter-spacing: .10em }
-.doc__file{ font-family: var(--mono); font-size: 11px; color: var(--muted) }
-.doc__stamp{ margin-left: auto; flex: none; font-size: 10px; font-weight: 600; letter-spacing: .18em;
+.doc__title{ margin: 0 0 3px; font-size: var(--fs-body); font-weight: 600; letter-spacing: .10em }
+.doc__file{ font-family: var(--mono); font-size: var(--fs-meta); color: var(--muted) }
+.doc__stamp{ margin-left: auto; flex: none; font-size: var(--fs-meta); font-weight: 600; letter-spacing: .18em;
              color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 3px 9px }
 .doc__stamp--review{ display: inline-flex; align-items: center; gap: 7px;
                      color: var(--blue); border-color: rgba(0,109,174,.5) }
 .doc__stamp--review .mk{ width: 8px; height: 8px }
-.doc__lines{ margin: 0; padding: 12px 0 14px; list-style: none;
-             font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--ink) }
-.ln{ position: relative; display: grid; grid-template-columns: 118px minmax(0, 1fr) 76px;
+.doc__lines{ margin: 0; padding: 14px 0 18px; list-style: none;
+             font-family: var(--mono); font-size: var(--fs-small); line-height: 1.7; color: var(--ink) }
+.ln{ position: relative; display: grid; grid-template-columns: 150px minmax(0, 1fr) 84px;
      align-items: baseline; min-height: 21px }
-.doc:first-of-type .ln{ grid-template-columns: 118px minmax(0, 1fr) 0 }
-.ln__tag{ padding-right: 12px; text-align: right; font-family: var(--sans); font-size: 9px;
+.doc:first-of-type .ln{ grid-template-columns: 150px minmax(0, 1fr) 0 }
+.ln__tag{ padding-right: 12px; text-align: right; font-family: var(--sans); font-size: var(--fs-label);
           font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
           white-space: nowrap }
-.ln__text{ white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 14px }
+.ln__text{ white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 30px }
 .ln:not(.ln--hit):not(.ln--fix) .ln__text{ color: rgba(16,26,36,.52) }
-.ln__conf{ padding-right: 14px; text-align: right; font-family: var(--sans); font-size: 9.5px;
+.ln__conf{ padding-right: 14px; text-align: right; font-family: var(--sans); font-size: var(--fs-label);
            font-weight: 500; letter-spacing: .08em; color: var(--muted); white-space: nowrap }
 .ln--wrong::before{ content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 3px;
                     background: var(--wrong) }
@@ -620,32 +628,32 @@ body{
 }
 
 /* A document slot with nothing to draw carries the facts of the stop instead. */
-.record{ padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 16px }
+.record{ flex: 1; padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 16px }
 .record__say{ margin: 0; font-size: 19px; font-weight: 500; line-height: 1.35; letter-spacing: -.01em }
 .record__facts{ margin: 0; display: grid; grid-template-columns: 150px 1fr; row-gap: 5px; column-gap: 12px;
                 padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule) }
 .record__facts dt{ color: var(--muted); font-size: var(--fs-meta) }
 .record__facts dd{ margin: 0; font-size: var(--fs-small); overflow-wrap: anywhere }
-.record__facts dd.mono{ font-size: 12px }
-.record__stages{ display: flex; gap: 4px; margin: 0; padding: 0; list-style: none }
+.record__facts dd.mono{ font-size: var(--fs-small) }
+.record__stages{ display: flex; gap: 4px; margin: auto 0 0; padding: 0; list-style: none }
 .record__stage{ flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0 }
 .record__stage::before{ content: ''; display: block; height: 6px; border-radius: 1px; background: var(--clearmark) }
 .record__stage--attention::before{ height: 10px; margin-top: -2px; border-radius: 3px; background: var(--blue) }
 .record__stage--wrong::before{ height: 10px; margin-top: -2px; border-radius: 5px; background: var(--wrong) }
 .record__stage--skipped::before{ background: transparent; border: 1px dashed rgba(16,26,36,.35) }
-.record__stage span{ color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.record__stage span{ color: var(--muted); font-size: var(--fs-meta); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .record__stage--attention span, .record__stage--wrong span{ color: var(--ink); font-weight: 600 }
 
 .corrections{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px }
 .corr{ background: var(--sheet); border: 1px solid var(--rule); border-left: 3px solid var(--wrong);
-       border-radius: 0 10px 10px 0; padding: 12px 16px 13px;
+       border-radius: 0 10px 10px 0; padding: 14px 22px 15px;
        display: flex; flex-direction: column; gap: 5px; transition: box-shadow 160ms ease }
 .corr--review{ border-left-color: var(--blue) }
 .corr[data-on="true"]{ box-shadow: 0 6px 16px rgba(16,26,36,.10) }
-.corr__k{ display: flex; align-items: center; gap: 8px; font-size: 9.5px; font-weight: 600;
+.corr__k{ display: flex; align-items: center; gap: 8px; font-size: var(--fs-label); font-weight: 600;
           letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
 .corr__k .mk{ width: 8px; height: 8px }
-.corr__t{ font-size: 14.5px; font-weight: 600; line-height: 1.3 }
+.corr__t{ font-size: var(--fs-body); font-weight: 600; line-height: 1.3 }
 .corr__p{ margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.5 }
 .corr__p b{ font-family: var(--mono); font-weight: 500; color: var(--ink) }
 .corr__src{ align-self: flex-start; margin-top: 2px; padding: 2px 0; border: 0;
@@ -679,7 +687,7 @@ body{
 .chip[aria-pressed="true"], .chip--on{
   background: var(--ink); border-color: var(--ink); color: var(--on-dark);
 }
-.chip__count{ font-family: var(--mono); font-size: 12px; color: var(--muted) }
+.chip__count{ font-family: var(--mono); font-size: var(--fs-small); color: var(--muted) }
 .chip[aria-pressed="true"] .chip__count,
 .chip--on .chip__count{ color: rgba(255,255,255,.6) }
 
@@ -697,19 +705,19 @@ body{
 .wrow__headline{ display: flex; min-width: 0; align-items: center; gap: 8px }
 .wrow__headline .wrow__found{ min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .priority{ display: inline-flex; flex: none; align-items: center; min-height: 20px;
-           padding: 2px 7px; border-radius: var(--r-pill); font-size: 9px;
+           padding: 2px 7px; border-radius: var(--r-pill); font-size: var(--fs-label);
            font-weight: 600; letter-spacing: .04em; text-transform: uppercase }
 .priority--urgent{ background: var(--blue); color: var(--on-dark) }
 .priority--high{ background: rgba(231,136,35,.14); color: #8A4B0A }
 .priority--normal{ background: rgba(0,109,174,.09); color: var(--blue) }
 .priority--routine{ background: rgba(16,26,36,.06); color: var(--muted) }
 .wrow__owner{ width: 112px; flex: none; overflow: hidden; text-overflow: ellipsis;
-              white-space: nowrap; color: var(--muted); font-size: 10px }
-.wrow__id{ flex: none; color: var(--muted); font-family: var(--mono); font-size: 10px }
+              white-space: nowrap; color: var(--muted); font-size: var(--fs-meta) }
+.wrow__id{ flex: none; color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .wrow__open{ display: inline-flex; width: 26px; height: 26px; flex: none;
              align-items: center; justify-content: center; border-radius: 50%;
-             color: var(--muted); font-size: 14px; transition: background .15s ease, color .15s ease }
-.wrow__note{ width: 190px; flex: none; font-size: 12.5px }
+             color: var(--muted); font-size: var(--fs-body); transition: background .15s ease, color .15s ease }
+.wrow__note{ width: 190px; flex: none; font-size: var(--fs-small) }
 .wrow__note--wrong { color: var(--wrong); font-weight: 500 }
 .wrow__note--review{ color: var(--blue) }
 .wrow__note--clear { color: var(--clearmark) }
@@ -721,14 +729,14 @@ body{
 .card{ border: 1px solid var(--rule); border-radius: var(--r-panel);
        background: var(--sheet); padding: 18px 20px;
        display: flex; flex-direction: column; gap: 12px }
-.card__title{ font-size: 15px; font-weight: 600 }
+.card__title{ font-size: var(--fs-head); font-weight: 600 }
 .card__body{ margin: 0; font-size: var(--fs-small); line-height: 1.55 }
 .card__evidence{ display: flex; flex-direction: column; gap: 5px;
                  border-top: 1px dashed var(--rule); padding-top: 10px }
 .card__evidence > div{ display: flex; gap: var(--gap-sm); align-items: baseline }
 .card__evidence em{ font-style: normal; width: 74px; flex: none;
                     font-size: var(--fs-meta); color: var(--muted) }
-.card__evidence span{ font-family: var(--mono); font-size: 12px }
+.card__evidence span{ font-family: var(--mono); font-size: var(--fs-small) }
 .card__actions{ display: flex; flex-wrap: wrap; gap: 9px }
 .card__actions .btn{ display: inline-flex; align-items: center; text-decoration: none }
 .card__correction{ display: flex; flex-direction: column; gap: 9px;
@@ -742,11 +750,12 @@ body{
                          color: var(--ink); font: inherit }
 .card__correction p{ margin: 0; color: var(--muted); font-size: var(--fs-meta) }
 .workflow{ width: calc(100% - var(--case-gutter) - var(--case-gutter));
-           max-width: var(--case-content-max); margin: 12px auto 16px; padding: 15px 18px;
-           border: 1px solid var(--rule); border-radius: var(--r-panel); background: var(--sheet) }
-.workflow__head{ display: flex; align-items: flex-start; justify-content: space-between;
-                 gap: var(--gap-md); margin-bottom: 12px }
-.workflow__head h2{ margin: 3px 0 0; font-size: var(--fs-head); font-weight: 500 }
+           max-width: var(--case-content-max); margin: 12px auto 0; padding: 16px 20px 18px;
+           border: 1px solid rgba(16,26,36,.18); border-radius: var(--r-panel); background: var(--sheet) }
+.workflow__head{ display: flex; align-items: center; justify-content: space-between;
+                 gap: var(--gap-md); margin-bottom: 14px; padding-bottom: 12px;
+                 border-bottom: 1px solid var(--rule) }
+.workflow__head h2{ margin: 0; font-size: var(--fs-head); font-weight: 500 }
 .workflow__controls{ display: grid; grid-template-columns: minmax(220px, 1fr) minmax(170px, .65fr) auto;
                      align-items: end; gap: 10px }
 .workflow__controls label{ display: flex; min-width: 0; flex-direction: column; gap: 4px }
@@ -764,7 +773,7 @@ body{
 .workflow__message{ margin: 9px 0 0; font-size: var(--fs-meta) }
 .workflow__message--ok{ color: var(--clear) }
 .workflow__message--error{ color: var(--wrong) }
-.workflow__note{ margin: 8px 0 0; color: var(--muted); font-size: 10px }
+.workflow__note{ margin: 8px 0 0; color: var(--muted); font-size: var(--fs-meta) }
 .reviewnotice{ padding: 10px 12px; border-left: 3px solid var(--clear);
                background: rgba(46,125,110,.07); color: var(--clear);
                font-size: var(--fs-small) }
@@ -777,7 +786,7 @@ body{
 .queue__group h3{ display: flex; align-items: center; gap: 9px; margin: 0 0 6px; padding: 0 2px;
                   font-size: var(--fs-small); font-weight: 600 }
 .queue__group h3 .mk{ width: 9px; height: 9px }
-.queue__count{ color: var(--muted); font-family: var(--mono); font-size: 11px; font-weight: 400 }
+.queue__count{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta); font-weight: 400 }
 .queue__bulk{ margin-left: auto; padding: 2px 0; border: 0; border-bottom: 1px solid currentColor;
               background: transparent; color: var(--blue); font: inherit; font-size: var(--fs-meta); cursor: pointer }
 .queue__bulk:hover{ color: var(--ink) }
@@ -792,7 +801,7 @@ body{
 .qrow:hover{ background: rgba(16,26,36,.035) }
 .qrow:focus-visible{ outline: 2px solid var(--blue); outline-offset: -3px }
 .qrow[aria-current="true"]{ border-left-color: var(--blue); background: rgba(0,109,174,.06) }
-.qrow__id{ font-family: var(--mono); font-size: 12.5px; font-weight: 500 }
+.qrow__id{ font-family: var(--mono); font-size: var(--fs-small); font-weight: 500 }
 .qrow__meta{ margin-left: auto; color: var(--muted); font-size: var(--fs-meta); white-space: nowrap }
 
 .queue__detail{ min-width: 0; display: flex; flex-direction: column; gap: 12px }
@@ -806,7 +815,7 @@ body{
           display: flex; flex-direction: column; gap: 12px }
 .qdetail[aria-busy="true"]{ opacity: .7 }
 .qdetail__top{ display: flex; align-items: center; justify-content: space-between; gap: 10px }
-.qdetail__title{ margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.2 }
+.qdetail__title{ margin: 0; font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em; line-height: 1.2 }
 .qdetail__title:focus-visible{ outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 2px }
 .qdetail__why{ margin: 0; max-width: 640px; font-size: var(--fs-body); line-height: 1.55 }
 .qdetail__facts{ margin: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 10px 12px;
@@ -819,7 +828,7 @@ body{
 .qdetail__log{ margin-top: 6px; padding-top: 12px; border-top: 1px dashed var(--rule) }
 .qdetail__log ol{ margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px }
 .qdetail__log li{ display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; font-size: var(--fs-small) }
-.qdetail__log time{ color: var(--muted); font-family: var(--mono); font-size: 11px }
+.qdetail__log time{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 a.card__title{ color: inherit; text-decoration: none }
 a.card__title:hover{ text-decoration: underline }
 
@@ -860,7 +869,7 @@ a.card__title:hover{ text-decoration: underline }
 .auditstage__node{ position: relative; z-index: 1; display: inline-flex;
                    width: 24px; height: 24px; align-items: center; justify-content: center;
                    background: var(--sheet); border: 1px solid var(--muted);
-                   color: var(--muted); font-family: var(--mono); font-size: 10px }
+                   color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .auditstage--done .auditstage__node{ border-color: var(--clearmark); color: var(--clearmark) }
 .auditstage--attention .auditstage__node{ border-color: var(--blue); color: var(--blue); border-radius: 5px }
 .auditstage--wrong .auditstage__node{ border-color: var(--wrong); color: var(--wrong); border-radius: 50% }
@@ -898,15 +907,15 @@ a.card__title:hover{ text-decoration: underline }
 .auditlog ol{ margin: 12px 0 0; padding: 0; list-style: none }
 .auditlog li{ padding: 9px 0 10px; border-bottom: 1px solid var(--hair) }
 .auditlog__eventhead{ display: flex; align-items: baseline; gap: 9px; margin-bottom: 7px }
-.auditlog__eventhead time{ color: var(--muted); font-family: var(--mono); font-size: 10px }
+.auditlog__eventhead time{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 .auditlog__eventhead strong{ overflow-wrap: anywhere; font-family: var(--mono);
-                             font-size: 11px; font-weight: 600 }
+                             font-size: var(--fs-meta); font-weight: 600 }
 .auditlog__details{ margin: 0; padding-left: 10px; border-left: 2px solid var(--rule) }
 .auditlog__details > div{ display: grid; grid-template-columns: 92px minmax(0, 1fr);
                           gap: 8px; padding: 2px 0 }
-.auditlog__details dt{ color: var(--muted); font-size: 10px }
+.auditlog__details dt{ color: var(--muted); font-size: var(--fs-meta) }
 .auditlog__details dd{ margin: 0; overflow-wrap: anywhere;
-                       font-family: var(--mono); font-size: 10px }
+                       font-family: var(--mono); font-size: var(--fs-meta) }
 .audit__actions{ display: flex; justify-content: flex-end; flex-wrap: wrap;
                  gap: 8px; margin-left: 42px }
 .audittech{ margin: 20px 0 0 42px; border-top: 1px solid var(--rule); padding-top: 13px }
@@ -950,7 +959,7 @@ a.card__title:hover{ text-decoration: underline }
 @media (max-width: 760px){
   .thin__inner{ gap: 9px }
   .thin__audit{ padding: 0 9px }
-  .fbar{ flex-wrap: wrap; padding: 12px 16px }
+  .fbar{ flex-wrap: wrap; padding: 12px 16px; width: calc(100% - 32px) }
   .fbar__prompt, .fbar__impact{ width: 100%; max-width: none }
   .welcome{ gap: 22px; padding: 24px 20px }
   .listhead{ align-items: flex-start; flex-direction: column; gap: 5px }
@@ -974,8 +983,8 @@ a.card__title:hover{ text-decoration: underline }
                                               border-left: 0; border-top: 1px solid var(--rule) }
   .casebanner{ padding: 13px 18px }
   .app .corrections{ grid-template-columns: minmax(0, 1fr) }
-  .ln{ grid-template-columns: 92px minmax(0, 1fr) 64px }
-  .doc:first-of-type .ln{ grid-template-columns: 92px minmax(0, 1fr) 0 }
+  .ln{ grid-template-columns: 150px minmax(0, 1fr) 64px }
+  .doc:first-of-type .ln{ grid-template-columns: 150px minmax(0, 1fr) 0 }
   .wrow{ align-items: flex-start; padding: 12px 14px; gap: var(--gap-sm); flex-wrap: wrap }
   .wrow__time{ display: none }
   .wrow__owner{ width: auto; max-width: 120px }
@@ -984,13 +993,13 @@ a.card__title:hover{ text-decoration: underline }
   .audit{ padding: 20px 18px 26px }
   .audit__intro{ margin-right: 0 }
   .audit__result, .audit__actions, .auditlog, .audittech{ margin-left: 0 }
-  .casereport{ margin-top: 12px }
+  .casereport{ margin-top: 10px }
 }
 
 @media (max-width: 480px){
   .thin__meta{ display: none }
   .thin__nav{ margin-left: 0 }
-  .thin__nav a{ padding-inline: 8px; font-size: 11px }
+  .thin__nav a{ padding-inline: 8px; font-size: var(--fs-meta) }
   .thin__divider, .thin__section{ display: none }
   .thin__action-label{ position: absolute; width: 1px; height: 1px; overflow: hidden;
                        clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap }
