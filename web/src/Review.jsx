@@ -213,7 +213,7 @@ export default function Review() {
                     <span className="mk mk--review" aria-hidden="true"></span>
                     {TITLE[group.reason] || 'Held for review'}
                     <span className="queue__count">{group.items.length}</span>
-                    {REQUEST[group.reason] && group.items.length > 1 && (
+                    {REQUEST[group.reason] && group.reason !== 'FIELD_NOT_FOUND' && group.items.length > 1 && (
                       <button
                         className="queue__bulk"
                         type="button"
@@ -305,7 +305,15 @@ export default function Review() {
 }
 
 function Detail({ item, pending, history, headingRef, correction, onCorrection, onAssign, onRetry, onRequest, onConfirm, onCorrect }) {
-  const request = REQUEST[item.reason]
+  // A blank value cannot be confirmed (the server refuses it); the only way
+  // forward is to enter the value, so that becomes the primary action.
+  const blankHold = item.reason === 'FIELD_NOT_FOUND'
+  const request = blankHold ? null : REQUEST[item.reason]
+  const canCorrect = !offlineMode && item.fields?.length > 0 && !correction
+  const startCorrection = () => {
+    const siMissing = isBlank(item.si_value)
+    onCorrection({ id: item.id, role: siMissing ? 'SI' : 'BL', value: siMissing ? '' : (item.bl_value ?? '') })
+  }
   const hasEvidence = item.si_value || item.bl_value
   return (
     <article className="qdetail" aria-busy={pending}>
@@ -361,9 +369,13 @@ function Detail({ item, pending, history, headingRef, correction, onCorrection, 
       )}
 
       <div className="qdetail__actions">
-        <button className="btn btn--small" type="button" disabled={pending} onClick={request ? onRequest : onConfirm}>
-          {request || 'Confirm and close'}
-        </button>
+        {blankHold
+          ? (canCorrect && <button className="btn btn--small" type="button" disabled={pending} onClick={startCorrection}>Enter the missing value</button>)
+          : (
+            <button className="btn btn--small" type="button" disabled={pending} onClick={request ? onRequest : onConfirm}>
+              {request || 'Confirm and close'}
+            </button>
+          )}
         <a className="btn btn--ghost btn--small" href={'#/case/' + item.email_id}>Open the case</a>
         {!item.assigned_to && (
           <button className="btn btn--ghost btn--small" type="button" disabled={pending} onClick={onAssign}>Assign to me</button>
@@ -371,19 +383,10 @@ function Detail({ item, pending, history, headingRef, correction, onCorrection, 
         {!offlineMode && retryable(item.reason) && (
           <button className="btn btn--ghost btn--small" type="button" disabled={pending} onClick={onRetry}>Read it again</button>
         )}
-        {!offlineMode && item.fields?.length > 0 && !correction && (
-          <button
-            className="btn btn--ghost btn--small"
-            type="button"
-            onClick={() => {
-              const siMissing = isBlank(item.si_value)
-              onCorrection({ id: item.id, role: siMissing ? 'SI' : 'BL', value: siMissing ? '' : (item.bl_value ?? '') })
-            }}
-          >
-            Correct a value
-          </button>
+        {!blankHold && canCorrect && (
+          <button className="btn btn--ghost btn--small" type="button" onClick={startCorrection}>Correct a value</button>
         )}
-        {request && item.reason !== 'FIELD_NOT_FOUND' && (
+        {request && (
           <button className="btn btn--ghost btn--small" type="button" disabled={pending} onClick={onConfirm}>Confirm and close</button>
         )}
       </div>
