@@ -772,7 +772,7 @@ body{
 /* The queue is an inbox: the list on the left, one case open on the right.
    Nothing repeats between the two; the list carries the id, the detail carries the rest. */
 .queue{ display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 18px; align-items: start }
-.queue__list{ display: flex; flex-direction: column; gap: 14px; position: sticky; top: 62px }
+.queue__list{ display: flex; flex-direction: column; gap: 14px; position: sticky; top: 12px }
 .queue__group h3{ display: flex; align-items: center; gap: 9px; margin: 0 0 6px; padding: 0 2px;
                   font-size: var(--fs-small); font-weight: 600 }
 .queue__group h3 .mk{ width: 9px; height: 9px }

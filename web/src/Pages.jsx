@@ -23,12 +23,19 @@ export default function Pages({ kase, docs, selected, onSelect }) {
     window.addEventListener('resize', draw)
     document.fonts?.ready.then(draw)
     return () => { ro.disconnect(); window.removeEventListener('resize', draw) }
-  })
+  }, [kase, docs, selected])
 
+  // The thread draws itself once per selection. Later redraws (resize, fonts)
+  // rebuild the SVG, so they read the remembered selection and keep it drawn.
   useEffect(() => {
-    const path = svgRef.current?.querySelector('path.on')
-    if (!path) return
-    const id = requestAnimationFrame(() => requestAnimationFrame(() => path.classList.add('drawn')))
+    const svg = svgRef.current
+    if (!svg) return
+    svg.dataset.drawnFor = ''
+    if (!svg.querySelector('path.on')) return
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => {
+      svg.querySelector('path.on')?.classList.add('drawn')
+      svg.dataset.drawnFor = selected
+    }))
     return () => cancelAnimationFrame(id)
   }, [selected])
 
@@ -242,6 +249,7 @@ function drawWires(el, svg, hits, selected) {
     }
   }
   svg.innerHTML = out
+  if (selected && svg.dataset.drawnFor === selected) svg.querySelector('path.on')?.classList.add('drawn')
 }
 
 function mid(node, box) {
