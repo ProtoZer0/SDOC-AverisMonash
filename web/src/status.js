@@ -17,6 +17,7 @@ export const KIND_WORD = {
 export function confidenceOf(comparison) {
   const c = comparison && comparison.confidence
   if (!c) return null
+  if (comparison.human_reviewed) return { mod: '', word: 'set by reviewer' }
   if (c.hard_fail) return { mod: 'nocheck', word: 'not checked' }
   if (c.score < REVIEW_THRESHOLD) return { mod: 'unsure', word: 'unsure' }
   return { mod: '', word: 'checked' }
@@ -101,7 +102,7 @@ export function clockOf(iso) {
 export function verdictKind(comparison) {
   if (!comparison) return 'review'
   if (comparison.verdict === 'MISMATCH') return 'wrong'
-  if (comparison.verdict === 'MATCH' && !comparison.confidence?.hard_fail) return 'clear'
+  if (comparison.verdict === 'MATCH' && (comparison.human_reviewed || !comparison.confidence?.hard_fail)) return 'clear'
   return 'review'
 }
 
