@@ -386,14 +386,15 @@ body{
    which also removes the orphaned fifth box the 2-up type grid left behind. */
 .filtermenu__panel--nodates{ grid-template-columns: minmax(260px, 1fr) minmax(340px, 1fr) }
 .filtermenu__panel--nodates .filtermenu__choices{ grid-template-columns: minmax(0, 1fr) }
-.filtermenu fieldset{ min-width: 0; margin: 0; padding: 0; border: 0 }
+.filtermenu__panel fieldset{ min-width: 0; margin: 0; padding: 0; border: 0 }
 .filtermenu__panel > fieldset:nth-child(2), .filtermenu__dates{
                     margin-left: 20px; padding-left: 20px; border-left: 1px solid var(--rule) }
-.filtermenu legend{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px }
-.filtermenu legend, .filtermenu__dates > label{ width: 100%; padding: 0 0 9px; color: var(--ink);
+.filtermenu__panel legend{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px }
+.filtermenu__panel legend, .filtermenu__dates > label, .filtermenu__panel .workexport-group > label{
+                    display: block; width: 100%; padding: 0 0 9px; color: var(--ink);
                     font-size: var(--fs-meta); font-weight: 600; letter-spacing: .07em;
                     text-transform: uppercase }
-.filtermenu legend small{ flex: none; color: var(--muted); font-size: var(--fs-label);
+.filtermenu__panel legend small{ flex: none; color: var(--muted); font-size: var(--fs-label);
                            font-weight: 400; letter-spacing: 0; text-transform: none }
 .filtermenu__choices{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px }
 .filtermenu__choices--results{ grid-template-columns: minmax(0, 1fr) }
@@ -416,7 +417,8 @@ body{
                                 text-align: right }
 .filtermenu__dates{ min-width: 0 }
 .filtermenu__dates > label{ display: block }
-.filtermenu__dates select, .filtermenu__range input{ width: 100%; min-height: 38px;
+.filtermenu__dates select, .filtermenu__range input,
+.filtermenu__panel .workexport-options select, .filtermenu__panel .workexport-options input{ width: 100%; min-height: 38px;
                     padding: 0 10px; border: 1px solid rgba(16,26,36,.25);
                     border-radius: var(--r-control); background: var(--sheet);
                     color: var(--ink); font: inherit; font-size: var(--fs-meta) }
@@ -750,7 +752,7 @@ a.btn{ display: inline-flex; align-items: center; justify-content: center; text-
                          color: var(--ink); font: inherit }
 .card__correction p{ margin: 0; color: var(--muted); font-size: var(--fs-meta) }
 .workflow{ width: calc(100% - var(--case-gutter) - var(--case-gutter));
-           max-width: var(--case-content-max); margin: 12px auto 0; padding: 16px 20px 18px;
+           max-width: var(--case-content-max); margin: 18px auto -4px; padding: 16px 20px 18px;
            border: 1px solid rgba(16,26,36,.18); border-radius: var(--r-panel); background: var(--sheet) }
 .workflow__head{ display: flex; align-items: center; justify-content: space-between;
                  gap: var(--gap-md); margin-bottom: 14px; padding-bottom: 12px;
