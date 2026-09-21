@@ -289,7 +289,8 @@ AZURE_DOCINTEL_KEY                 (secret)
 ```
 
 `GET /api/health` reports `"mode": "full"` once both are live, and
-`"deterministic_only"` otherwise.
+`"deterministic_only"` otherwise. `SDOC_ENABLE_LLM=0` and `SDOC_ENABLE_DOCINTEL=0`
+force the deterministic path back on without unsetting any credentials.
 
 **Scoring and tests:**
 
@@ -299,11 +300,17 @@ pytest -q
 cd web && npm run build      # production bundle into web/dist/, served by FastAPI
 ```
 
+`run_eval` writes a submission; grading it needs the organisers' own scorer, which
+is not redistributed in this repository. Unpack their package to
+`sdoc-hackathon-docker/` and run `python server/score_cli.py submission.json`.
+
 ## Repository layout
 
 | Path | What is in it |
 | --- | --- |
 | `pipeline/` | classify · extract · normalize · compare · confidence · escalate · report |
+| `pipeline/azure_llm.py` | Azure OpenAI adapter: intent and unknown-sender classification |
+| `pipeline/azure_docintel.py` | Document Intelligence adapter: scans, per-word confidence, boxes |
 | `parsers/` | `.txt`, `.pdf`, `.docx`, `.xlsx` readers and document-type detection |
 | `api/` | FastAPI app, serving the API and the built SPA |
 | `web/src/` | The React app. `index.css` is the single source for colour, type and components |
@@ -311,7 +318,6 @@ cd web && npm run build      # production bundle into web/dist/, served by FastA
 | `web/mockups/` | Static design screens, linking the real stylesheet |
 | `eval/` | The accuracy harness |
 | `sdoc-hackathon-bundle/` | The participant dataset |
-| `sdoc-hackathon-docker/` | The organisers' scoring package |
 
 ## Documentation
 
@@ -345,12 +351,13 @@ remains available for frontend-only development.
 
 ## A note on the data
 
-`sdoc-hackathon-docker/` contains the organisers' scoring package, which the
-organisers confirmed is provided to every team so they can evaluate their own
-work. We use its scorer, because that is the rubric. We do not derive rules from
-its per-email labels: the final round is a fresh draw from a deterministic
-generator, so anything fitted to this particular draw would be a validation number
-that lies. See [`docs/eval_plan.md`](docs/eval_plan.md).
+The organisers' scoring package is **not** in this repository. It is gitignored
+and stays that way: it was sent to every team so they could evaluate their own
+work, and it carries `ground_truth.json`. We use its scorer, because that is the
+rubric. We do not derive rules from its per-email labels — the final round is a
+fresh draw from a deterministic generator, so anything fitted to this particular
+draw would be a validation number that lies. See
+[`docs/eval_plan.md`](docs/eval_plan.md).
 
 ## Team
 
