@@ -123,16 +123,29 @@ _ASK_TO_SEND = re.compile(
 )
 
 
+def is_unknown_domain(from_addr: str) -> bool:
+    domain = sender_domain(from_addr)
+    corporate, known_spam = _domains()
+    return bool(domain) and domain not in corporate and domain not in known_spam
+
+
 def classify_rules(
-    subject: str, body: str, from_addr: str, n_attachments: int
+    subject: str,
+    body: str,
+    from_addr: str,
+    n_attachments: int,
+    llm_available: bool = False,
 ) -> tuple[Category, float] | None:
     """First match wins. Returns None when nothing matches (caller falls back)."""
     domain = sender_domain(from_addr)
     corporate, known_spam = _domains()
 
-    # 1. SPAM — sender domain only. Content-based spam detection is harder and
-    #    more fragile, and this settles all 40 on a signal independent of text.
-    if domain and (domain in known_spam or domain not in corporate):
+    if domain and domain in known_spam:
+        return "SPAM", RULE_CONFIDENCE
+
+    if domain and domain not in corporate:
+        if llm_available:
+            return None
         return "SPAM", RULE_CONFIDENCE
 
     subj = clean_subject(subject)
@@ -178,7 +191,9 @@ def classify(
     `llm_fn(subject, body, domain, n_attachments) -> (Category, confidence)`
     is injected so the pipeline runs with no cloud dependency at all.
     """
-    hit = classify_rules(subject, body, from_addr, n_attachments)
+    hit = classify_rules(
+        subject, body, from_addr, n_attachments, llm_available=llm_fn is not None
+    )
     if hit is not None:
         return hit[0], "rule", hit[1]
 
@@ -192,7 +207,8 @@ def classify(
             )
             return category, "llm", conf
         except Exception:  # noqa: BLE001 — never let the model break the run
-            pass
+            if is_unknown_domain(from_addr):
+                return "SPAM", "rule", RULE_CONFIDENCE
 
     # Last resort. GENERAL is the safe default: it is the category with no
     # downstream action, so a wrong guess here costs macro-F1 but never turns

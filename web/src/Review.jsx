@@ -227,23 +227,28 @@ export default function Review() {
                           <button
                             className="btn btn--ghost btn--small"
                             type="button"
-                            onClick={() => setCorrection({
-                              id: item.id,
-                              role: 'BL',
-                              value: item.bl_value ?? '',
-                            })}
+                            onClick={() => {
+                              const siMissing = isBlank(item.si_value)
+                              setCorrection({
+                                id: item.id,
+                                role: siMissing ? 'SI' : 'BL',
+                                value: siMissing ? '' : (item.bl_value ?? ''),
+                              })
+                            }}
                           >
                             Correct a value
                           </button>
                         )}
-                        <button
-                          className="btn btn--small"
-                          type="button"
-                          disabled={pending === item.id}
-                          onClick={() => resolve(item, 'Confirm')}
-                        >
-                          Confirm and close
-                        </button>
+                        {item.reason !== 'FIELD_NOT_FOUND' && (
+                          <button
+                            className="btn btn--small"
+                            type="button"
+                            disabled={pending === item.id}
+                            onClick={() => resolve(item, 'Confirm')}
+                          >
+                            Confirm and close
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
@@ -258,6 +263,12 @@ export default function Review() {
       </div>
     </Shell>
   )
+}
+
+function isBlank(value) {
+  if (value == null) return true
+  const v = String(value).trim()
+  return v === '' || /^(n\/?a|tba|tbd|\?+|_+)$/i.test(v)
 }
 
 function retryable(reason) {

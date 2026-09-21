@@ -62,10 +62,15 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21")
 AZURE_OPENAI_DEPLOYMENT_CLASSIFY = os.getenv("AZURE_OPENAI_DEPLOYMENT_CLASSIFY", "")
 AZURE_OPENAI_DEPLOYMENT_EXTRACT = os.getenv("AZURE_OPENAI_DEPLOYMENT_EXTRACT", "")
 
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY", "")
+
 AZURE_DOCINTEL_ENDPOINT = os.getenv("AZURE_DOCINTEL_ENDPOINT", "")
+AZURE_DOCINTEL_KEY = os.getenv("AZURE_DOCINTEL_KEY", "")
 AZURE_DOCINTEL_MODEL = os.getenv("AZURE_DOCINTEL_MODEL", "prebuilt-layout")
 
 TEMPERATURE = 0.0
+AI_TIMEOUT_S = float(os.getenv("SDOC_AI_TIMEOUT_S", "20"))
+INGEST_WORKERS = int(os.getenv("SDOC_INGEST_WORKERS", "4"))
 
 # Master switch. `--no-llm` on the eval runner flips this; the deterministic
 # path must be provably complete without any cloud call.
@@ -74,8 +79,10 @@ ENABLE_DOCINTEL = os.getenv("SDOC_ENABLE_DOCINTEL", "1") not in ("0", "false", "
 
 
 def azure_openai_configured() -> bool:
-    return bool(AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_DEPLOYMENT_CLASSIFY)
+    return bool(
+        AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY and AZURE_OPENAI_DEPLOYMENT_CLASSIFY
+    )
 
 
 def docintel_configured() -> bool:
-    return bool(AZURE_DOCINTEL_ENDPOINT)
+    return bool(AZURE_DOCINTEL_ENDPOINT and AZURE_DOCINTEL_KEY)

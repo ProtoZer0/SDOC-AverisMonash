@@ -34,6 +34,8 @@ class GateResult:
     si_path: str | None = None
     bl_path: str | None = None
     awaiting_documents: bool = False
+    intent_source: str | None = None
+    intent_reason: str | None = None
 
 
 def role_of(path: str) -> str | None:
@@ -61,26 +63,44 @@ def wants_comparison_now(body: str) -> bool:
     return False
 
 
+def read_intent(body: str, intent_fn=None) -> tuple[bool, str, str | None]:
+    if intent_fn is not None:
+        try:
+            intent, confidence, reason = intent_fn(body)
+            if intent == "SEND" and confidence >= 0.6:
+                return False, "llm", reason
+            return True, "llm", reason
+        except Exception:  # noqa: BLE001
+            pass
+    return wants_comparison_now(body), "rule", None
+
+
 def gate(
     attachments: list[str],
     body: str,
     documents: dict[str, ParsedDocument],
+    intent_fn=None,
 ) -> GateResult:
     paths = {role_of(p): p for p in attachments if role_of(p)}
 
     # --- 1. Pair ---------------------------------------------------------
     if len(attachments) == 0:
-        if wants_comparison_now(body):
+        compare_now, source, reason = read_intent(body, intent_fn)
+        if compare_now:
             return GateResult(
                 ok=False,
                 escalations=["MISSING_ATTACHMENT"],
                 detail="The sender asks for a comparison but no documents are attached.",
+                intent_source=source,
+                intent_reason=reason,
             )
         return GateResult(
             ok=False,
             escalations=["MISSING_ATTACHMENT"],
             detail="No documents yet — the sender is asking for a draft to be issued.",
             awaiting_documents=True,
+            intent_source=source,
+            intent_reason=reason,
         )
 
     if len(attachments) < 2 or "SI" not in paths or "BL" not in paths:

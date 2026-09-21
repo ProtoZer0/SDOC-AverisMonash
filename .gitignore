@@ -20,3 +20,8 @@ dist/
 .codex-build/
 .chart-data-*/
 .tools/
+
+# The organisers' scoring package. Holds ground_truth.json and the dataset
+# generator, so it never belongs in a public repo. Keep it on disk to run the
+# scorer; it is excluded from the image by .dockerignore.
+sdoc-hackathon-docker/

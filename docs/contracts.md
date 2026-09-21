@@ -150,7 +150,12 @@ class Case(BaseModel):
     review_status: Literal["unassigned", "assigned", "in_progress", "completed"] = "unassigned"
     pipeline_version: str             # git sha
     prompt_version: str
-    models: dict[str, str]            # {"classify": "...", "extract": "..."}
+    models: dict[str, str]            # only the keys a cloud service actually
+                                      # decided: "classify", "extract",
+                                      # "intent" (azure-openai),
+                                      # "ocr" (azure-document-intelligence).
+                                      # Absent key = the deterministic path
+                                      # settled it. Never a fixed set.
     timings_ms: dict[str, int]
     created_at: datetime
     updated_at: datetime
@@ -213,6 +218,15 @@ the evaluated set** — that would inflate the self-eval (see `docs/eval_plan.md
 Base `/api`. Responses are JSON except for original-document and PDF-report
 downloads. Errors are
 `{"error": {"code": str, "message": str}}` with a conventional status code.
+
+`POST /review/{id}/resolve` returns `422` with one of two codes. Both mean the
+reviewer has to supply a value, and the frontend should keep them on the form
+rather than closing the item:
+
+| Code | When |
+| --- | --- |
+| `correct_value_required` | `action="correct"` arrived without a `correct_value` |
+| `value_required` | `action="confirm"` on a field whose comparison verdict is `ABSENT`. A blank field cannot be confirmed as verified — there is nothing on the document to verify against |
 
 | Method | Path | Body / query | Returns |
 | --- | --- | --- | --- |
@@ -442,6 +456,11 @@ frontend mode demonstrates the same layout without presenting live health.
 
 ## Changelog
 
+- **v1.4, 21 Sep 2026** — documented the two `422` codes on
+  `POST /review/{id}/resolve`, and corrected `Case.models`: it carries a key
+  only for the stages a cloud service actually decided, now including `intent`
+  and `ocr`. No shape changed; the previous comment named a fixed pair that the
+  code never guaranteed.
 - **v1.3, 21 Sep 2026** — added auditable case assignment and human-review
   status fields plus the workflow update endpoint used by the worklist and
   review desk.

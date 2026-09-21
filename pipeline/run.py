@@ -38,6 +38,7 @@ def process_email(
     classify_llm=None,
     extract_fallback=None,
     circuit_breaker=None,
+    intent_llm=None,
 ) -> tuple[Case, list[ReviewItem]]:
     started = time.perf_counter()
     now = datetime.now(timezone.utc)
@@ -48,6 +49,7 @@ def process_email(
     guarded_classifier = _guarded(
         classify_llm, circuit_breaker, correlation_id, "classifier"
     )
+    guarded_intent = _guarded(intent_llm, circuit_breaker, correlation_id, "intent")
 
     category, decided_by, confidence = classify_mod.classify(
         email.get("subject", ""),
@@ -104,7 +106,7 @@ def process_email(
         )
 
     # -- gate --------------------------------------------------------------
-    result = gate(attachments, email.get("body", ""), documents)
+    result = gate(attachments, email.get("body", ""), documents, guarded_intent)
 
     if not result.ok:
         # Last chance before escalating an unreadable document: the OCR /
@@ -128,7 +130,25 @@ def process_email(
                 recovered = None
             if recovered:
                 documents.update(recovered)
-                result = gate(attachments, email.get("body", ""), documents)
+                case.models["ocr"] = "azure-document-intelligence"
+                case.documents = [
+                    SourceDocument(
+                        attachment_path=path,
+                        role=role_of(path) or "SI",  # type: ignore[arg-type]
+                        detected_kind=documents[path].detected_kind,
+                        fmt=documents[path].fmt,
+                        readable=documents[path].readable,
+                        text_sha256=documents[path].text_sha256,
+                        page_count=documents[path].page_count,
+                        fields=documents[path].fields,
+                        parse_error=documents[path].parse_error,
+                    )
+                    for path in attachments
+                ]
+                result = gate(attachments, email.get("body", ""), documents, guarded_intent)
+
+    if result.intent_source == "llm":
+        case.models["intent"] = "azure-openai"
 
     if not result.ok and result.awaiting_documents:
         # The sender is asking for a draft to be ISSUED, not checked. There is
@@ -137,7 +157,7 @@ def process_email(
         # were dropped" is semantic, and it is the one place in the gate where
         # reading intent genuinely beats a rule.
         case.status = "OK"
-        case.summary = result.detail
+        case.summary = result.detail + _intent_note(result)
         case.timings_ms = {"total": int((time.perf_counter() - started) * 1000)}
         return case, []
 
@@ -145,7 +165,7 @@ def process_email(
         case.status = "NEEDS_REVIEW"
         case.escalation_reasons = result.escalations
         case.wire_review_reason = to_wire_reason(result.escalations)
-        case.summary = result.detail
+        case.summary = result.detail + _intent_note(result)
         case.lifecycle = "in_review"
         case.timings_ms = {"total": int((time.perf_counter() - started) * 1000)}
         review = [
@@ -197,9 +217,97 @@ def process_email(
     )
     case.summary = comparison_summary(case)
     case.lifecycle = "in_review" if status == "NEEDS_REVIEW" else "new"
+
+    scanned = [role for role, doc in (("SI", si), ("BL", bl)) if doc.fmt == "scan_pdf"]
+    if scanned:
+        return _hold_scanned_case(case, scanned, si, bl, now, started)
+
     case.timings_ms = {"total": int((time.perf_counter() - started) * 1000)}
 
     return case, _review_items(case, now)
+
+
+def _hold_scanned_case(case: Case, scanned, si, bl, now, started):
+    candidates = [c.field for c in case.comparisons if c.verdict == "MISMATCH"]
+    unread = [c.field for c in case.comparisons if c.verdict in ("ABSENT", "REVIEW")]
+    confidences = [
+        d.ocr_confidence
+        for d in (si, bl)
+        if d.fmt == "scan_pdf" and d.ocr_confidence is not None
+    ]
+    ocr_conf = min(confidences) if confidences else None
+    which = " and ".join(
+        {"SI": "shipping instruction", "BL": "draft bill of lading"}[r] for r in scanned
+    )
+
+    case.status = "NEEDS_REVIEW"
+    case.has_defect = False
+    case.defect_fields = []
+    case.escalation_reasons = ["UNREADABLE_DOCUMENT", *case.escalation_reasons]
+    case.wire_review_reason = to_wire_reason(case.escalation_reasons)
+    case.lifecycle = "in_review"
+    conf_note = f" (OCR confidence {ocr_conf:.0%})" if ocr_conf is not None else ""
+    notes = []
+    if candidates:
+        notes.append(
+            "reads a possible difference on "
+            + ", ".join(_FIELD_LABEL[f] for f in candidates)
+        )
+    if unread:
+        notes.append("could not read " + ", ".join(_FIELD_LABEL[f] for f in unread))
+    if not notes:
+        notes.append(f"reads all {len(case.comparisons)} fields as matching")
+    diff_note = "OCR " + "; ".join(notes) + "."
+    if len(scanned) == 1:
+        doc_note = f"The {which} is a scanned image"
+    else:
+        doc_note = f"The {which} are scanned images"
+    case.summary = (
+        f"{doc_note}, read by Document Intelligence{conf_note}. "
+        f"{diff_note} A person should confirm against the scan before acting."
+    )
+    case.timings_ms = {"total": int((time.perf_counter() - started) * 1000)}
+
+    items = [
+        ReviewItem(
+            id=f"{case.email_id}:doc",
+            email_id=case.email_id,
+            fields=[],
+            reason="UNREADABLE_DOCUMENT",
+            reason_detail=case.summary,
+            confidence=ocr_conf,
+            created_at=now,
+        )
+    ]
+    for c in case.comparisons:
+        if c.verdict in ("MISMATCH", "ABSENT", "REVIEW") or c.confidence.hard_fail:
+            reason = {
+                "MISMATCH": "LOW_CONFIDENCE",
+                "ABSENT": "FIELD_NOT_FOUND",
+                "REVIEW": "BORDERLINE_MATCH",
+            }.get(c.verdict, c.confidence.hard_fail or "LOW_CONFIDENCE")
+            items.append(
+                ReviewItem(
+                    id=f"{case.email_id}:{c.field}",
+                    email_id=case.email_id,
+                    fields=[c.field],
+                    reason=reason,
+                    reason_detail="Read from a scan — " + c.explanation,
+                    si_value=c.si.value,
+                    bl_value=c.bl.value,
+                    si_evidence=c.si.evidence,
+                    bl_evidence=c.bl.evidence,
+                    confidence=c.confidence.score,
+                    created_at=now,
+                )
+            )
+    return case, items
+
+
+def _intent_note(result) -> str:
+    if result.intent_source == "llm":
+        return " (Request intent read by Azure OpenAI.)"
+    return ""
 
 
 def _guarded(operation, breaker, correlation_id: str, service: str):

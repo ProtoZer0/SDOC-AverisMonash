@@ -52,14 +52,23 @@ def main(argv: list[str] | None = None) -> int:
         emails = emails[: args.limit]
 
     classify_llm = None
+    intent_llm = None
     extract_fallback = None
     if not args.no_llm:
         try:
-            from pipeline.azure_llm import classify_with_llm
+            from pipeline.azure_llm import classify_with_llm, intent_with_llm
 
-            classify_llm = classify_with_llm
+            classify_llm, intent_llm = classify_with_llm, intent_with_llm
         except Exception:  # noqa: BLE001 — absence of credentials is normal
-            classify_llm = None
+            pass
+        try:
+            from pipeline.azure_docintel import extract_with_docintel
+
+            extract_fallback = extract_with_docintel
+        except Exception:  # noqa: BLE001
+            pass
+    services = [n for n, on in (("azure-openai", classify_llm), ("document-intelligence", extract_fallback)) if on]
+    print("cloud:", ", ".join(services) if services else "none (deterministic only)")
 
     submission: dict[str, dict] = {}
     cases = []
@@ -73,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
                 inbox.read_bytes,
                 classify_llm=classify_llm,
                 extract_fallback=extract_fallback,
+                intent_llm=intent_llm,
             )
             submission[email["email_id"]] = to_submission_entry(case)
             cases.append(case)

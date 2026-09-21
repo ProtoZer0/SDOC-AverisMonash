@@ -30,6 +30,7 @@ class ParsedDocument:
     detected_kind: DocKind
     needs_ocr: bool = False
     parse_error: str | None = None
+    ocr_confidence: float | None = None
 
 
 _EXT_TO_FMT: dict[str, DocFormat] = {
