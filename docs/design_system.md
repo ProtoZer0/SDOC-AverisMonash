@@ -93,7 +93,7 @@ and the one genuinely accessible use on their site.
 | State | Token | Hex | On paper | White text on it | On `--ink` |
 | --- | --- | --- | --- | --- | --- |
 | Something is wrong | `--status-wrong` | `#B83A28` | 5.29:1 AA | 5.72:1 AA | 3.07:1 UI only |
-| Needs a person | `--status-review` | `#006DAE` | 5.11:1 AA | 5.53:1 AA | **3.18:1 shape only** |
+| Held for review | `--status-review` | `#006DAE` | 5.11:1 AA | 5.53:1 AA | **3.18:1 shape only** |
 | All clear | `--status-clear` | `#2E7D6E` | 4.54:1 AA | 4.91:1 AA | 3.58:1 UI only |
 
 `--status-review` is **Monash blue, unaltered**. On the dark shell it may appear
@@ -152,12 +152,12 @@ chart on the dashboard. Measured against our paper:
 | Metadata and counts | Archivo | 12.5px | 400 |
 | Tracked labels (compact capitals) | Archivo | 11px | 600 |
 | **Document values** | **Azeret Mono** | 14px | 400 |
-| Numeric columns | Azeret Mono | 15px | 400 |
 
-Every size above is a token in `web/src/index.css` (`--fs-title` to
-`--fs-label`); rules reference the token, never restate the number. Nothing a
-person is meant to read sits below 11px. Raised one step on 22 Sep 2026 after
-the earlier scale read too small at 100% zoom.
+Each row is a token in `web/src/index.css` (`--fs-title`, `--fs-head`,
+`--fs-body`, `--fs-small`, `--fs-meta`, `--fs-label`). Every size below 15px
+goes through a token; a few display numbers, hero headings and glyphs at 15px
+or larger are written in place. Nothing a person is meant to read sits below 11px. The scale
+was raised one step on 22 Sep 2026 after it read too small at 100% zoom.
 
 The protected ProtoZero wordmark is the sole typography exception: it retains
 the original Lato 700 lettering and JetBrains Mono 700 orange zero.
@@ -181,7 +181,7 @@ removed, the row still reads.
 | State | Colour | Shape | Icon | Word |
 | --- | --- | --- | --- | --- |
 | Something is wrong | `--status-wrong` | Circle | `ti-x` | "2 differences" |
-| Needs a person | `--status-review` | Rounded square | `ti-user` | "Needs a person" |
+| Held for review | `--status-review` | Rounded square | `ti-user` | "Held for review" |
 | All clear | `--status-clear` | Square | `ti-check` | "All clear" |
 | Not a check | `--muted` | None | none | "Invoice query" etc. |
 
@@ -496,3 +496,13 @@ component covers all three.
   responsive expandable filter panel that never overlaps the case list. The
   reporting-period control scopes both the visible worklist and Excel export;
   keyword and advanced filters remain screen-only refinements.
+- **v8, 21 Sep 2026** — the held state's word changed from "Needs a person" to
+  "Held for review" on seunniee's call: it names the action the system took
+  rather than a lack. Shape and colour unchanged. The comparison screen was
+  rebuilt as two facing documents (instruction and draft, every line, the
+  seven compared lines named in the margin, a thread joining each to its twin)
+  with corrections written in place and a note per correction beneath the
+  pages; the separate evidence panel and margin cards are gone, see
+  `web/mockups/direction-d-hybrid.html`. Fonts are bundled in `web/src/fonts/`
+  so the app renders identically offline. Editorial sentences that asserted
+  the system's own trustworthiness were removed; the UI states what happened.

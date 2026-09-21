@@ -12,27 +12,30 @@ export default function Analytics({ health }) {
   }, [])
 
   const openWorklist = filter => {
-    const params = new URLSearchParams({ kind: filter.kind, value: filter.value })
+    const params = new URLSearchParams()
+    if (filter.kind !== 'none') {
+      params.set('kind', filter.kind)
+      params.set('value', filter.value)
+    }
+    params.set('view', filter.view || 'all')
     window.location.hash = `#/worklist?${params}`
   }
 
   return (
     <>
-      <Bar title="Analytics" meta="case register" active="analytics" />
+      <Bar title="Analytics" meta={items ? items.length + ' emails' : 'case register'} active="analytics" />
       <main className="amain">
         <header className="analyticshero">
           <div>
-            <span className="eyebrow">Operational intelligence</span>
-            <h1>See where the register needs attention.</h1>
-            <p>Every number is calculated from the live case register. Select a chart value to open the affected cases.</p>
+            <span className="eyebrow">Case register</span>
+            <h1>What the desk got back, and what is left.</h1>
+            <p>Every number is counted from the case register. Select any bar or box to open those cases in the worklist.</p>
           </div>
           <a className="btn btn--ghost btn--small" href="#/">Open worklist</a>
         </header>
         {error && <div className="state state--error"><b>Could not load analytics.</b><span>{error}</span></div>}
-        {!items && !error && <div className="state">Calculating register analytics.</div>}
-        {items && (
-          <Dashboard health={health} items={items} periodLabel="Full register" onDrillDown={openWorklist} standalone />
-        )}
+        {!items && !error && <div className="state">Counting the register.</div>}
+        {items && <Dashboard health={health} items={items} onDrillDown={openWorklist} />}
       </main>
     </>
   )

@@ -11,8 +11,8 @@ export default function Bar({ meta, back, action, title, active }) {
         <span className="thin__meta">{meta}</span>
         {!back && (
           <nav className="thin__nav" aria-label="Primary navigation">
-            <a href="#/" aria-current={active === 'worklist' ? 'page' : undefined}>Worklist</a>
             <a href="#/analytics" aria-current={active === 'analytics' ? 'page' : undefined}>Analytics</a>
+            <a href="#/" aria-current={active === 'worklist' ? 'page' : undefined}>Worklist</a>
           </nav>
         )}
         {action && <span className="thin__actions">{action}</span>}

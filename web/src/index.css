@@ -1,3 +1,12 @@
+@font-face{ font-family: 'Archivo'; font-style: normal; font-weight: 400 700; font-display: swap;
+            src: url('./fonts/archivo-400-700.woff2') format('woff2') }
+@font-face{ font-family: 'Azeret Mono'; font-style: normal; font-weight: 400 700; font-display: swap;
+            src: url('./fonts/azeret-mono-400-700.woff2') format('woff2') }
+@font-face{ font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: swap;
+            src: url('./fonts/jetbrains-mono-700.woff2') format('woff2') }
+@font-face{ font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: swap;
+            src: url('./fonts/lato-700.woff2') format('woff2') }
+
 :root{
   --ink:        #101A24;
   --paper:      #EDEAE3;
@@ -20,7 +29,7 @@
   --sans: 'Archivo', 'Segoe UI', system-ui, sans-serif;
   --mono: 'Azeret Mono', 'Cascadia Mono', ui-monospace, monospace;
 
-  --fs-title:  26px;
+  --fs-title:  22px;
   --fs-head:   17px;
   --fs-body:   15px;
   --fs-small:  14px;
@@ -127,16 +136,6 @@ body{
              font-size: 15px; line-height: 1 }
 .thin__back:hover{ background: rgba(255,255,255,.14) }
 
-.stage{ width: 100%; max-width: calc(var(--case-content-max) + var(--case-gutter) + var(--case-gutter));
-        margin-inline: auto; flex-grow: 1; min-height: 0; position: relative;
-        display: grid; grid-template-columns: minmax(620px, 1.6fr) minmax(340px, 1fr);
-        align-items: start; gap: clamp(24px, 3vw, 54px);
-        padding: 24px var(--case-gutter) }
-.wires{ position: absolute; inset: 0; pointer-events: none; z-index: 2 }
-.sheetwrap{ width: 100%; min-width: 0; position: relative; z-index: 1 }
-.margin{ min-width: 0;
-         display: flex; flex-direction: column; gap: var(--gap-md);
-         position: relative; z-index: 1 }
 .wmain{ width: 100%; margin-inline: auto; flex-grow: 1; min-height: 0;
         max-width: calc(var(--case-content-max) + var(--case-gutter) + var(--case-gutter));
         padding: 28px var(--case-gutter) 42px;
@@ -153,15 +152,10 @@ body{
         padding: 22px var(--case-gutter);
         display: flex; flex-direction: column; gap: 14px }
 .chips{ display: flex; gap: 8px; flex-wrap: wrap }
-.review-sort{ display: flex; align-items: center; gap: 8px; margin-left: auto;
-              color: var(--muted); font-size: var(--fs-meta) }
-.review-sort select{ min-height: 38px; padding: 0 30px 0 10px; border: 1px solid var(--rule);
-                     border-radius: var(--r-control); background: var(--sheet);
-                     color: var(--ink); font: inherit; font-size: var(--fs-small) }
-.cards{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: var(--gap-md); align-content: start }
 .fbar{ flex: none; display: flex; align-items: center; gap: 12px;
-       padding: 14px 34px; border-top: 1px solid var(--rule); background: var(--sheet) }
+       width: calc(100% - var(--case-gutter) - var(--case-gutter)); max-width: var(--case-content-max);
+       margin: 4px auto 0; padding: 14px 20px;
+       border: 1px solid rgba(16,26,36,.18); border-radius: var(--r-panel); background: var(--sheet) }
 .panel{ padding: 24px 34px; max-width: 660px;
         display: flex; flex-direction: column; gap: 14px }
 .state{ padding: 34px; color: var(--muted) }
@@ -200,193 +194,70 @@ body{
 .welcome__steps span{ display: flex; flex-direction: column }
 .welcome__steps strong{ padding-top: 1px; font-size: var(--fs-small); font-weight: 600 }
 .welcome__steps small{ margin-top: 2px; color: var(--muted); font-size: var(--fs-meta); line-height: 1.45 }
-.pipeline{ display: flex; flex-direction: column; gap: 13px;
-           min-width: 0; padding: 20px 22px;
-           border: 1px solid var(--rule); border-radius: var(--r-panel); background: #FCFBF8 }
-.pipeline__caption{ margin: 0 0 8px; color: var(--muted); font-size: var(--fs-small) }
-.pipeline__caption b{ color: var(--ink); font-family: var(--mono); font-weight: 500 }
-.pipeline__split{ display: flex; gap: 2px; height: 34px; overflow: hidden;
-                  border-radius: var(--r-control) }
-.pipeline__seg{ display: flex; min-width: 0; align-items: center; justify-content: center;
-                gap: 5px; padding: 0 8px; overflow: hidden;
-                font-size: var(--fs-meta); white-space: nowrap }
-.pipeline__seg b{ font-family: var(--mono); font-weight: 500 }
-.pipeline__seg--checks{ background: rgba(16,26,36,.82); color: var(--on-dark) }
-.pipeline__seg--routed{ background: rgba(16,26,36,.07); color: var(--muted) }
-.pipeline__outcomes{ display: flex; flex-direction: column; gap: 5px;
-                     margin: 0; padding: 0; list-style: none }
-.pipeline__outcomes button{ display: grid; width: 100%; min-height: 40px;
-                            grid-template-columns: 10px minmax(0, 1fr) auto;
-                            align-items: center; gap: 11px; padding: 6px 11px;
-                            border: 1px solid var(--rule); border-radius: var(--r-control);
-                            background: var(--sheet); color: var(--ink);
-                            font: inherit; text-align: left; cursor: pointer }
-.pipeline__outcomes button:disabled{ opacity: .5; cursor: default }
-.pipeline__outcomes button:hover:not(:disabled){ border-color: var(--blue) }
-.pipeline__label{ display: flex; min-width: 0; flex-direction: column }
-.pipeline__label strong{ font-size: var(--fs-small); font-weight: 500 }
-.pipeline__label small{ color: var(--muted); font-size: var(--fs-meta) }
-.pipeline__count{ font-family: var(--mono); font-size: 17px; font-weight: 500 }
-
-.ops{ overflow: hidden; background: var(--sheet);
-      border: 1px solid var(--rule); border-radius: 12px }
-.ops--standalone{ overflow: visible; border: 0; background: transparent }
-.ops--standalone > .ops__summary{ display: none }
-.ops--standalone .ops__body{ padding: 0; background: transparent }
-.ops--standalone .ops__analytics, .ops--standalone .healthpanel{ box-shadow: 0 14px 34px rgba(16,26,36,.035) }
-.ops__summary{ position: relative; min-height: 68px; display: flex; align-items: center; gap: 20px;
-               padding: 11px 18px; cursor: pointer; list-style: none }
-.ops__summary::-webkit-details-marker{ display: none }
-.ops__summary:hover{ background: rgba(16,26,36,.025) }
-.ops[open] .ops__summary{ border-bottom: 1px solid var(--rule) }
-.ops__summarycopy{ display: flex; min-width: 205px; flex-direction: column }
-.ops__summarycopy strong{ font-size: var(--fs-body); font-weight: 500 }
-.ops__quick{ display: flex; align-items: center; justify-content: flex-end;
-             gap: 8px 18px; flex-grow: 1; color: var(--muted); font-size: var(--fs-meta) }
-.ops__quick > span{ white-space: nowrap }
-.ops__quick b{ color: var(--ink); font-family: var(--mono); font-weight: 500 }
-.ops__health{ display: inline-flex; align-items: center; gap: 6px }
-.ops__health i{ width: 8px; height: 8px; border-radius: 50%; background: var(--muted) }
-.ops__health--online{ color: var(--clear) }
-.ops__health--online i{ background: var(--clearmark) }
-.ops__health--fallback{ color: #8A4B0A }
-.ops__health--fallback i{ background: var(--orange) }
-.ops__health--wrong{ color: var(--wrong) }
-.ops__health--wrong i{ background: var(--wrong) }
-.ops__chevron{ flex: none; color: var(--muted); font-size: 20px; line-height: 1;
-                transition: transform .15s ease }
-.ops[open] .ops__chevron{ transform: rotate(180deg) }
-.ops__body{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 290px);
-            align-items: start; gap: var(--gap-md); padding: 14px;
-            background: rgba(16,26,36,.025) }
-.ops__analytics, .healthpanel{ min-width: 0; padding: 18px 20px;
-                              background: var(--sheet); border: 1px solid var(--rule);
-                              border-radius: var(--r-panel) }
-.ops__head, .healthpanel__head{ display: flex; align-items: flex-start;
-                                justify-content: space-between; gap: var(--gap-md) }
-.healthpanel__head{ flex-wrap: wrap; row-gap: 8px }
-.ops__head h2, .healthpanel h2{ margin: 3px 0 0; font-size: var(--fs-head); font-weight: 500 }
-.ops__period{ max-width: 50%; padding: 4px 8px; border: 1px solid var(--rule);
-              border-radius: var(--r-pill); color: var(--muted); font-size: var(--fs-label);
-              line-height: 1.35; text-align: right }
-.registerflow{ margin: 16px 0; padding: 16px; border: 1px solid var(--hair);
-               border-radius: 10px; background: #F8F6F1 }
-.registerflow > header{ display: flex; align-items: flex-start; justify-content: space-between; gap: 16px }
-.registerflow h3{ margin: 0; font-size: var(--fs-small); font-weight: 600 }
-.registerflow p, .registerflow header > span{ margin: 2px 0 0; color: var(--muted);
-                                             font-size: var(--fs-label) }
-.registerflow__map{ display: grid; grid-template-columns: 140px 28px minmax(540px, 1fr) 150px;
-                    align-items: center; gap: 9px; margin-top: 14px }
-.flowline{ height: 1px; background: var(--rule) }
-.flowcard{ display: flex; min-width: 0; min-height: 96px; flex-direction: column;
-           align-items: flex-start; justify-content: center; padding: 12px;
-           border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet);
-           color: var(--ink); font: inherit; text-align: left }
-button.flowcard{ cursor: pointer }
-button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
-                       box-shadow: 0 6px 14px rgba(16,26,36,.08) }
-.flowcard small{ color: var(--muted); font-size: var(--fs-label); font-weight: 600;
-                 letter-spacing: .08em; text-transform: uppercase }
-.flowcard strong{ margin-top: 3px; font-family: var(--mono); font-size: 23px; font-weight: 500 }
-.flowcard span{ color: var(--muted); font-size: var(--fs-label) }
-.flowcard--source{ border-top: 3px solid var(--ink) }
-.flowcard--routed{ border-top: 3px solid var(--muted) }
-.flowbranch{ display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 9px }
-.flowoutcomes{ display: grid; grid-template-columns: repeat(3, minmax(108px, 1fr)); gap: 8px }
-.flowoutcome{ display: flex; min-width: 0; min-height: 96px; flex-direction: column;
-              align-items: center; justify-content: center; padding: 10px 8px;
-              border: 1px solid var(--rule); border-top-width: 3px; border-radius: 8px;
-              background: var(--sheet); color: var(--ink); font: inherit; cursor: pointer;
-              text-align: center }
-.flowoutcome:hover{ transform: translateY(-1px); box-shadow: 0 6px 14px rgba(16,26,36,.08) }
-.flowoutcome b{ font-family: var(--mono); font-size: 19px; font-weight: 500 }
-.flowoutcome span{ width: 100%; color: var(--muted); font-size: var(--fs-label); line-height: 1.3;
-                   overflow-wrap: normal; word-break: normal; white-space: normal }
-.flowoutcome--clear{ border-top-color: var(--clearmark) }
-.flowoutcome--wrong{ border-top-color: var(--wrong) }
-.flowoutcome--review{ border-top-color: var(--blue) }
-.metricgrid{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
-             gap: 1px; margin: 15px 0; background: var(--rule) }
-.metricgrid > div{ display: flex; min-width: 0; flex-direction: column-reverse;
-                   align-items: center; justify-content: center; gap: 3px;
-                   padding: 12px; background: var(--sheet); text-align: center }
-.metricgrid dt{ max-width: 120px; color: var(--muted); font-size: var(--fs-meta); line-height: 1.3 }
-.metricgrid dd{ margin: 0; font-family: var(--mono); font-size: 24px; line-height: 1 }
-.analyticsgrid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
-.chartpanel{ min-width: 0; min-height: 228px; padding: 14px;
-             border: 1px solid var(--hair); border-radius: 9px; background: #FCFBF8 }
-.chartpanel__head h3{ margin: 0; font-size: var(--fs-small); font-weight: 600 }
-.chartpanel__head p{ margin: 2px 0 0; color: var(--muted); font-size: var(--fs-label); line-height: 1.4 }
+.ops{ display: flex; flex-direction: column; gap: 14px }
+.funnel{ padding: 22px 24px 24px; background: var(--sheet); border: 1px solid var(--rule);
+         border-radius: 14px; box-shadow: 0 14px 34px rgba(16,26,36,.035) }
+.funnel h2{ margin: 5px 0 18px; font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em; line-height: 1.25 }
+.funnel h2 b{ font-weight: 600; color: var(--clear) }
+.funnel__row{ display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1.7fr);
+              align-items: stretch; gap: 8px }
+.funnel__arrow{ position: relative; align-self: center; height: 1px; background: rgba(16,26,36,.35) }
+.funnel__arrow::after{ content: ''; position: absolute; right: -1px; top: -3px; width: 6px; height: 6px;
+                       border-top: 1px solid rgba(16,26,36,.5); border-right: 1px solid rgba(16,26,36,.5);
+                       transform: rotate(45deg) }
+.funnel__box{ display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 2px;
+              padding: 14px 16px; border: 1px solid var(--rule); border-radius: 10px; background: #FCFBF8;
+              color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+              transition: border-color .16s ease, box-shadow .16s ease }
+.funnel__box:hover, .funnel__outcome:hover{ border-color: var(--blue); box-shadow: 0 6px 14px rgba(16,26,36,.08) }
+.funnel__box:focus-visible, .funnel__outcome:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
+.funnel__box small{ color: var(--muted); font-size: var(--fs-label); font-weight: 600; letter-spacing: .1em; text-transform: uppercase }
+.funnel__box strong{ font-family: var(--mono); font-size: 30px; font-weight: 500; line-height: 1.1 }
+.funnel__box span{ color: var(--muted); font-size: var(--fs-meta) }
+.funnel__outcomes{ display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 6px }
+.funnel__outcome{ display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; align-items: center; gap: 10px;
+                  padding: 8px 14px; border: 1px solid var(--rule); border-radius: 8px; background: #FCFBF8;
+                  color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+                  transition: border-color .16s ease, box-shadow .16s ease }
+.funnel__outcome--clear{ border-left: 3px solid var(--clearmark) }
+.funnel__outcome--wrong{ border-left: 3px solid var(--wrong) }
+.funnel__outcome--review{ border-left: 3px solid var(--blue) }
+.funnel__word{ font-size: var(--fs-small); font-weight: 500 }
+.funnel__outcome strong{ font-family: var(--mono); font-size: 19px; font-weight: 500 }
+.funnel__outcome small{ min-width: 46px; color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta); text-align: right }
+.qgrid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
+.healthline{ display: flex; align-items: center; gap: 9px; margin: 4px 2px 0; color: var(--muted); font-size: var(--fs-meta) }
+.healthline i{ width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none }
+.healthline--online i{ background: var(--clearmark) }
+.healthline--fallback i{ background: var(--orange) }
+.healthline--wrong i{ background: var(--wrong) }
+.chartpanel{ min-width: 0; min-height: 228px; padding: 18px 20px 20px;
+             border: 1px solid var(--rule); border-radius: 12px; background: var(--sheet) }
+.chartpanel__head h3{ margin: 4px 0 0; font-size: var(--fs-head); font-weight: 600; letter-spacing: -.01em; line-height: 1.3 }
 .chartpanel__empty{ margin: 28px 0 0; color: var(--muted); font-size: var(--fs-meta) }
-.chartbars{ display: flex; flex-direction: column; gap: 8px; margin: 13px 0 0;
+.chartbars{ display: flex; flex-direction: column; gap: 9px; margin: 16px 0 0;
             padding: 0; list-style: none }
 .chartbars__button{ display: block; width: 100%; margin: 0; padding: 2px 3px 3px;
                     border: 0; border-radius: 5px; background: transparent;
                     color: inherit; font: inherit; text-align: left; cursor: pointer;
                     transition: background .15s ease, transform .15s ease }
-.chartbars__button:hover{ background: rgba(0,109,174,.055); transform: translateX(2px) }
-.chartbars__label{ display: flex; min-width: 0; align-items: baseline; gap: 10px;
-                   margin-bottom: 3px; font-size: var(--fs-meta) }
-.chartbars__label > span:first-child{ min-width: 0; flex: 1; overflow-wrap: anywhere }
+.chartbars__button:hover:not(:disabled){ background: rgba(0,109,174,.055); transform: translateX(2px) }
+.chartbars__button:disabled{ cursor: default }
+.chartbars__button:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
+.chartbars__label{ display: flex; min-width: 0; align-items: center; gap: 10px;
+                   margin-bottom: 4px; font-size: var(--fs-meta) }
+.chartbars__label .mk{ width: 8px; height: 8px }
+.chartbars__text{ min-width: 0; flex: 1; overflow-wrap: anywhere }
 .chartbars__value{ display: inline-flex; flex: none; align-items: baseline; gap: 6px }
-.chartbars__value b{ font-family: var(--mono); font-size: var(--fs-meta); font-weight: 600 }
-.chartbars__value small{ min-width: 36px; color: var(--muted); font-family: var(--mono);
-                         font-size: var(--fs-label); text-align: right }
+.chartbars__value b{ font-family: var(--mono); font-size: var(--fs-small); font-weight: 600 }
+.chartbars__value small{ min-width: 40px; color: var(--muted); font-family: var(--mono);
+                         font-size: var(--fs-meta); text-align: right }
 .chartbars__track{ display: block; width: 100%; height: 6px; overflow: hidden;
                    border-radius: var(--r-pill); background: rgba(16,26,36,.07) }
 .chartbars__fill{ display: block; height: 100%; border-radius: inherit; background: var(--ink) }
 .chartbars__fill--wrong{ background: var(--wrong) }
 .chartbars__fill--review{ background: var(--blue) }
-.outcomebar{ display: flex; width: 100%; height: 16px; overflow: hidden; margin-top: 17px;
-             border-radius: 4px; background: rgba(16,26,36,.07) }
-.outcomebar__segment{ height: 100% }
-.outcomebar__segment--clear, .outcomelegend__mark--clear{ background: var(--clearmark) }
-.outcomebar__segment--wrong, .outcomelegend__mark--wrong{ background: var(--wrong) }
-.outcomebar__segment--review, .outcomelegend__mark--review{ background: var(--blue) }
-.outcomelegend{ display: flex; flex-direction: column; gap: 0; margin: 12px 0 0;
-                padding: 0; list-style: none }
-.outcomelegend li{ min-height: 29px; border-bottom: 1px solid var(--hair); font-size: var(--fs-meta) }
-.outcomelegend button{ display: grid; width: 100%; min-height: 29px;
-                       grid-template-columns: 8px minmax(0, 1fr) 30px 42px;
-                       align-items: center; gap: 8px; padding: 0 3px; border: 0;
-                       background: transparent; color: inherit; font: inherit;
-                       text-align: left; cursor: pointer }
-.outcomelegend button:hover{ background: rgba(0,109,174,.055) }
-.outcomelegend__mark{ width: 8px; height: 8px; border-radius: 2px }
-.outcomelegend b, .outcomelegend small{ font-family: var(--mono); font-size: var(--fs-label);
-                                       font-weight: 500; text-align: right }
-.outcomelegend small{ color: var(--muted) }
-.healthpanel{ border-top: 3px solid var(--blue) }
-.healthpanel__mode{ flex: none; padding: 3px 7px; border-radius: var(--r-pill);
-                    font-size: var(--fs-label); font-weight: 600; letter-spacing: .08em;
-                    text-transform: uppercase }
-.healthpanel__mode--full{ background: rgba(46,125,110,.10); color: var(--clear) }
-.healthpanel__mode--deterministic_only{ background: rgba(231,136,35,.13); color: #8A4B0A }
-.healthlist{ margin: 14px 0; padding: 0; list-style: none }
-.healthlist li{ display: flex; align-items: center; gap: 10px;
-                padding: 5px 0; border-bottom: 1px solid var(--hair);
-                font-size: var(--fs-small) }
-.healthlist li > span{ flex-grow: 1 }
-.healthstate{ display: inline-flex; align-items: center; gap: 6px;
-              color: var(--muted); font-size: var(--fs-label); font-weight: 600;
-              letter-spacing: .08em; text-transform: uppercase }
-.healthstate i{ width: 8px; height: 8px; border-radius: 50%; background: var(--muted) }
-.healthstate--online{ color: var(--clear) }
-.healthstate--online i{ background: var(--clearmark) }
-.healthstate--offline{ color: var(--wrong) }
-.healthstate--offline i{ background: var(--wrong) }
-.healthstate--degraded{ color: #8A4B0A }
-.healthstate--degraded i{ background: var(--orange) }
-.healthfacts{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 }
-.healthfacts div{ padding: 8px 9px; background: rgba(16,26,36,.035) }
-.healthfacts dt{ color: var(--muted); font-size: var(--fs-meta) }
-.healthfacts dd{ margin: 2px 0 0; font-family: var(--mono); font-size: var(--fs-meta) }
-.healthalert{ display: flex; flex-direction: column; gap: 1px; margin-top: 10px;
-              padding: 9px 10px; border-left: 3px solid var(--orange);
-              background: #FFF7E9; font-size: var(--fs-meta) }
-.healthalert b{ color: #8A4B0A; font-size: var(--fs-meta); letter-spacing: .08em; text-transform: uppercase }
-.healthalert span, .healthpanel__empty{ color: var(--muted) }
-.healthpanel__empty{ font-size: var(--fs-small) }
+.chartbars__fill--clear{ background: var(--clearmark) }
 .workintro{ display: flex; align-items: center; justify-content: space-between; gap: 24px;
             padding: 22px 24px; border: 1px solid var(--rule); border-left: 4px solid var(--orange);
             border-radius: 12px; background: var(--sheet); box-shadow: 0 12px 28px rgba(16,26,36,.03) }
@@ -397,18 +268,36 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .workintro__actions .btn{ display: inline-flex; width: max-content; min-width: max-content;
                           align-items: center; justify-content: center; text-align: center;
                           white-space: nowrap }
-.inboxpulse__mode{ font-family: var(--sans) !important; font-size: var(--fs-body) !important }
 .workbench{ padding: 24px; background: var(--sheet); border: 1px solid var(--rule);
             border-radius: 14px; box-shadow: 0 14px 34px rgba(16,26,36,.035) }
 .listhead{ display: flex; align-items: flex-end; justify-content: space-between; gap: 24px }
-.listhead h2, .reviewhead h1{ margin: 3px 0 0; font-size: 22px; font-weight: 600;
+.listhead h2, .reviewhead h1{ margin: 3px 0 0; font-size: var(--fs-title); font-weight: 600;
                              letter-spacing: -.02em }
 .listhead p{ margin: 5px 0 0; color: var(--muted); font-size: var(--fs-small) }
 .workbench__total{ flex: none; padding-bottom: 2px; color: var(--muted); font-size: var(--fs-meta) }
 .workbench__total b{ color: var(--ink); font-family: var(--mono); font-weight: 500 }
-.worktools{ display: grid; grid-template-columns: minmax(320px, 1.25fr) minmax(360px, .75fr);
-            align-items: start; gap: 18px; margin-top: 20px; padding: 16px;
-            border: 1px solid var(--hair); border-radius: 10px; background: #F8F6F1 }
+.worktools{ display: grid; grid-template-columns: minmax(280px, 1fr) auto;
+            align-items: end; gap: 14px; margin-top: 14px }
+.worktools .filtermenu{ margin-top: 0; border: 0; background: transparent; overflow: visible }
+.worktools .filtermenu__bar{ min-height: 46px; padding: 0 }
+.workbench > .filtermenu__panel{ margin-top: 12px; border: 1px solid var(--rule); border-radius: 10px }
+.filtermenu__panel > .workexport-group{ margin-left: 20px; padding-left: 20px; border-left: 1px solid var(--rule) }
+.steps{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px }
+.steps .chip{ min-height: 36px; padding: 0 12px; font-size: var(--fs-meta) }
+.steps .chip .mk{ width: 8px; height: 8px }
+.steps .chip[aria-pressed="true"] .mk--none{ border-color: rgba(255,255,255,.7) }
+.chip:disabled{ opacity: .45; cursor: default }
+.chip:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
+.wrow__next{ flex: none; width: 200px; display: inline-flex; align-items: center; gap: 8px;
+             font-size: var(--fs-small); color: var(--ink) }
+.wrow__next i{ position: relative; width: 18px; height: 14px; flex: none; border: 1px solid rgba(16,26,36,.5); border-radius: 2px }
+.wrow__next i::after{ content: ''; position: absolute; left: 3px; right: 3px; top: 4px; height: 1px;
+                      background: rgba(16,26,36,.5); box-shadow: 0 3px 0 rgba(16,26,36,.5) }
+.wrow__next--redline i{ border-color: var(--wrong) }
+.wrow__next--redline i::after{ background: var(--wrong); box-shadow: 0 3px 0 var(--wrong) }
+.wrow__next--cleared, .wrow__next--other{ color: var(--muted) }
+.wrow__next--cleared i, .wrow__next--other i{ border-style: dashed; opacity: .6 }
+.wrow__next--cleared i::after, .wrow__next--other i::after{ display: none }
 .worksearch{ display: flex; min-width: 0; flex-direction: column; gap: 5px }
 .worksearch > span, .workexport-group > label, .filterbar__label{ color: var(--muted); font-size: var(--fs-label);
                                       font-weight: 600; letter-spacing: .1em;
@@ -597,13 +486,14 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .casebanner__meta dd{ margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
                       font-family: var(--mono); font-size: var(--fs-meta) }
 .casereport{ width: calc(100% - var(--case-gutter) - var(--case-gutter));
-             max-width: var(--case-content-max); margin: 16px auto 0;
-             padding: 17px 20px 18px;
-             background: var(--sheet); border: 1px solid var(--rule);
-             border-top: 3px solid var(--ink); border-radius: var(--r-panel) }
-.casereport__head{ display: flex; align-items: flex-start; justify-content: space-between;
-                   gap: var(--gap-md); margin-bottom: 13px }
-.casereport__head h2{ margin: 3px 0 0; font-size: var(--fs-head); font-weight: 500 }
+             max-width: var(--case-content-max); margin: 12px auto 20px;
+             padding: 16px 20px 18px;
+             background: var(--sheet); border: 1px solid rgba(16,26,36,.18);
+             border-radius: var(--r-panel) }
+.casereport__head{ display: flex; align-items: center; justify-content: space-between;
+                   gap: var(--gap-md); margin-bottom: 14px; padding-bottom: 12px;
+                   border-bottom: 1px solid var(--rule) }
+.casereport__head h2{ margin: 0; font-size: var(--fs-head); font-weight: 500 }
 .casereport__actions{ display: flex; align-items: center; justify-content: flex-end;
                       flex-wrap: wrap; gap: 8px }
 .casereport__download{ display: inline-flex; min-height: 30px; align-items: center;
@@ -623,7 +513,8 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .casereport__result--clear{ color: var(--clear) }
 .reportgrid{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
              gap: 1px; margin: 0; background: var(--rule) }
-.reportfact{ min-width: 0; padding: 10px 11px; background: var(--sheet) }
+.reportfact{ min-width: 0; padding: 10px 14px; background: var(--sheet) }
+.reportfact:nth-child(4n + 1){ padding-left: 0 }
 /* span 1 keeps the 8 facts filling 4 columns exactly. Adding or removing a
    ReportFact leaves empty cells, which show --rule as a grey block. */
 .reportfact--evidence{ grid-column: span 1 }
@@ -634,9 +525,11 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .reportdocs{ display: flex; flex-direction: column; gap: 1px }
 .reportdocs span{ color: var(--muted); font-size: var(--fs-meta); font-weight: 400 }
 .reportdocs .is-present{ color: var(--clear) }
+.reportdocs .is-review{ color: var(--blue) }
 
 /* White on --orange is 2.71:1 and fails AA. Accepted on appearance,
    design_system.md 2.2. Do not copy to other orange surfaces. */
+a.btn{ display: inline-flex; align-items: center; justify-content: center; text-decoration: none }
 .btn{
   border: 0; border-radius: var(--r-control);
   background: var(--orange); color: #FFFFFF;
@@ -659,155 +552,116 @@ button.flowcard:hover{ border-color: var(--blue); transform: translateY(-1px);
 .mk--none  { border-radius: 0;    background: transparent;
              border: 1px solid rgba(16,26,36,.3) }
 
-.sheet{
-  background: var(--sheet);
-  border: 1px solid rgba(16,26,36,.20);
-  border-bottom-width: 2px;
-  border-right-width: 2px;
+.casemain{ width: 100%; max-width: calc(var(--case-content-max) + var(--case-gutter) + var(--case-gutter));
+          margin-inline: auto; padding: 18px var(--case-gutter) 20px }
+.pageshead{ display: flex; align-items: baseline; gap: 16px; min-height: 40px; margin-bottom: 14px }
+.pageshead h2{ margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em }
+.pageshead h2 b{ font-weight: 600; color: var(--wrong) }
+.pageshead h2 b.review{ color: var(--blue) }
+.pageshead h2 b.clear{ color: var(--clear) }
+.pageshead p{ margin: 0 0 0 auto; color: var(--muted); font-size: var(--fs-small); text-align: right }
+
+/* Two documents facing each other. The SVG carries the threads and is absolutely
+   positioned, so it can never move the layout. */
+.pages{ position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+        align-items: start }
+.pages__gutter{ min-height: 1px }
+.pages--record{ align-items: stretch }
+.pages--record .doc--record{ display: flex; flex-direction: column }
+.pages__wires{ position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: visible }
+.pages__wires path{ fill: none; stroke: var(--ink); stroke-width: 1.25; opacity: .16;
+                    transition: opacity 160ms ease }
+.pages__wires path.on{ opacity: .9; stroke-width: 1.75; stroke-dasharray: 1; stroke-dashoffset: 1;
+                       transition: stroke-dashoffset 220ms cubic-bezier(.2,0,0,1), opacity 160ms ease }
+.pages__wires path.on.drawn{ stroke-dashoffset: 0 }
+.pages__wires .end{ opacity: .5; transition: opacity 160ms ease }
+.pages__wires .end.on{ opacity: 1 }
+.pages__wires .end--wrong{ fill: var(--wrong) }
+.pages__wires .end--clear{ fill: var(--clearmark) }
+.pages__wires .end--review{ fill: var(--blue) }
+
+.doc{ position: relative; z-index: 1; min-width: 0; background: var(--sheet);
+      border: 1px solid rgba(16,26,36,.20); border-bottom-width: 2px; border-right-width: 2px }
+.doc__head{ display: flex; align-items: flex-start; gap: 14px; padding: 16px 22px 12px;
+            border-bottom: 1px solid var(--rule) }
+.doc__title{ margin: 0 0 3px; font-size: var(--fs-body); font-weight: 600; letter-spacing: .10em }
+.doc__file{ font-family: var(--mono); font-size: var(--fs-meta); color: var(--muted) }
+.doc__stamp{ margin-left: auto; flex: none; font-size: var(--fs-meta); font-weight: 600; letter-spacing: .18em;
+             color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 3px 9px }
+.doc__stamp--review{ display: inline-flex; align-items: center; gap: 7px;
+                     color: var(--blue); border-color: rgba(0,109,174,.5) }
+.doc__stamp--review .mk{ width: 8px; height: 8px }
+.doc__lines{ margin: 0; padding: 14px 0 18px; list-style: none;
+             font-family: var(--mono); font-size: var(--fs-small); line-height: 1.7; color: var(--ink) }
+.ln{ position: relative; display: grid; grid-template-columns: 150px minmax(0, 1fr) 84px;
+     align-items: baseline; min-height: 21px }
+.doc:first-of-type .ln{ grid-template-columns: 150px minmax(0, 1fr) 0 }
+.ln__tag{ padding-right: 12px; text-align: right; font-family: var(--sans); font-size: var(--fs-label);
+          font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+          white-space: nowrap }
+.ln__text{ white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 30px }
+.ln:not(.ln--hit):not(.ln--fix) .ln__text{ color: rgba(16,26,36,.52) }
+.ln__conf{ padding-right: 14px; text-align: right; font-family: var(--sans); font-size: var(--fs-label);
+           font-weight: 500; letter-spacing: .08em; color: var(--muted); white-space: nowrap }
+.ln--wrong::before{ content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 3px;
+                    background: var(--wrong) }
+.ln--fix .ln__tag{ color: var(--clear) }
+.ln--fix .ln__text{ color: var(--clear); font-weight: 700 }
+.ln--fix .ln__text::before{ content: '\2192  '; font-weight: 400; color: var(--clearmark) }
+
+/* The hit is the value the pipeline read. The sweep is the reaction to a click:
+   sharp start, soft finish, 180ms. Under reduced motion it simply appears. */
+.hit{ display: inline; margin: 0; padding: 1px 2px; border: 0; border-radius: 2px;
+      background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;
+      background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13));
+      background-repeat: no-repeat; background-size: 0% 100%;
+      transition: background-size 180ms cubic-bezier(.2,0,0,1), box-shadow 120ms ease }
+.hit:hover{ box-shadow: inset 0 -1px 0 rgba(16,26,36,.45) }
+.hit:focus-visible{ outline: 2px solid var(--blue); outline-offset: 1px }
+.hit[data-on="true"]{ background-size: 100% 100%; box-shadow: inset 0 -2px 0 var(--ink) }
+.hit--wrong{ color: var(--wrong); font-weight: 700 }
+.hit--wrong s{ text-decoration-thickness: 1.5px; text-decoration-color: rgba(184,58,40,.7) }
+@media (prefers-reduced-motion: reduce){
+  .hit{ background-size: 100% 100%; background-image: none }
+  .hit[data-on="true"]{ background-image: linear-gradient(rgba(16,26,36,.13), rgba(16,26,36,.13)) }
+  .pages__wires path.on{ stroke-dasharray: none; stroke-dashoffset: 0 }
 }
-.sheet__head{ display: flex; align-items: flex-start; gap: var(--gap-md);
-              padding: 17px 22px 13px; border-bottom: 1px solid var(--rule) }
-.sheet__title{ margin: 0 0 3px; font-size: var(--fs-head); font-weight: 600;
-               letter-spacing: .10em }
-.sheet__carrier{ font-size: var(--fs-meta); color: var(--muted) }
-.sheet__stamp{ margin-left: auto; font-size: var(--fs-meta); font-weight: 600;
-               letter-spacing: .18em; color: var(--muted);
-               border: 1px solid var(--rule); border-radius: 3px; padding: 3px 9px }
-.sheet__grid{ display: grid; grid-template-columns: 1fr 1fr }
-.sheet__foot{ display: flex; gap: var(--gap-md); padding: 11px 16px;
-              border-top: 1px solid var(--rule) }
-.sheet__foot span{ font-family: var(--mono); font-size: var(--fs-meta); color: var(--muted) }
 
-.bx{ padding: 11px 16px 12px; min-height: 70px;
-     border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair) }
-.bx:nth-child(2n){ border-right: 0 }
-.bx--full{ grid-column: 1 / -1 }
-.bx--flag{ background: rgba(184,58,40,.06) }
-.bx--flag .bx__label{ color: var(--wrong) }
-.bx--flag .bx__value{ color: var(--wrong); font-weight: 700 }
+/* A document slot with nothing to draw carries the facts of the stop instead. */
+.record{ flex: 1; padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 16px }
+.record__say{ margin: 0; font-size: 19px; font-weight: 500; line-height: 1.35; letter-spacing: -.01em }
+.record__facts{ margin: 0; display: grid; grid-template-columns: 150px 1fr; row-gap: 5px; column-gap: 12px;
+                padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule) }
+.record__facts dt{ color: var(--muted); font-size: var(--fs-meta) }
+.record__facts dd{ margin: 0; font-size: var(--fs-small); overflow-wrap: anywhere }
+.record__facts dd.mono{ font-size: var(--fs-small) }
+.record__stages{ display: flex; gap: 4px; margin: auto 0 0; padding: 0; list-style: none }
+.record__stage{ flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0 }
+.record__stage::before{ content: ''; display: block; height: 6px; border-radius: 1px; background: var(--clearmark) }
+.record__stage--attention::before{ height: 10px; margin-top: -2px; border-radius: 3px; background: var(--blue) }
+.record__stage--wrong::before{ height: 10px; margin-top: -2px; border-radius: 5px; background: var(--wrong) }
+.record__stage--skipped::before{ background: transparent; border: 1px dashed rgba(16,26,36,.35) }
+.record__stage span{ color: var(--muted); font-size: var(--fs-meta); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.record__stage--attention span, .record__stage--wrong span{ color: var(--ink); font-weight: 600 }
 
-.bx__label{ display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px;
-            font-size: var(--fs-label); font-weight: 600;
-            letter-spacing: .13em; text-transform: uppercase; color: var(--muted) }
-.bx__value{ display: block; font-family: var(--mono); font-size: var(--fs-small);
-            font-weight: 500; line-height: 1.5 }
-.bx__sub{ display: block; margin-top: 2px; font-family: var(--mono);
-          font-size: var(--fs-meta); color: var(--muted); line-height: 1.5 }
-.bx__blank{ display: block; font-size: var(--fs-small); color: var(--muted) }
+.corrections{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px }
+.corr{ background: var(--sheet); border: 1px solid var(--rule); border-left: 3px solid var(--wrong);
+       border-radius: 0 10px 10px 0; padding: 14px 22px 15px;
+       display: flex; flex-direction: column; gap: 5px; transition: box-shadow 160ms ease }
+.corr--review{ border-left-color: var(--blue) }
+.corr[data-on="true"]{ box-shadow: 0 6px 16px rgba(16,26,36,.10) }
+.corr__k{ display: flex; align-items: center; gap: 8px; font-size: var(--fs-label); font-weight: 600;
+          letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
+.corr__k .mk{ width: 8px; height: 8px }
+.corr__t{ font-size: var(--fs-body); font-weight: 600; line-height: 1.3 }
+.corr__p{ margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.5 }
+.corr__p b{ font-family: var(--mono); font-weight: 500; color: var(--ink) }
+.corr__src{ align-self: flex-start; margin-top: 2px; padding: 2px 0; border: 0;
+            border-bottom: 1px solid currentColor; background: transparent; color: var(--blue);
+            font: inherit; font-size: var(--fs-meta); cursor: pointer }
+.corr__src:hover{ color: var(--ink) }
+.corr__src:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
 
-/* Compared fields are buttons so the evidence is reachable by keyboard. The
-   border resets keep the grid hairlines coming from .bx, not the user agent. */
-button.bx{ width: 100%; font: inherit; color: inherit; text-align: left;
-           background: none; cursor: pointer; border-top: 0; border-left: 0 }
-button.bx:hover{ background: rgba(16,26,36,.03) }
-button.bx--flag:hover{ background: rgba(184,58,40,.10) }
-.bx--on{ outline: 2px solid var(--ink); outline-offset: -2px }
-
-.conf{ margin-left: auto; flex: none; display: inline-flex; align-items: baseline;
-       gap: 4px; font-weight: 500; letter-spacing: .08em }
-.conf b{ font-family: var(--mono); font-size: var(--fs-label); font-weight: 500; letter-spacing: 0 }
-.conf--unsure, .conf--nocheck{ color: var(--blue) }
-/* Confidence is how well we read the field, not whether the two documents
-   agree. It never takes the verdict colours, including inside a flagged box. */
-.bx--flag .conf{ color: var(--muted) }
-
-.strike{
-  text-decoration: line-through;
-  text-decoration-thickness: 1.5px;
-  text-decoration-color: rgba(184,58,40,.7);
-}
-.fix{
-  display: block; margin-top: 1px;
-  font-family: var(--mono); font-size: var(--fs-small); font-weight: 700;
-  color: var(--clear); line-height: 1.5;
-}
-
-.note{
-  background: var(--sheet); border: 1px solid var(--rule);
-  border-radius: 10px; padding: 14px 16px;
-  display: flex; flex-direction: column; gap: var(--gap-xs);
-}
-.note__field{ font-size: var(--fs-body); font-weight: 600; margin-bottom: 2px }
-.note__value{ font-family: var(--mono); font-size: var(--fs-small); line-height: 1.4 }
-.note__value--wrong{ color: var(--wrong); font-weight: 700 }
-.note__value--right{ color: var(--clear); font-weight: 700 }
-.note__synonym{ margin-top: 3px; padding-top: 8px; font-size: var(--fs-meta);
-                color: var(--muted); border-top: 1px dashed var(--rule) }
-.note__body{ margin: 0; font-size: var(--fs-small); line-height: 1.5; color: var(--muted) }
-.whyhead{ padding: 2px 0 1px }
-.whyhead h2{ margin: 3px 0 1px; font-size: var(--fs-head); font-weight: 500 }
-.whyhead p{ margin: 0; color: var(--muted); font-size: var(--fs-meta) }
-.issuegroup{ display: flex; flex-direction: column; gap: 8px }
-.note--reason{ border-left: 3px solid var(--wrong) }
-.note--review{ border-left-color: var(--blue) }
-.reasonfacts{ margin: 0 }
-.reasonfacts > div{ display: grid; grid-template-columns: 124px minmax(0, 1fr);
-                    gap: 9px; padding: 4px 0; border-bottom: 1px solid var(--hair) }
-.reasonfacts dt{ color: var(--muted); font-size: var(--fs-meta) }
-.reasonfacts dd{ margin: 0; overflow-wrap: anywhere;
-                 font-family: var(--mono); font-size: var(--fs-small) }
-.reasonfacts__wrong{ color: var(--wrong); font-weight: 600 }
-.evidencelink{ align-self: flex-start; border: 0; border-bottom: 1px solid currentColor;
-               padding: 2px 0; background: transparent; color: var(--blue);
-               font: inherit; font-size: var(--fs-meta); cursor: pointer }
-.evidencelink:hover{ color: var(--ink) }
-
-.ev{
-  background: var(--sheet); border: 1px solid rgba(16,26,36,.30);
-  border-radius: 10px; padding: 13px 16px 15px;
-  display: flex; flex-direction: column; gap: var(--gap-sm);
-}
-.ev__head{ display: flex; align-items: baseline; gap: var(--gap-sm) }
-.ev__head > span{ display: flex; flex-direction: column }
-.ev__eyebrow{ color: var(--blue); font-size: var(--fs-label); font-weight: 600;
-              letter-spacing: .11em; text-transform: uppercase }
-.ev__field{ font-size: var(--fs-body); font-weight: 600 }
-.ev__score{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
-.ev__close{ margin-left: auto; border: 0; background: none; cursor: pointer;
-            font-size: 18px; line-height: 1; color: var(--muted); padding: 0 2px }
-.ev__side{ display: flex; flex-direction: column; gap: 3px }
-.ev__doc{ font-size: var(--fs-meta); color: var(--muted); font-weight: 600;
-          letter-spacing: .08em; text-transform: uppercase }
-.ev__intro{ margin: -2px 0 2px; color: var(--muted); font-size: var(--fs-meta) }
-.ev__line{ font-family: var(--mono); font-size: var(--fs-small); line-height: 1.6;
-           white-space: pre-wrap; overflow-wrap: anywhere }
-.ev__line mark{ background: rgba(16,26,36,.11); color: inherit;
-                box-shadow: inset 0 -2px 0 rgba(16,26,36,.45);
-                padding: 1px 2px; border-radius: 2px }
-.ev__none{ font-size: var(--fs-small); color: var(--muted) }
-.doccompare{ width: calc(100% - var(--case-gutter) - var(--case-gutter));
-             max-width: var(--case-content-max); margin: 0 auto 20px;
-             padding: 17px 18px 18px;
-             background: var(--sheet); border: 1px solid rgba(16,26,36,.26);
-             border-radius: var(--r-panel); box-shadow: 0 12px 28px rgba(16,26,36,.08) }
-.doccompare .ev__head{ align-items: flex-start }
-.doccompare__grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-                   gap: 12px }
-.docpreview{ min-width: 0; overflow: hidden; border: 1px solid var(--rule);
-             border-radius: var(--r-control); background: var(--paper) }
-.docpreview__head{ min-height: 66px; display: flex; align-items: flex-start;
-                   justify-content: space-between; gap: 10px; padding: 10px 12px;
-                   background: var(--sheet); border-bottom: 1px solid var(--rule) }
-.docpreview__head > div{ display: flex; min-width: 0; flex-direction: column }
-.docpreview__head strong{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-                          font-size: var(--fs-small); font-weight: 500 }
-.docpreview__head small{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
-.docpreview__head a{ flex: none; color: var(--blue); font-size: var(--fs-meta); text-decoration: none;
-                     border-bottom: 1px solid currentColor }
-.docpreview__correction{ margin: 0; padding: 8px 12px; color: var(--muted);
-                         background: rgba(0,109,174,.05); border-bottom: 1px solid var(--rule);
-                         font-size: var(--fs-meta) }
-.docpreview__correction b{ color: var(--ink); font-family: var(--mono); font-weight: 500 }
-.docpreview__text{ height: 340px; margin: 0; overflow: auto; padding: 18px;
-                   background: #F7F5F0; color: var(--ink); font-family: var(--mono);
-                   font-size: var(--fs-meta); line-height: 1.65; white-space: pre-wrap;
-                   overflow-wrap: anywhere; tab-size: 2 }
-.docpreview__text mark{ display: inline; padding: 2px 1px; background: rgba(231,136,35,.28);
-                        color: var(--ink); box-shadow: inset 0 -2px 0 var(--orange) }
-.docpreview__empty{ height: 340px; display: flex; align-items: center; justify-content: center;
-                    padding: 20px; color: var(--muted); font-size: var(--fs-small) }
-
-.sheet__hint{ margin: 9px 2px 0; font-size: var(--fs-meta); color: var(--muted) }
 .fbar__done{ display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-small) }
 .fbar__done b{ font-weight: 500 }
 .fbar__done em{ color: var(--muted); font-size: var(--fs-meta); font-style: normal }
@@ -822,7 +676,6 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .wrow__found--wrong { color: var(--wrong) }
 .wrow__found--review{ color: var(--blue) }
 .wrow__ref{ font-size: var(--fs-meta); color: var(--muted) }
-.note__synonym b{ font-weight: 500; color: var(--ink) }
 
 .chip{
   display: inline-flex; align-items: center; gap: 8px;
@@ -897,11 +750,12 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
                          color: var(--ink); font: inherit }
 .card__correction p{ margin: 0; color: var(--muted); font-size: var(--fs-meta) }
 .workflow{ width: calc(100% - var(--case-gutter) - var(--case-gutter));
-           max-width: var(--case-content-max); margin: 12px auto 16px; padding: 15px 18px;
-           border: 1px solid var(--rule); border-radius: var(--r-panel); background: var(--sheet) }
-.workflow__head{ display: flex; align-items: flex-start; justify-content: space-between;
-                 gap: var(--gap-md); margin-bottom: 12px }
-.workflow__head h2{ margin: 3px 0 0; font-size: var(--fs-head); font-weight: 500 }
+           max-width: var(--case-content-max); margin: 12px auto 0; padding: 16px 20px 18px;
+           border: 1px solid rgba(16,26,36,.18); border-radius: var(--r-panel); background: var(--sheet) }
+.workflow__head{ display: flex; align-items: center; justify-content: space-between;
+                 gap: var(--gap-md); margin-bottom: 14px; padding-bottom: 12px;
+                 border-bottom: 1px solid var(--rule) }
+.workflow__head h2{ margin: 0; font-size: var(--fs-head); font-weight: 500 }
 .workflow__controls{ display: grid; grid-template-columns: minmax(220px, 1fr) minmax(170px, .65fr) auto;
                      align-items: end; gap: 10px }
 .workflow__controls label{ display: flex; min-width: 0; flex-direction: column; gap: 4px }
@@ -923,6 +777,58 @@ button.bx--flag:hover{ background: rgba(184,58,40,.10) }
 .reviewnotice{ padding: 10px 12px; border-left: 3px solid var(--clear);
                background: rgba(46,125,110,.07); color: var(--clear);
                font-size: var(--fs-small) }
+.reviewnotice--error{ border-left-color: var(--wrong); background: rgba(184,58,40,.07); color: var(--wrong) }
+
+/* The queue is an inbox: the list on the left, one case open on the right.
+   Nothing repeats between the two; the list carries the id, the detail carries the rest. */
+.queue{ display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 18px; align-items: start }
+.queue__list{ display: flex; flex-direction: column; gap: 14px; position: sticky; top: 12px }
+.queue__group h3{ display: flex; align-items: center; gap: 9px; margin: 0 0 6px; padding: 0 2px;
+                  font-size: var(--fs-small); font-weight: 600 }
+.queue__group h3 .mk{ width: 9px; height: 9px }
+.queue__count{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta); font-weight: 400 }
+.queue__bulk{ margin-left: auto; padding: 2px 0; border: 0; border-bottom: 1px solid currentColor;
+              background: transparent; color: var(--blue); font: inherit; font-size: var(--fs-meta); cursor: pointer }
+.queue__bulk:hover{ color: var(--ink) }
+.queue__bulk:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
+.queue__group ol{ margin: 0; padding: 0; list-style: none; background: var(--sheet);
+                  border: 1px solid var(--rule); border-radius: 10px; overflow: hidden }
+.queue__group li + li{ border-top: 1px solid var(--hair) }
+.qrow{ display: flex; width: 100%; min-height: 46px; align-items: center; gap: 12px; padding: 8px 12px 8px 14px;
+       border: 0; border-left: 3px solid transparent; background: transparent; color: var(--ink);
+       font: inherit; text-align: left; cursor: pointer;
+       transition: background-color .12s ease, border-color .12s ease }
+.qrow:hover{ background: rgba(16,26,36,.035) }
+.qrow:focus-visible{ outline: 2px solid var(--blue); outline-offset: -3px }
+.qrow[aria-current="true"]{ border-left-color: var(--blue); background: rgba(0,109,174,.06) }
+.qrow__id{ font-family: var(--mono); font-size: var(--fs-small); font-weight: 500 }
+.qrow__meta{ margin-left: auto; color: var(--muted); font-size: var(--fs-meta); white-space: nowrap }
+
+.queue__detail{ min-width: 0; display: flex; flex-direction: column; gap: 12px }
+.queue__confirm{ display: flex; flex-direction: column; gap: 4px; padding: 14px 16px;
+                 border: 1px solid rgba(0,109,174,.5); border-left: 3px solid var(--blue);
+                 border-radius: 0 10px 10px 0; background: var(--sheet) }
+.queue__confirm b{ font-size: var(--fs-body); font-weight: 600 }
+.queue__confirm span{ color: var(--muted); font-size: var(--fs-small); line-height: 1.5 }
+.queue__confirmactions{ display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px }
+.qdetail{ padding: 20px 24px 22px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px;
+          display: flex; flex-direction: column; gap: 12px }
+.qdetail[aria-busy="true"]{ opacity: .7 }
+.qdetail__top{ display: flex; align-items: center; justify-content: space-between; gap: 10px }
+.qdetail__title{ margin: 0; font-size: var(--fs-title); font-weight: 600; letter-spacing: -.02em; line-height: 1.2 }
+.qdetail__title:focus-visible{ outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 2px }
+.qdetail__why{ margin: 0; max-width: 640px; font-size: var(--fs-body); line-height: 1.55 }
+.qdetail__facts{ margin: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 10px 12px;
+                 background: rgba(16,26,36,.035); border-radius: 8px }
+.qdetail__facts > div{ display: flex; gap: 6px; align-items: baseline }
+.qdetail__facts dt{ color: var(--muted); font-size: var(--fs-meta) }
+.qdetail__facts dd{ margin: 0; font-size: var(--fs-small); font-weight: 500 }
+.qdetail__actions{ display: flex; flex-wrap: wrap; gap: 9px; padding-top: 4px }
+.qdetail__actions .btn{ display: inline-flex; align-items: center; text-decoration: none }
+.qdetail__log{ margin-top: 6px; padding-top: 12px; border-top: 1px dashed var(--rule) }
+.qdetail__log ol{ margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px }
+.qdetail__log li{ display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; font-size: var(--fs-small) }
+.qdetail__log time{ color: var(--muted); font-family: var(--mono); font-size: var(--fs-meta) }
 a.card__title{ color: inherit; text-decoration: none }
 a.card__title:hover{ text-decoration: underline }
 
@@ -1025,27 +931,23 @@ a.card__title:hover{ text-decoration: underline }
 /* Scoped to .app on purpose. The app is fluid; the mockup pages draw the same
    screens inside fixed 1360px frames, and must not reflow with the window. */
 @media (max-width: 1160px){
-  .app .stage{ grid-template-columns: minmax(0, 1fr); gap: var(--gap-lg) }
-  .app .sheetwrap, .app .margin{ width: 100%; max-width: none }
-  .app .margin{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-                align-items: start; gap: var(--gap-md) }
-  .app .margin > .whyhead, .app .margin > .quiet{ grid-column: 1 / -1 }
-  .app .issuegroup, .app .issuegroup > .note{ height: 100% }
-  .app .wires{ display: none }
+  .app .pages{ grid-template-columns: minmax(0, 1fr); row-gap: 18px }
+  .app .pages__gutter, .app .pages__wires{ display: none }
 }
 
 @media (max-width: 900px){
-  .app .cards{ grid-template-columns: 1fr }
+  .queue{ grid-template-columns: minmax(0, 1fr) }
+  .queue__list{ position: static }
+  .qgrid{ grid-template-columns: 1fr }
+  .funnel__row{ grid-template-columns: 1fr 1fr }
+  .funnel__arrow{ display: none }
+  .funnel__outcomes{ grid-column: 1 / -1 }
   .app .wmain, .app .rmain{ padding: 18px 20px }
   .welcome{ grid-template-columns: 1fr }
   .worktools{ grid-template-columns: 1fr }
   .filtermenu__panel{ grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 18px }
   .filtermenu__dates{ grid-column: 1 / -1; margin-left: 0; padding: 18px 0 0;
                       border-left: 0; border-top: 1px solid var(--rule) }
-  .ops__body{ grid-template-columns: 1fr }
-  .registerflow__map{ grid-template-columns: 100px 20px minmax(0, 1fr) }
-  .flowcard--routed{ grid-column: 3; margin-top: 2px }
-  .flowbranch{ grid-template-columns: 110px minmax(0, 1fr) }
   .workflow__controls{ grid-template-columns: repeat(2, minmax(0, 1fr)) }
   .workflow__actions{ grid-column: 1 / -1; justify-content: flex-end }
   .casebanner{ grid-template-columns: 12px minmax(0, 1fr) }
@@ -1057,18 +959,13 @@ a.card__title:hover{ text-decoration: underline }
 @media (max-width: 760px){
   .thin__inner{ gap: 9px }
   .thin__audit{ padding: 0 9px }
-  .fbar{ flex-wrap: wrap; padding: 12px 16px }
+  .fbar{ flex-wrap: wrap; padding: 12px 16px; width: calc(100% - 32px) }
   .fbar__prompt, .fbar__impact{ width: 100%; max-width: none }
   .welcome{ gap: 22px; padding: 24px 20px }
   .listhead{ align-items: flex-start; flex-direction: column; gap: 5px }
   .workbench{ padding: 19px }
   .workintro, .analyticshero{ align-items: flex-start; flex-direction: column }
   .workintro__actions{ width: 100%; flex-wrap: wrap }
-  .registerflow > header{ flex-direction: column }
-  .registerflow__map{ grid-template-columns: 1fr }
-  .flowline{ width: 1px; height: 16px; margin-left: 22px }
-  .flowbranch{ grid-template-columns: 1fr }
-  .flowcard--routed{ grid-column: auto }
   .worktools{ width: 100% }
   .worksearch{ flex-grow: 1; min-width: 0 }
   .workexport-group{ min-width: 0 }
@@ -1085,25 +982,18 @@ a.card__title:hover{ text-decoration: underline }
   .filtermenu__panel > fieldset:nth-child(2){ margin-left: 0; padding: 18px 0 0;
                                               border-left: 0; border-top: 1px solid var(--rule) }
   .casebanner{ padding: 13px 18px }
-  .sheet__grid{ grid-template-columns: 1fr }
-  .bx{ border-right: 0 }
-  .app .margin{ grid-template-columns: minmax(0, 1fr) }
+  .app .corrections{ grid-template-columns: minmax(0, 1fr) }
+  .ln{ grid-template-columns: 150px minmax(0, 1fr) 64px }
+  .doc:first-of-type .ln{ grid-template-columns: 150px minmax(0, 1fr) 0 }
   .wrow{ align-items: flex-start; padding: 12px 14px; gap: var(--gap-sm); flex-wrap: wrap }
   .wrow__time{ display: none }
   .wrow__owner{ width: auto; max-width: 120px }
   .wrow__note{ width: 100%; padding-left: 22px }
+  .wrow__next{ width: auto }
   .audit{ padding: 20px 18px 26px }
   .audit__intro{ margin-right: 0 }
   .audit__result, .audit__actions, .auditlog, .audittech{ margin-left: 0 }
-  .casereport{ margin-top: 12px }
-  .doccompare{ margin-bottom: 16px }
-  .doccompare__grid{ grid-template-columns: 1fr }
-  .metricgrid{ grid-template-columns: repeat(2, minmax(0, 1fr)) }
-  .analyticsgrid{ grid-template-columns: 1fr }
-  .ops__summary{ align-items: flex-start; flex-wrap: wrap; gap: 6px 14px }
-  .ops__summarycopy{ flex-grow: 1 }
-  .ops__quick{ width: 100%; justify-content: flex-start; flex-wrap: wrap }
-  .ops__chevron{ position: absolute; right: 34px }
+  .casereport{ margin-top: 10px }
 }
 
 @media (max-width: 480px){
@@ -1115,8 +1005,6 @@ a.card__title:hover{ text-decoration: underline }
                        clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap }
   .workexport-options--dated, .workexport-foot{ grid-template-columns: 1fr }
   .workexport{ width: 100% }
-  .ops__head{ align-items: stretch; flex-direction: column }
-  .ops__period{ max-width: none; text-align: left }
   .filtermenu__bar{ align-items: flex-start; flex-wrap: wrap }
   .filtermenu__active{ order: 3; width: 100%; flex-basis: 100%; overflow-x: auto }
   .filtermenu__choices, .filtermenu__choices--results, .filtermenu__range{ grid-template-columns: 1fr }
@@ -1138,7 +1026,6 @@ a.card__title:hover{ text-decoration: underline }
   .casereport__head{ align-items: stretch; flex-direction: column }
   .casereport__actions{ justify-content: space-between }
   .wrow__id{ display: none }
-  .flowoutcomes{ grid-template-columns: 1fr }
 }
 
 /* Press feedback. 22 :hover rules and no :active meant a touch device got no
@@ -1146,24 +1033,24 @@ a.card__title:hover{ text-decoration: underline }
    in and eases on the way out, so a press reads as contact, not as animation. */
 .btn, .pagination__button, .filtermenu__toggle, .filtermenu__actions button,
 .casereport__download, .workexport, .auditstage__links button,
-.outcomelegend button, .chartbars__button, .inboxnav__tabs button,
-.thin__audit, .thin__queue, .thin__back, .thin__home, button.bx,
-.ops__summary, .wrow--link, .chip{
+.chartbars__button, .inboxnav__tabs button,
+.thin__audit, .thin__queue, .thin__back, .thin__home,
+.wrow--link, .chip{
   -webkit-tap-highlight-color: transparent;
   transition: background-color .16s ease, border-color .16s ease, color .16s ease,
               transform .16s ease, box-shadow .16s ease;
 }
-.flowcard, .flowoutcome, .thin__nav a{
+.thin__nav a{
   transition: background-color .16s ease, border-color .16s ease, color .16s ease,
               transform .16s ease, box-shadow .16s ease;
 }
 .btn:active:not(:disabled), .pagination__button:active:not(:disabled),
 .filtermenu__toggle:active, .filtermenu__actions button:active:not(:disabled),
 .casereport__download:active:not(:disabled), .workexport:active:not(:disabled),
-.auditstage__links button:active, .outcomelegend button:active,
+.auditstage__links button:active,
 .chartbars__button:active, .inboxnav__tabs button:active,
 .thin__audit:active, .thin__queue:active, .thin__back:active, .thin__home:active,
-button.bx:active, .ops__summary:active, .wrow--link:active, .chip:active{
+.wrow--link:active, .chip:active{
   transform: scale(.985);
   box-shadow: none;
   transition-duration: 0s;
@@ -1180,7 +1067,6 @@ button.bx:active, .ops__summary:active, .wrow--link:active, .chip:active{
   .inboxnav__tabs button, .thin__audit, .thin__queue, .thin__back,
   .listsort select, .filtermenu__dates select, .workexport-row select,
   .workexport-row input{ min-height: var(--tap) }
-  .outcomelegend button{ min-height: var(--tap) }
   /* .chartbars__button stays at its density: 16 bars at 44px would make the
      chart 700px tall on a phone. Secondary drill-down inside a closed panel. */
   .thin__home{ min-width: 32px; min-height: 32px }
