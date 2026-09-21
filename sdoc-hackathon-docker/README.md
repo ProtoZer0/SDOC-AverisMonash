@@ -27,8 +27,5 @@ docker compose run --rm inbox python score_cli.py /path/inside/container.json
 cd server && python3 score_cli.py submission.json
 ```
 
-⚠️ This package includes the answer key. Do NOT hand it to participants — give
-them the participant bundle (`sdoc-hackathon-bundle.zip`) instead.
-
 Change the published port by editing `ports:` in `docker-compose.yml`
 (default `8080:8000`).
