@@ -552,7 +552,8 @@ function headline(c) {
 }
 
 function disagreement(fields) {
-  const names = fields.map(f => FIELD_PLAIN[f] ?? f)
+  const names = (fields || []).map(f => FIELD_PLAIN[f] ?? f)
+  if (names.length === 0) return 'Differences found'
   const joined = names.length > 1
     ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
     : names[0]

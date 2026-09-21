@@ -38,6 +38,7 @@ export default function Review() {
   const [correction, setCorrection] = useState(null)
   const [history, setHistory] = useState({})
   const detailRef = useRef(null)
+  const headRef = useRef(null)
   const listRef = useRef(null)
 
   function load() {
@@ -70,7 +71,7 @@ export default function Review() {
     const index = ordered.findIndex(item => item.id === id)
     const next = ordered[index + 1] || ordered[index - 1] || null
     setSelectedId(next ? next.id : null)
-    window.requestAnimationFrame(() => detailRef.current?.focus())
+    window.requestAnimationFrame(() => (detailRef.current || headRef.current)?.focus())
   }
 
   async function resolve(item, word, details = {}) {
@@ -191,8 +192,8 @@ export default function Review() {
       <div className="rmain">
         <div className="reviewhead">
           <span className="eyebrow">Review queue</span>
-          <h1>{ordered.length === 0 ? 'The queue is clear.' : `${ordered.length} case${ordered.length === 1 ? '' : 's'} waiting for a person`}</h1>
-          <p>The system stopped instead of guessing. Each case shows what it saw and what it needs from you.</p>
+          <h1 tabIndex="-1" ref={headRef}>{ordered.length === 0 ? 'The queue is clear.' : `${ordered.length} case${ordered.length === 1 ? '' : 's'} waiting for a person`}</h1>
+          {ordered.length > 0 && <p>The system stopped instead of guessing. Each case shows what it saw and what it needs from you.</p>}
         </div>
 
         {notice && <div className={'reviewnotice' + (notice.type === 'error' ? ' reviewnotice--error' : '')} role="status">{notice.text}</div>}

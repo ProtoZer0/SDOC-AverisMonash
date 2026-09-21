@@ -364,7 +364,7 @@ export function buildStages(kase) {
     summary: kase.status === 'MISMATCH'
       ? `Reported ${kase.defect_fields.length} confirmed difference${kase.defect_fields.length === 1 ? '' : 's'}.`
       : kase.status === 'NEEDS_REVIEW'
-        ? 'Held the case for review instead of guessing.'
+        ? 'Held the case for review.'
         : noDocsYet
           ? 'Recorded that there was nothing to compare yet.'
           : 'Cleared the draft because every checked field matched.',

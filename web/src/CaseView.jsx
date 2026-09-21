@@ -194,7 +194,7 @@ function Headline({ kase, docs, wrong, review, clear }) {
     return (
       <>
         <h2>
-          <b>{wrong} correction{wrong === 1 ? '' : 's'}</b>, {clear} detail{clear === 1 ? '' : 's'} checked and left alone
+          <b>{wrong} correction{wrong === 1 ? '' : 's'}</b>, {clear} detail{clear === 1 ? '' : 's'} match
           {review > 0 && `, ${review} not checked`}
         </h2>
         <p>Each correction is the instruction's value, written in where the draft's value was struck.</p>
@@ -204,7 +204,7 @@ function Headline({ kase, docs, wrong, review, clear }) {
   if (review > 0) {
     return (
       <>
-        <h2><b className="review">{review} detail{review === 1 ? '' : 's'} not checked</b>, {clear} checked and left alone</h2>
+        <h2><b className="review">{review} detail{review === 1 ? '' : 's'} not checked</b>, {clear} match</h2>
         <p>A blank or unreadable value is not compared.</p>
       </>
     )

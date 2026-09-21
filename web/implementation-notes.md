@@ -76,6 +76,24 @@ Started 21 Sep 2026, evening. Direction chosen by seunniee: the hybrid of
   app; it read "Unavailable" in fixture mode, which looks broken on stage, so
   it is "Not a check" as in the poster.
 
+## After the fresh-eyes check (21 Sep, late)
+
+- A file attached as the draft but detected as something else (email_501, a
+  commercial invoice) is now titled by what it is and stamped WRONG DOCUMENT,
+  instead of being drawn under a BILL OF LADING heading.
+- The headline no longer uses "checked" to mean matched ("2 corrections, 5
+  details match"), so the confidence word "checked" beside a struck value
+  keeps its single ratified meaning: read with confidence, whatever the verdict.
+- The case report's Issues cell shows counts only; the fields are named on the
+  pages and in the notes.
+- The audit drawer's decide stage says "Held the case for review." The
+  sentence "stopped instead of guessing" lives in the review queue intro only.
+- Record-slot facts are set in Archivo except format and detected kind.
+- Review queue: resolving the last item moves focus to the page heading; the
+  intro paragraph hides when the queue is clear.
+- Worklist: a mismatch with an empty defect list now reads "Differences found"
+  instead of throwing.
+
 ## Known limits to say out loud in the demo
 
 - Threads and highlights work on `txt` and `docx` documents (character

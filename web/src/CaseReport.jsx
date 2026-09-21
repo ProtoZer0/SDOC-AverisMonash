@@ -151,15 +151,22 @@ function ReportFact({ label, value, note, mono = false }) {
   )
 }
 
+// Counts only. The fields themselves are named on the pages above; the report
+// keeps its own result for export without giving them a third home.
 function issueSummary(kase, issueFields, comparisons) {
   if (issueFields.size) {
-    return [...issueFields].map(field => {
+    const tally = { corrected: 0, differ: 0, review: 0 }
+    for (const field of issueFields) {
       const comparison = comparisons.find(value => value.field === field)
-      const label = FIELD_LABEL[field] || field
-      if (comparison?.human_reviewed && comparison.verdict === 'MATCH') return `${label} corrected`
-      if (comparison?.verdict === 'MISMATCH') return `${label} mismatch`
-      return `${label} requires review`
-    }).join(', ')
+      if (comparison?.human_reviewed && comparison.verdict === 'MATCH') tally.corrected += 1
+      else if (comparison?.verdict === 'MISMATCH') tally.differ += 1
+      else tally.review += 1
+    }
+    return [
+      tally.differ && `${tally.differ} field${tally.differ === 1 ? '' : 's'} differ`,
+      tally.review && `${tally.review} not checked`,
+      tally.corrected && `${tally.corrected} corrected by a person`,
+    ].filter(Boolean).join(', ')
   }
   if (kase.wire_review_reason) return REASON_TITLE[kase.wire_review_reason] || kase.wire_review_reason
   return 'None'

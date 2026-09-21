@@ -93,7 +93,7 @@ and the one genuinely accessible use on their site.
 | State | Token | Hex | On paper | White text on it | On `--ink` |
 | --- | --- | --- | --- | --- | --- |
 | Something is wrong | `--status-wrong` | `#B83A28` | 5.29:1 AA | 5.72:1 AA | 3.07:1 UI only |
-| Needs a person | `--status-review` | `#006DAE` | 5.11:1 AA | 5.53:1 AA | **3.18:1 shape only** |
+| Held for review | `--status-review` | `#006DAE` | 5.11:1 AA | 5.53:1 AA | **3.18:1 shape only** |
 | All clear | `--status-clear` | `#2E7D6E` | 4.54:1 AA | 4.91:1 AA | 3.58:1 UI only |
 
 `--status-review` is **Monash blue, unaltered**. On the dark shell it may appear

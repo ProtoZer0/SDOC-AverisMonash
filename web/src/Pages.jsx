@@ -59,17 +59,23 @@ function Sheet({ role, document, text, hits, selected, onPick, showConf }) {
   const lines = text.split('\n')
   const byLine = {}
   for (const h of hits) if (h[role]) byLine[h[role].line] = h
-  const title = role === 'SI' ? 'SHIPPING INSTRUCTION' : 'BILL OF LADING'
+  // A file named as the draft can turn out to be something else. The sheet
+  // then says what the file is, not what the email called it.
+  const kind = document?.detected_kind
+  const wrongKind = kind && kind !== 'UNKNOWN' && kind !== role
+  const title = wrongKind ? kindWord(kind).toUpperCase() : role === 'SI' ? 'SHIPPING INSTRUCTION' : 'BILL OF LADING'
   const stamp = role === 'SI' ? 'SOURCE' : 'DRAFT'
 
   return (
-    <section className="doc" aria-label={role === 'SI' ? 'Shipping instruction' : 'Draft bill of lading'}>
+    <section className="doc" aria-label={wrongKind ? `${kindWord(kind)}, attached as the ${role === 'SI' ? 'instruction' : 'draft'}` : role === 'SI' ? 'Shipping instruction' : 'Draft bill of lading'}>
       <header className="doc__head">
         <div>
           <h2 className="doc__title">{title}</h2>
           <span className="doc__file">{fileOf(document?.attachment_path)}</span>
         </div>
-        <span className="doc__stamp">{stamp}</span>
+        {wrongKind
+          ? <span className="doc__stamp doc__stamp--review"><span className="mk mk--review" aria-hidden="true"></span>WRONG DOCUMENT</span>
+          : <span className="doc__stamp">{stamp}</span>}
       </header>
       <ol className="doc__lines">
         {lines.map((line, i) => {
@@ -140,8 +146,8 @@ function Record({ role, document, kase }) {
       <div className="record">
         <p className="record__say">{say}</p>
         <dl className="record__facts">
-          {attached && <><dt>Format</dt><dd>{String(document.fmt || 'unknown').toUpperCase()}</dd></>}
-          {attached && <><dt>Detected kind</dt><dd>{document.detected_kind || 'unknown'}</dd></>}
+          {attached && <><dt>Format</dt><dd className="mono">{String(document.fmt || 'unknown').toUpperCase()}</dd></>}
+          {attached && <><dt>Detected kind</dt><dd className="mono">{document.detected_kind || 'unknown'}</dd></>}
           {attached && <><dt>Text layer</dt><dd>{document.readable === false ? (document.parse_error || 'none') : 'present'}</dd></>}
           {attached && <><dt>Values read</dt><dd>{countValues(document)} of 7</dd></>}
           {stopped && <><dt>Stopped at</dt><dd>{stopped.name.toLowerCase()}, stage {stopped.number} of {stages.length}</dd></>}
