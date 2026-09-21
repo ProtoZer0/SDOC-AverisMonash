@@ -520,7 +520,7 @@ body{
 .reportfact--evidence{ grid-column: span 1 }
 .reportfact dt{ margin-bottom: 3px; color: var(--muted); font-size: var(--fs-label);
                 font-weight: 600; letter-spacing: .09em; text-transform: uppercase }
-.reportfact dd{ margin: 0; overflow-wrap: anywhere; font-size: var(--fs-small); font-weight: 500 }
+.reportfact dd{ margin: 0; overflow-wrap: anywhere; font-size: var(--fs-body); font-weight: 500 }
 .reportfact small{ display: block; margin-top: 2px; color: var(--muted); font-size: var(--fs-meta) }
 .reportdocs{ display: flex; flex-direction: column; gap: 1px }
 .reportdocs span{ color: var(--muted); font-size: var(--fs-meta); font-weight: 400 }
@@ -662,15 +662,15 @@ a.btn{ display: inline-flex; align-items: center; justify-content: center; text-
 .corr__src:hover{ color: var(--ink) }
 .corr__src:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px }
 
-.fbar__done{ display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-small) }
+.fbar__done{ display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-body) }
 .fbar__done b{ font-weight: 500 }
-.fbar__done em{ color: var(--muted); font-size: var(--fs-meta); font-style: normal }
+.fbar__done em{ color: var(--muted); font-size: var(--fs-small); font-style: normal }
 .fbar__error{ color: var(--wrong); font-size: var(--fs-small) }
-.fbar__prompt{ max-width: 420px; color: var(--muted); font-size: var(--fs-meta) }
+.fbar__prompt{ max-width: 560px; color: var(--ink); font-size: var(--fs-body) }
 .fbar--confirm{ align-items: center }
 .fbar__impact{ display: flex; flex-direction: column; gap: 3px; max-width: 630px }
-.fbar__impact b{ font-size: var(--fs-small); font-weight: 500 }
-.fbar__impact span{ color: var(--muted); font-size: var(--fs-meta); line-height: 1.4 }
+.fbar__impact b{ font-size: var(--fs-body); font-weight: 500 }
+.fbar__impact span{ color: var(--muted); font-size: var(--fs-small); line-height: 1.4 }
 .intro{ margin: 0; font-size: var(--fs-small); color: var(--muted); max-width: 640px }
 .wrow__found{ font-size: var(--fs-body); font-weight: 500 }
 .wrow__found--wrong { color: var(--wrong) }
@@ -759,7 +759,7 @@ a.btn{ display: inline-flex; align-items: center; justify-content: center; text-
 .workflow__controls{ display: grid; grid-template-columns: minmax(220px, 1fr) minmax(170px, .65fr) auto;
                      align-items: end; gap: 10px }
 .workflow__controls label{ display: flex; min-width: 0; flex-direction: column; gap: 4px }
-.workflow__controls label > span{ color: var(--muted); font-size: var(--fs-meta) }
+.workflow__controls label > span{ color: var(--muted); font-size: var(--fs-small) }
 .workflow__controls input, .workflow__controls select{ width: 100%; min-width: 0; min-height: 38px;
                      padding: 0 10px; border: 1px solid rgba(16,26,36,.25);
                      border-radius: var(--r-control); background: var(--sheet);
