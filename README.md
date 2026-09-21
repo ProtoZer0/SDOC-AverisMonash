@@ -294,4 +294,4 @@ that lies. See [`docs/eval_plan.md`](docs/eval_plan.md).
 
 ## Team
 
-**Team Protozero** — Roshiii (lead), Dyson, Gene, Christabel, seunniee.
+**Team Protozero** — R0sh19 (lead), DysonDop, Gene, bellieee04, seunnieee.
